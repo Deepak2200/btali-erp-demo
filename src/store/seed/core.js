@@ -380,10 +380,11 @@ const MILESTONES = [
   ['INWARD', 'Inward at Starex (GRN)'],
 ]
 export const SHIPMENT_MILESTONES = MILESTONES.map(([key, label]) => ({ key, label }))
-const milestones = (etd, eta, doneUpto) =>
+// slip = days the vendor dispatched later than planned (affects vendor on-time delivery KPIs)
+const milestones = (etd, eta, doneUpto, slip = 0) =>
   MILESTONES.map(([key, label], i) => {
     const plan = [addDays(etd, -3), etd, addDays(eta, -3), addDays(eta, -2), eta, addDays(eta, 1), addDays(eta, 3), addDays(eta, 3), addDays(eta, 4), addDays(eta, 5)][i]
-    return { key, label, planned: plan, date: i < doneUpto ? plan : null, done: i < doneUpto }
+    return { key, label, planned: plan, date: i < doneUpto ? (i === 0 ? addDays(plan, slip) : plan) : null, done: i < doneUpto }
   })
 const docs = (names, by = 'u3') => names.map((n) => makeAttachment(n, { docType: n.split('-')[0], uploadedBy: by }))
 
@@ -431,8 +432,8 @@ export const seedPurchase = (products) => {
 
   const shipments = [
     { id: 'sh1', number: 'SH/26-27/0024', poIds: ['po7'], vendorId: 'v4', forwarderId: 'fw1', indianForwarderId: 'fw3', chaId: 'cha1', containerNo: 'TGHU 884120 3', containerType: '40HC', blNo: 'OLS2609114', etd: daysAgo(14), eta: addDays(today(), 12), status: 'IN_TRANSIT', telexReleased: false, milestones: milestones(daysAgo(14), addDays(today(), 12), 2), freight: { rate: 1850, currency: 'USD' } },
-    { id: 'sh2', number: 'SH/26-27/0022', poIds: ['po8'], vendorId: 'v2', forwarderId: 'fw1', indianForwarderId: 'fw3', chaId: 'cha1', containerNo: 'MSKU 702213 6', containerType: '40FT', blNo: 'OLS2608870', etd: daysAgo(27), eta: daysAgo(1), status: 'AT_PORT', telexReleased: false, milestones: milestones(daysAgo(27), daysAgo(1), 5), freight: { rate: 1720, currency: 'USD' } },
-    { id: 'sh3', number: 'SH/26-27/0019', poIds: ['po9'], vendorId: 'v5', forwarderId: 'fw1', indianForwarderId: 'fw3', chaId: 'cha1', containerNo: 'CMAU 551809 1', containerType: '40HC', blNo: 'OLS2607702', etd: daysAgo(58), eta: daysAgo(30), ata: daysAgo(29), status: 'RECEIVED', telexReleased: true, milestones: milestones(daysAgo(58), daysAgo(30), 10), freight: { rate: 1680, currency: 'USD' } },
+    { id: 'sh2', number: 'SH/26-27/0022', poIds: ['po8'], vendorId: 'v2', forwarderId: 'fw1', indianForwarderId: 'fw3', chaId: 'cha1', containerNo: 'MSKU 702213 6', containerType: '40FT', blNo: 'OLS2608870', etd: daysAgo(27), eta: daysAgo(1), status: 'AT_PORT', telexReleased: false, milestones: milestones(daysAgo(27), daysAgo(1), 5, 4), freight: { rate: 1720, currency: 'USD' } },
+    { id: 'sh3', number: 'SH/26-27/0019', poIds: ['po9'], vendorId: 'v5', forwarderId: 'fw1', indianForwarderId: 'fw3', chaId: 'cha1', containerNo: 'CMAU 551809 1', containerType: '40HC', blNo: 'OLS2607702', etd: daysAgo(58), eta: daysAgo(30), ata: daysAgo(29), status: 'RECEIVED', telexReleased: true, milestones: milestones(daysAgo(58), daysAgo(30), 10, 6), freight: { rate: 1680, currency: 'USD' } },
     { id: 'sh4', number: 'SH/25-26/0015', poIds: ['po10'], vendorId: 'v3', forwarderId: 'fw1', indianForwarderId: 'fw2', chaId: 'cha1', containerNo: 'OOLU 330912 8', containerType: '40FT', blNo: 'OLS2604410', etd: daysAgo(150), eta: daysAgo(122), ata: daysAgo(120), status: 'RECEIVED', telexReleased: true, milestones: milestones(daysAgo(150), daysAgo(122), 10), freight: { rate: 1950, currency: 'USD' } },
   ].map((s) => ({
     landedCost: s.status === 'RECEIVED'
@@ -557,6 +558,9 @@ export const seedOpenOrders = (products, partners, priceLists, counters) => {
     mk('so_open_12', 'd6', daysAgo(4), [['p13', 5], ['p16', 10]], 'INVOICED'),
     mk('so_open_13', 'd4', daysAgo(6), [['p20', 50], ['p36', 60]], 'INVOICED'),
     mk('so_open_14', 'd9', daysAgo(2), [['p2', 200]], 'PAID', { note: 'Large order – stock may be insufficient' }),
+    // Gujarat facility (virtual warehouse WH-GUJ): delivered directly by the facility using client-arranged transport
+    mk('so_guj_1', 'd5', daysAgo(2), [['p5', 6], ['p26', 40]], 'PAID', { warehouseId: 'WH-GUJ', gujarat: true, note: 'Gujarat facility direct delivery', gujTransport: { transporterName: 'Saurashtra Roadways', vehicleNo: 'GJ03 BV 4471', driver: 'Kanubhai Rathod', driverPhone: '98250 41187', notes: 'Client pickup from GIDC Metoda gate 2', capturedAt: `${daysAgo(2)}T12:00:00.000Z` } }),
+    mk('so_guj_2', 'd17', daysAgo(1), [['p7', 4], ['p26', 20]], 'CONFIRMED', { warehouseId: 'WH-GUJ', gujarat: true, note: 'Gujarat facility direct delivery', gujTransport: { transporterName: 'Patel Freight Carriers', vehicleNo: 'GJ05 AZ 6650', driver: '', driverPhone: '', notes: '', capturedAt: `${daysAgo(1)}T15:00:00.000Z` } }),
   ]
   return so
 }

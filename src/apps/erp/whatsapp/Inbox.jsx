@@ -91,7 +91,7 @@ export default function Inbox() {
     <div>
       <PageHeader title="Live Conversations" subtitle="WhatsApp Business · +91 98200 11000 · Btali Assistant answers 24×7, agents take over when needed"
         actions={<Button icon={MessageSquarePlus} onClick={() => setModal('new')}>New chat</Button>} />
-      <div className="bg-white rounded-xl border border-slate-200 shadow-card overflow-hidden flex h-[calc(100vh-190px)] min-h-[560px]">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-card overflow-hidden flex h-[calc(100dvh-250px)] sm:h-[calc(100vh-190px)] min-h-[440px] sm:min-h-[560px]">
         {/* list */}
         <div className={cx('w-full lg:w-80 xl:w-[340px] border-r border-slate-200 flex-col shrink-0', conv ? 'hidden lg:flex' : 'flex')}>
           <div className="p-3 space-y-2 border-b border-slate-100">
