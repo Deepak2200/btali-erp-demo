@@ -139,7 +139,7 @@ function AssetForm({ onClose }) {
       <FormGrid cols={3}>
         <Field label="Asset name" required className="md:col-span-2"><Input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} placeholder="e.g. Hand pallet trucks (4 nos)" /></Field>
         <Field label="Category"><Select value={f.category} onChange={(e) => pick(e.target.value)} options={CATS.map((c) => c.label)} /></Field>
-        <Field label="Location"><Select value={f.location} onChange={(e) => setF({ ...f, location: e.target.value })} options={['Turbhe HO', 'Starex, Bhiwandi', 'Director', 'Field']} /></Field>
+        <Field label="Location"><Select value={f.location} onChange={(e) => setF({ ...f, location: e.target.value })} options={['Turbhe HO', 'Btali, Bhiwandi', 'Director', 'Field']} /></Field>
         <Field label="Put to use on"><Input type="date" value={f.purchaseDate} onChange={(e) => setF({ ...f, purchaseDate: e.target.value })} /></Field>
         <Field label="Cost (₹, excl. GST)" required><NumberInput value={f.cost} onChange={(v) => setF({ ...f, cost: v })} /></Field>
         <Field label="Method"><Select value={f.method} onChange={(e) => setF({ ...f, method: e.target.value })} options={[{ value: 'WDV', label: 'Written down value (WDV)' }, { value: 'SLM', label: 'Straight line (SLM)' }]} /></Field>

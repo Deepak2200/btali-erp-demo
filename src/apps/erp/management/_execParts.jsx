@@ -144,7 +144,7 @@ export function ShortfallDrawer({ rows, onClose }) {
   const navigate = useNavigate()
   const { partner } = useLookup()
   return (
-    <Drawer open onClose={onClose} title="Open orders waiting on stock" subtitle="Products where confirmed / paid order quantity exceeds Starex on-hand stock" width="max-w-3xl">
+    <Drawer open onClose={onClose} title="Open orders waiting on stock" subtitle="Products where confirmed / paid order quantity exceeds Btali on-hand stock" width="max-w-3xl">
       {!rows.length && <div className="text-sm text-slate-500">All open orders are covered by available stock.</div>}
       <div className="space-y-3">
         {rows.map((r) => (

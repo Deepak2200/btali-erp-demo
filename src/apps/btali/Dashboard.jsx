@@ -7,7 +7,7 @@ import { BarsChart } from '../../components/business'
 import { fmtNum, fmtDate, today, addDays, daysBetween, sum } from '../../lib/format'
 import { scheduleInvoices, invoiceWeight } from '../erp/dispatch/_shared'
 
-export default function StarexDashboard() {
+export default function BtaliDashboard() {
   const nav = useNavigate()
   const user = useUser()
   const { partner, transporter } = useLookup()
@@ -15,7 +15,7 @@ export default function StarexDashboard() {
   const invoices = useStore((s) => s.invoices)
   const tickets = useStore((s) => s.tickets)
   const products = useStore((s) => s.products)
-  const stock = useStore((s) => s.stock['WH-STAREX'] || {})
+  const stock = useStore((s) => s.stock['WH-BTALI'] || {})
   const moves = useStore((s) => s.stockMoves)
   const t = today()
   const tomorrow = addDays(t, 1)
@@ -23,12 +23,12 @@ export default function StarexDashboard() {
   const d = useMemo(() => {
     const upcoming = shipments.filter((s) => s.status !== 'RECEIVED').sort((a, b) => (a.eta < b.eta ? -1 : 1))
     const inwardToday = shipments.filter((s) => s.inward?.date === t)
-    const inwardQty = sum(moves.filter((m) => m.locationId === 'WH-STAREX' && m.date === t && m.qty > 0), (m) => m.qty)
+    const inwardQty = sum(moves.filter((m) => m.locationId === 'WH-BTALI' && m.date === t && m.qty > 0), (m) => m.qty)
     const outToday = invoices.filter((i) => i.lr?.date === t && i.locationId !== 'WH-GUJ')
     const outQty = sum(outToday, (i) => sum(i.lines, (l) => l.qty))
     const sched = scheduleInvoices(invoices, tomorrow)
     const pendingLR = invoices.filter((i) => i.status === 'ISSUED' && i.locationId !== 'WH-GUJ')
-    const complaints = tickets.filter((x) => x.source === 'STAREX' && !['RESOLVED', 'CLOSED'].includes(x.stage))
+    const complaints = tickets.filter((x) => x.source === 'BTALI' && !['RESOLVED', 'CLOSED'].includes(x.stage))
     const cats = {}
     for (const p of products) cats[p.category] = (cats[p.category] || 0) + (stock[p.id] || 0)
     const totalUnits = sum(Object.values(stock))
@@ -38,19 +38,19 @@ export default function StarexDashboard() {
 
   return (
     <div>
-      <PageHeader title={`Good day, ${user?.name?.split(' ')[0] || ''}`} subtitle={`Btali desk at Starex 3PL, Bhiwandi · ${fmtDate(t)}`}
-        actions={<><Button variant="secondary" icon={CalendarClock} onClick={() => nav('/starex/schedule')}>Tomorrow's schedule</Button><Button icon={PackageCheck} onClick={() => nav('/starex/inward')}>Goods inward</Button></>} />
+      <PageHeader title={`Good day, ${user?.name?.split(' ')[0] || ''}`} subtitle={`Btali desk at Btali 3PL, Bhiwandi · ${fmtDate(t)}`}
+        actions={<><Button variant="secondary" icon={CalendarClock} onClick={() => nav('/btali/schedule')}>Tomorrow's schedule</Button><Button icon={PackageCheck} onClick={() => nav('/btali/inward')}>Goods inward</Button></>} />
       <Grid cols={6}>
-        <Stat label="Inward today" value={fmtNum(d.inwardQty)} sub={`${d.inwardToday.length} GRN`} icon={PackageCheck} tone="green" onClick={() => nav('/starex/inward')} />
-        <Stat label="Outward today" value={fmtNum(d.outQty)} sub={`${d.outToday.length} invoices`} icon={Truck} tone="blue" onClick={() => nav('/starex/lr')} />
-        <Stat label="Upcoming containers" value={d.upcoming.length} sub={d.upcoming[0] ? `next ETA ${fmtDate(d.upcoming[0].eta)}` : ''} icon={Ship} tone="ink" onClick={() => nav('/starex/containers')} />
-        <Stat label="Tomorrow's dispatch" value={d.sched.length} sub="invoices to load" icon={CalendarClock} tone="brand" onClick={() => nav('/starex/schedule')} />
-        <Stat label="Pending LRs" value={d.pendingLR.length} sub={`${d.pendingLR.filter((i) => i.starexStage === 'LOADED').length} loaded`} icon={FileWarning} tone="amber" onClick={() => nav('/starex/lr')} />
-        <Stat label="Open complaints" value={d.complaints.length} icon={AlertTriangle} tone="red" onClick={() => nav('/starex/complaints')} />
+        <Stat label="Inward today" value={fmtNum(d.inwardQty)} sub={`${d.inwardToday.length} GRN`} icon={PackageCheck} tone="green" onClick={() => nav('/btali/inward')} />
+        <Stat label="Outward today" value={fmtNum(d.outQty)} sub={`${d.outToday.length} invoices`} icon={Truck} tone="blue" onClick={() => nav('/btali/lr')} />
+        <Stat label="Upcoming containers" value={d.upcoming.length} sub={d.upcoming[0] ? `next ETA ${fmtDate(d.upcoming[0].eta)}` : ''} icon={Ship} tone="ink" onClick={() => nav('/btali/containers')} />
+        <Stat label="Tomorrow's dispatch" value={d.sched.length} sub="invoices to load" icon={CalendarClock} tone="brand" onClick={() => nav('/btali/schedule')} />
+        <Stat label="Pending LRs" value={d.pendingLR.length} sub={`${d.pendingLR.filter((i) => i.btaliStage === 'LOADED').length} loaded`} icon={FileWarning} tone="amber" onClick={() => nav('/btali/lr')} />
+        <Stat label="Open complaints" value={d.complaints.length} icon={AlertTriangle} tone="red" onClick={() => nav('/btali/complaints')} />
       </Grid>
 
       <div className="grid lg:grid-cols-3 gap-4 mt-4">
-        <Card className="lg:col-span-2" title="Upcoming container arrivals" subtitle="Plan bay space & manpower ahead of unloading" actions={<Button size="sm" variant="ghost" iconRight={ArrowRight} onClick={() => nav('/starex/containers')}>All</Button>} padded={false}>
+        <Card className="lg:col-span-2" title="Upcoming container arrivals" subtitle="Plan bay space & manpower ahead of unloading" actions={<Button size="sm" variant="ghost" iconRight={ArrowRight} onClick={() => nav('/btali/containers')}>All</Button>} padded={false}>
           {d.upcoming.length ? (
             <ul className="divide-y divide-slate-100">
               {d.upcoming.map((s) => {
@@ -60,7 +60,7 @@ export default function StarexDashboard() {
                     <div className="p-2 rounded-lg bg-ink-50 text-ink-600"><Ship className="w-4 h-4" /></div>
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-medium text-slate-800">{s.number} · <span className="font-mono text-xs">{s.containerNo}</span></div>
-                      <div className="text-xs text-slate-500">{s.containerType} · BL {s.blNo} {s.starexPlan?.bay ? `· ${s.starexPlan.bay}` : ''}</div>
+                      <div className="text-xs text-slate-500">{s.containerType} · BL {s.blNo} {s.btaliPlan?.bay ? `· ${s.btaliPlan.bay}` : ''}</div>
                     </div>
                     <StatusBadge status={s.status} />
                     <div className="text-right w-24">
@@ -73,12 +73,12 @@ export default function StarexDashboard() {
             </ul>
           ) : <EmptyState title="No containers on the way" />}
         </Card>
-        <Card title="Stock summary" subtitle={`${fmtNum(d.totalUnits)} units · ${d.skus} SKUs on hand`} actions={<Button size="sm" variant="ghost" icon={Boxes} onClick={() => nav('/starex/stock')}>Stock</Button>}>
+        <Card title="Stock summary" subtitle={`${fmtNum(d.totalUnits)} units · ${d.skus} SKUs on hand`} actions={<Button size="sm" variant="ghost" icon={Boxes} onClick={() => nav('/btali/stock')}>Stock</Button>}>
           <BarsChart money={false} layout="vertical" height={230} data={Object.entries(d.cats).map(([label, v]) => ({ label, units: v }))} series={[{ key: 'units', label: 'Units' }]} />
         </Card>
       </div>
 
-      <Card className="mt-4" title={`Dispatch plan for ${fmtDate(tomorrow)}`} subtitle="Invoices pushed by Btali Dispatch" actions={<Button size="sm" variant="ghost" iconRight={ArrowRight} onClick={() => nav('/starex/schedule')}>Open schedule</Button>} padded={false}>
+      <Card className="mt-4" title={`Dispatch plan for ${fmtDate(tomorrow)}`} subtitle="Invoices pushed by Btali Dispatch" actions={<Button size="sm" variant="ghost" iconRight={ArrowRight} onClick={() => nav('/btali/schedule')}>Open schedule</Button>} padded={false}>
         {d.sched.length ? (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -91,7 +91,7 @@ export default function StarexDashboard() {
                     <td className="px-4 py-2">{transporter(i.transporterId)?.name}{i.safex && <Badge tone="violet" className="ml-1">Safex</Badge>}</td>
                     <td className="px-4 py-2 text-right tabular-nums">{fmtNum(sum(i.lines, (l) => l.qty))}</td>
                     <td className="px-4 py-2 text-right tabular-nums">{fmtNum(invoiceWeight(i, products))} kg</td>
-                    <td className="px-4 py-2">{i.starexStage ? <StatusBadge status={i.starexStage === 'LOADED' ? 'DONE' : 'IN_PROGRESS'} label={i.starexStage === 'LOADED' ? 'Loaded' : 'Picked'} /> : <StatusBadge status="PENDING" label="To pick" />}</td>
+                    <td className="px-4 py-2">{i.btaliStage ? <StatusBadge status={i.btaliStage === 'LOADED' ? 'DONE' : 'IN_PROGRESS'} label={i.btaliStage === 'LOADED' ? 'Loaded' : 'Picked'} /> : <StatusBadge status="PENDING" label="To pick" />}</td>
                   </tr>
                 ))}
               </tbody>

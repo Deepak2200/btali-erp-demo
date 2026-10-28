@@ -16,7 +16,7 @@ const COST_FIELDS = [
   ['duty', 'Customs duty (BCD + SWS)'],
   ['igst', 'IGST on import', 'Input tax credit – not added to cost'],
   ['cha', 'CHA charges', 'Seaport Customs House Agents bill'],
-  ['portTransport', 'Port → Starex transport', 'Shiv Sai Transport'],
+  ['portTransport', 'Port → Btali transport', 'Shiv Sai Transport'],
   ['other', 'Other charges', 'CFS, detention, stamp duty…'],
 ]
 const METHODS = [{ key: 'VALUE', label: 'By value' }, { key: 'WEIGHT', label: 'By weight' }, { key: 'VOLUME', label: 'By volume' }]

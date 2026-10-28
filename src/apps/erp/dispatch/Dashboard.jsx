@@ -15,7 +15,7 @@ export default function Dashboard() {
   const tomorrow = addDays(today(), 1)
 
   const d = useMemo(() => {
-    const ready = s.salesOrders.filter((o) => o.status === 'PAID' && !o.invoiceId && (o.warehouseId || 'WH-STAREX') !== 'WH-GUJ')
+    const ready = s.salesOrders.filter((o) => o.status === 'PAID' && !o.invoiceId && (o.warehouseId || 'WH-BTALI') !== 'WH-GUJ')
     const awaitingLR = s.invoices.filter((i) => i.status === 'ISSUED' && i.locationId !== 'WH-GUJ')
     const sched = scheduleInvoices(s.invoices, tomorrow)
     const recent = s.invoices.filter((i) => i.lr && i.date >= daysAgo(90))
@@ -41,7 +41,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Dispatch Control Tower" subtitle="Invoicing, LR, Starex schedule and reconciliation at a glance"
+      <PageHeader title="Dispatch Control Tower" subtitle="Invoicing, LR, Btali schedule and reconciliation at a glance"
         actions={<>
           <Button variant="secondary" icon={CalendarClock} onClick={() => nav('/erp/dispatch/schedule')}>Tomorrow's schedule</Button>
           <Button icon={Receipt} onClick={() => nav('/erp/dispatch/invoices')}>Create invoices</Button>
@@ -71,13 +71,13 @@ export default function Dashboard() {
             </ul>
           ) : <EmptyState title="Nothing waiting" message="All paid orders have been invoiced." />}
         </Card>
-        <Card title="Awaiting LR" subtitle="Invoices pushed to Starex, LR not yet uploaded" actions={<Button size="sm" variant="link" iconRight={ArrowRight} onClick={() => nav('/erp/dispatch/lr')}>Open</Button>} padded={false}>
+        <Card title="Awaiting LR" subtitle="Invoices pushed to Btali, LR not yet uploaded" actions={<Button size="sm" variant="link" iconRight={ArrowRight} onClick={() => nav('/erp/dispatch/lr')}>Open</Button>} padded={false}>
           {d.awaitingLR.length ? (
             <ul className="divide-y divide-slate-100">
               {d.awaitingLR.slice(0, 6).map((i) => (
                 <li key={i.id} className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 cursor-pointer" onClick={() => nav(`/erp/dispatch/invoices?id=${i.id}`)}>
                   <div className="flex-1 min-w-0"><PartnerCell id={i.partnerId} sub={`${i.number} · ${transporter(i.transporterId)?.name || ''}`} /></div>
-                  {i.starexStage && <Badge tone="blue">{i.starexStage === 'LOADED' ? 'Loaded' : 'Picked'}</Badge>}
+                  {i.btaliStage && <Badge tone="blue">{i.btaliStage === 'LOADED' ? 'Loaded' : 'Picked'}</Badge>}
                   <Badge tone={lrAgeDays(i) > 2 ? 'red' : 'amber'}>{lrAgeDays(i)}d</Badge>
                 </li>
               ))}
@@ -109,7 +109,7 @@ export default function Dashboard() {
             </ul>
           ) : <EmptyState title="No dispatches scheduled" />}
         </Card>
-        <Card title="Upcoming container arrivals" subtitle="Plan Starex space & outbound" padded={false}>
+        <Card title="Upcoming container arrivals" subtitle="Plan Btali space & outbound" padded={false}>
           <ul className="divide-y divide-slate-100">
             {d.containers.map((c) => (
               <li key={c.id} className="flex items-center gap-3 px-4 py-2.5">

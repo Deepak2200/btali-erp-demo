@@ -282,7 +282,7 @@ function Overview({ po, vendor, shipment, canEdit, isAdmin, goTab }) {
   const qcPending = (po.qc || []).filter((q) => q.status === 'PENDING').length
 
   const receive = async () => {
-    if (!(await confirm({ title: 'Receive goods at Starex?', message: `Stock for ${po.lines.length} item(s) will be added to Starex – Bhiwandi and a GRN generated.`, confirmText: 'Receive & add stock' }))) return
+    if (!(await confirm({ title: 'Receive goods at Btali?', message: `Stock for ${po.lines.length} item(s) will be added to Btali – Bhiwandi and a GRN generated.`, confirmText: 'Receive & add stock' }))) return
     const grn = s.receiveDomesticPO(po.id)
     toast.success('Goods received', `${grn} · stock updated`)
   }
@@ -297,7 +297,7 @@ function Overview({ po, vendor, shipment, canEdit, isAdmin, goTab }) {
     <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
       <div className="xl:col-span-2 space-y-4">
         {po.type === 'DOMESTIC' && (
-          <Card title="Vendor dispatch & receipt" subtitle={po.requiresCustomerPayment ? 'Back-to-back order – customer must pay in full before the vendor ships' : 'Domestic vendor delivers directly to Starex'}>
+          <Card title="Vendor dispatch & receipt" subtitle={po.requiresCustomerPayment ? 'Back-to-back order – customer must pay in full before the vendor ships' : 'Domestic vendor delivers directly to Btali'}>
             {po.requiresCustomerPayment && (
               <div className={`rounded-xl border p-3 mb-3 flex flex-wrap items-center gap-3 ${po.customerPaid ? 'border-emerald-200 bg-emerald-50' : 'border-amber-200 bg-amber-50'}`}>
                 {po.customerPaid ? <CheckCircle2 className="w-5 h-5 text-emerald-600" /> : <Lock className="w-5 h-5 text-amber-600" />}
@@ -376,7 +376,7 @@ function Overview({ po, vendor, shipment, canEdit, isAdmin, goTab }) {
         </div>}
       </Modal>
       <Modal open={!!dispatch} onClose={() => setDispatch(null)} title="Confirm vendor dispatch" size="sm"
-        footer={<><Button variant="secondary" onClick={() => setDispatch(null)}>Cancel</Button><Button disabled={!dispatch?.lrNo} onClick={() => { const r = s.confirmVendorDispatch(po.id, dispatch); if (!r.ok) return toast.error(r.error); setDispatch(null); toast.success('Vendor dispatch confirmed', 'Starex & Sales notified') }}>Confirm dispatch</Button></>}>
+        footer={<><Button variant="secondary" onClick={() => setDispatch(null)}>Cancel</Button><Button disabled={!dispatch?.lrNo} onClick={() => { const r = s.confirmVendorDispatch(po.id, dispatch); if (!r.ok) return toast.error(r.error); setDispatch(null); toast.success('Vendor dispatch confirmed', 'Btali & Sales notified') }}>Confirm dispatch</Button></>}>
         {dispatch && <div className="space-y-3">
           <Field label="LR / Docket no." required><Input value={dispatch.lrNo} onChange={(e) => setDispatch({ ...dispatch, lrNo: e.target.value })} placeholder="e.g. RPP/LR/2210" /></Field>
           <Field label="Dispatch date"><Input type="date" value={dispatch.date} onChange={(e) => setDispatch({ ...dispatch, date: e.target.value })} /></Field>
@@ -519,7 +519,7 @@ function QCPanel({ po, canEdit }) {
       <Card className="xl:col-span-2" title="Packing list" subtitle={po.packingList?.source === 'BARCODE_SCAN' ? `Generated from barcode scans at loading · ${fmtNum(scanned)} of ${fmtNum(units.length)} units scanned` : 'Computed from PO lines and product master (cartons, CBM, weight)'}
         actions={<>
           <Button size="sm" variant="secondary" icon={Download} onClick={() => exportCSV(`packing-list-${po.number.replace(/\//g, '-')}.csv`, plines, [{ header: 'SKU', value: (l) => s.products.find((p) => p.id === l.productId)?.sku }, { header: 'Product', value: (l) => s.products.find((p) => p.id === l.productId)?.name }, { header: 'Qty', value: (l) => l.qty }, { header: 'Cartons', value: (l) => l.cartons }, { header: 'CBM', value: (l) => l.cbm }, { header: 'Weight kg', value: (l) => l.weight }])}>CSV</Button>
-          {canEdit && <Button size="sm" icon={Send} onClick={() => { s.sendPackingListToStarex(po.id, plines); toast.success('Packing list sent to Starex') }}>{po.packingList?.sentToStarexAt ? 'Re-send to Starex' : 'Send to Starex'}</Button>}
+          {canEdit && <Button size="sm" icon={Send} onClick={() => { s.sendPackingListToBtali(po.id, plines); toast.success('Packing list sent to Btali') }}>{po.packingList?.sentToBtaliAt ? 'Re-send to Btali' : 'Send to Btali'}</Button>}
         </>}>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -528,7 +528,7 @@ function QCPanel({ po, canEdit }) {
             <tfoot className="bg-slate-50 font-semibold"><tr><td className="px-3 py-2">Total</td><td className="px-3 py-2 text-right">{fmtNum(sum(plines, (l) => l.qty))}</td><td className="px-3 py-2 text-right">{fmtNum(sum(plines, (l) => l.cartons))}</td><td className="px-3 py-2 text-right">{fmtNum(round2(sum(plines, (l) => l.cbm)))}</td><td className="px-3 py-2 text-right">{fmtNum(round2(sum(plines, (l) => l.weight)))}</td></tr></tfoot>
           </table>
         </div>
-        {po.packingList?.sentToStarexAt && <div className="text-xs text-emerald-700 mt-2">Shared with Starex {fmtDateTime(po.packingList.sentToStarexAt)}</div>}
+        {po.packingList?.sentToBtaliAt && <div className="text-xs text-emerald-700 mt-2">Shared with Btali {fmtDateTime(po.packingList.sentToBtaliAt)}</div>}
       </Card>
     </div>
   )
@@ -605,7 +605,7 @@ function PrintPO({ po, vendor }) {
       <DocHeader title="Purchase Order" number={po.number} date={po.date} right={<div className="text-xs text-slate-500 mt-1">{po.type} · {po.currency}</div>} />
       <div className="grid grid-cols-2 gap-6 text-sm mb-4">
         <div><div className="text-[11px] uppercase text-slate-400 font-semibold">Supplier</div><div className="font-semibold">{vendor.name}</div><div className="text-slate-600">{vendor.city}, {vendor.country}<br />{vendor.contact} · {vendor.email}{vendor.gst ? <><br />GSTIN {vendor.gst}</> : null}</div></div>
-        <div><div className="text-[11px] uppercase text-slate-400 font-semibold">Deliver to</div><div className="font-semibold">Starex 3PL – Bhiwandi</div><div className="text-slate-600">Gala 14-18, Starex Logistics Park, Vadape, Bhiwandi 421302{po.type === 'IMPORT' ? <><br />Port of discharge: Nhava Sheva (INNSA)</> : null}</div></div>
+        <div><div className="text-[11px] uppercase text-slate-400 font-semibold">Deliver to</div><div className="font-semibold">Btali 3PL – Bhiwandi</div><div className="text-slate-600">Gala 14-18, Btali Logistics Park, Vadape, Bhiwandi 421302{po.type === 'IMPORT' ? <><br />Port of discharge: Nhava Sheva (INNSA)</> : null}</div></div>
       </div>
       <table className="w-full text-sm border border-slate-300">
         <thead className="bg-slate-100"><tr><th className="text-left p-2 border-b border-slate-300">#</th><th className="text-left p-2 border-b border-slate-300">Item</th><th className="text-left p-2 border-b border-slate-300">HSN</th><th className="text-right p-2 border-b border-slate-300">Qty</th><th className="text-right p-2 border-b border-slate-300">Rate</th><th className="text-right p-2 border-b border-slate-300">Amount</th></tr></thead>

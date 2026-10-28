@@ -9,10 +9,10 @@ import { stockStatus } from '../../lib/stock'
 
 const CATS = ['Pumps', 'Air Compressors', 'Vacuum Cleaners', 'Pressure Washers', 'Spraying Equipment', 'Spare Parts']
 
-export default function StarexStock() {
+export default function BtaliStock() {
   const state = useStore()
   const { products, units, stockMoves, shipments, invoices } = state
-  const stock = state.stock['WH-STAREX'] || {}
+  const stock = state.stock['WH-BTALI'] || {}
   const { product, partner } = useLookup()
   const [tab, setTab] = useState('STOCK')
   const [found, setFound] = useState(null)
@@ -20,16 +20,16 @@ export default function StarexStock() {
 
   const rows = useMemo(() => products.filter((p) => p.active !== false).map((p) => {
     const st = stockStatus(state, p)
-    const booked = sum(state.salesOrders.filter((s) => s.status === 'PAID' && (s.warehouseId || 'WH-STAREX') === 'WH-STAREX'), (s) => sum(s.lines.filter((l) => l.productId === p.id), (l) => l.qty))
+    const booked = sum(state.salesOrders.filter((s) => s.status === 'PAID' && (s.warehouseId || 'WH-BTALI') === 'WH-BTALI'), (s) => sum(s.lines.filter((l) => l.productId === p.id), (l) => l.qty))
     const scheduled = sum(invoices.filter((i) => i.status === 'ISSUED' && i.locationId !== 'WH-GUJ'), (i) => sum(i.lines.filter((l) => l.productId === p.id), (l) => l.qty))
-    const barcoded = units.filter((u) => u.productId === p.id && u.status === 'IN_WAREHOUSE' && u.locationId === 'WH-STAREX').length
+    const barcoded = units.filter((u) => u.productId === p.id && u.status === 'IN_WAREHOUSE' && u.locationId === 'WH-BTALI').length
     return { id: p.id, sku: p.sku, name: p.shortName, category: p.category, onHand: stock[p.id] || 0, booked, scheduled, barcoded, status: st, reorder: p.reorderLevel, cbm: (stock[p.id] || 0) * (p.cbm || 0) }
   }), [products, stock, units, invoices, state])
 
   // movement ledger: GRNs, live stock moves and dispatches (LR)
   const ledger = useMemo(() => {
     const out = []
-    for (const m of stockMoves.filter((x) => x.locationId === 'WH-STAREX')) out.push({ id: m.id, ts: m.ts, date: m.date, dir: m.qty >= 0 ? 'IN' : 'OUT', productId: m.productId, qty: Math.abs(m.qty), ref: m.ref, reason: m.reason })
+    for (const m of stockMoves.filter((x) => x.locationId === 'WH-BTALI')) out.push({ id: m.id, ts: m.ts, date: m.date, dir: m.qty >= 0 ? 'IN' : 'OUT', productId: m.productId, qty: Math.abs(m.qty), ref: m.ref, reason: m.reason })
     for (const sh of shipments.filter((s) => s.inward?.grnNo && !stockMoves.some((m) => m.ref === s.inward.grnNo))) {
       for (const l of sh.inward.lines || []) out.push({ id: `${sh.id}-${l.productId}`, ts: `${sh.inward.date}T10:00:00Z`, date: sh.inward.date, dir: 'IN', productId: l.productId, qty: l.received, ref: sh.inward.grnNo, reason: `GRN inward · ${sh.containerNo}` })
     }
@@ -44,7 +44,7 @@ export default function StarexStock() {
     if (!u) { setFound(null); setNotFound(code); return }
     setNotFound(''); setFound(u)
   }
-  const inWh = units.filter((u) => u.status === 'IN_WAREHOUSE' && u.locationId === 'WH-STAREX')
+  const inWh = units.filter((u) => u.status === 'IN_WAREHOUSE' && u.locationId === 'WH-BTALI')
   const totalUnits = sum(rows, (r) => r.onHand)
   const low = rows.filter((r) => r.status.key === 'LOW' || r.status.key === 'OUT')
   const t = today()
@@ -53,7 +53,7 @@ export default function StarexStock() {
 
   return (
     <div>
-      <PageHeader title="Stock on hand" subtitle="Live stock of Btali goods at Starex 3PL, Bhiwandi" />
+      <PageHeader title="Stock on hand" subtitle="Live stock of Btali goods at Btali 3PL, Bhiwandi" />
       <Grid cols={4}>
         <Stat label="Units on hand" value={fmtNum(totalUnits)} sub={`${rows.filter((r) => r.onHand > 0).length} SKUs`} icon={Boxes} tone="brand" />
         <Stat label="Below reorder level" value={low.length} icon={AlertTriangle} tone="amber" />
@@ -72,7 +72,7 @@ export default function StarexStock() {
               <Barcode value={found.code} height={36} />
               <StatusBadge status={found.status} />
             </div>
-            <div><DescriptionList cols={1} items={[['Location', found.locationId === 'WH-STAREX' ? 'Starex – Bhiwandi' : partner(found.locationId)?.name || found.locationId], ['Customer', partner(found.partnerId)?.name || '—'], ['Invoice', invoices.find((i) => i.id === found.invoiceId)?.number || '—'], ['Pack qty', found.packQty || 1]]} /></div>
+            <div><DescriptionList cols={1} items={[['Location', found.locationId === 'WH-BTALI' ? 'Btali – Bhiwandi' : partner(found.locationId)?.name || found.locationId], ['Customer', partner(found.partnerId)?.name || '—'], ['Invoice', invoices.find((i) => i.id === found.invoiceId)?.number || '—'], ['Pack qty', found.packQty || 1]]} /></div>
             <div className="max-h-56 overflow-y-auto"><Timeline items={[...found.history].reverse()} /></div>
           </div>
         )}
@@ -80,7 +80,7 @@ export default function StarexStock() {
 
       <Tabs className="mt-5 mb-3" value={tab} onChange={setTab} tabs={[{ key: 'STOCK', label: 'Stock by SKU', count: rows.length }, { key: 'LEDGER', label: 'Inward / outward entries', count: ledger.length }, { key: 'UNITS', label: 'Barcoded units in warehouse', count: inWh.length }]} />
       {tab === 'STOCK' && (
-        <DataTable rows={rows} exportName={`starex-stock-${t}`} filters={[{ key: 'category', label: 'categories', options: CATS }, { key: 'st', label: 'status', value: (r) => r.status.label, options: ['Healthy', 'Below reorder', 'Out of stock', 'Excess'] }]} initialSort={{ key: 'sku', dir: 'asc' }}
+        <DataTable rows={rows} exportName={`btali-stock-${t}`} filters={[{ key: 'category', label: 'categories', options: CATS }, { key: 'st', label: 'status', value: (r) => r.status.label, options: ['Healthy', 'Below reorder', 'Out of stock', 'Excess'] }]} initialSort={{ key: 'sku', dir: 'asc' }}
           columns={[
             { key: 'sku', header: 'Product', render: (r) => <ProductCell id={r.id} /> },
             { key: 'category', header: 'Category' },
@@ -93,7 +93,7 @@ export default function StarexStock() {
           ]} />
       )}
       {tab === 'LEDGER' && (
-        <DataTable rows={ledger} exportName="starex-movements" filters={[{ key: 'dir', label: 'directions', options: [{ value: 'IN', label: 'Inward' }, { value: 'OUT', label: 'Outward' }] }]}
+        <DataTable rows={ledger} exportName="btali-movements" filters={[{ key: 'dir', label: 'directions', options: [{ value: 'IN', label: 'Inward' }, { value: 'OUT', label: 'Outward' }] }]}
           empty={<EmptyState title="No movements yet" />}
           columns={[
             { key: 'ts', header: 'When', render: (r) => fmtDateTime(r.ts) },
@@ -105,7 +105,7 @@ export default function StarexStock() {
           ]} />
       )}
       {tab === 'UNITS' && (
-        <DataTable rows={inWh} rowKey="code" exportName="starex-barcodes" onRowClick={(u) => { setFound(u); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+        <DataTable rows={inWh} rowKey="code" exportName="btali-barcodes" onRowClick={(u) => { setFound(u); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
           columns={[
             { key: 'code', header: 'Barcode', render: (u) => <span className="font-mono text-xs">{u.code}</span> },
             { key: 'product', header: 'Product', value: (u) => product(u.productId)?.sku, render: (u) => <ProductCell id={u.productId} /> },

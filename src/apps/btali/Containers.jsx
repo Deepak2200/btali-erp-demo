@@ -38,12 +38,12 @@ function PlanDrawer({ id, onClose }) {
   const lines = useMemo(() => shipmentLines(sh, purchaseOrders, products), [sh, purchaseOrders, products])
   const docs = useMemo(() => shipmentDocs(sh, purchaseOrders), [sh, purchaseOrders])
   const totCbm = sum(lines, (l) => l.cbm), totWt = sum(lines, (l) => l.weight), totCtn = sum(lines, (l) => l.cartons)
-  const [f, setF] = useState(() => ({ bay: '', manpower: Math.max(4, Math.ceil(totCtn / 120)), spaceCbm: Math.ceil(totCbm * 1.15), unloadDate: sh.eta > today() ? sh.eta : today(), forklift: true, notes: '', ...(sh.starexPlan || {}) }))
+  const [f, setF] = useState(() => ({ bay: '', manpower: Math.max(4, Math.ceil(totCtn / 120)), spaceCbm: Math.ceil(totCbm * 1.15), unloadDate: sh.eta > today() ? sh.eta : today(), forklift: true, notes: '', ...(sh.btaliPlan || {}) }))
   const current = sh.milestones.filter((m) => m.done).slice(-1)[0]?.key || sh.milestones[0]?.key
   return (
     <Drawer open onClose={onClose} width="max-w-3xl" title={`${sh.number} · ${sh.containerNo}`} subtitle={<span className="flex items-center gap-2">{vendor(sh.vendorId)?.name} <StatusBadge status={sh.status} /></span>}
       footer={<>
-        {sh.status !== 'RECEIVED' && <Button variant="secondary" icon={PackageCheck} onClick={() => nav(`/starex/inward?shipment=${sh.id}`)}>Start inward</Button>}
+        {sh.status !== 'RECEIVED' && <Button variant="secondary" icon={PackageCheck} onClick={() => nav(`/btali/inward?shipment=${sh.id}`)}>Start inward</Button>}
         <Button icon={Save} onClick={() => { if (!f.bay.trim()) return toast.error('Enter the bay / gala allotted'); save(sh.id, f); toast.success('Warehouse plan saved', 'Purchase & Dispatch notified') }}>Save plan</Button>
       </>}>
       <Stepper steps={sh.milestones.map((m) => ({ key: m.key, label: m.label }))} current={current} className="mb-4" />
@@ -74,7 +74,7 @@ function PlanDrawer({ id, onClose }) {
         <Field label="Forklift"><Segmented value={f.forklift ? 'Y' : 'N'} onChange={(v) => setF({ ...f, forklift: v === 'Y' })} options={[{ key: 'Y', label: 'Required' }, { key: 'N', label: 'Not needed' }]} /></Field>
       </FormGrid>
       <Field label="Notes" className="mt-3"><Textarea rows={2} value={f.notes} onChange={(e) => setF({ ...f, notes: e.target.value })} placeholder="Stacking limits, fragile cartons, shift timing…" /></Field>
-      {sh.starexPlan?.updatedAt && <div className="text-[11px] text-slate-400 mt-2">Last saved {fmtDate(sh.starexPlan.updatedAt)}</div>}
+      {sh.btaliPlan?.updatedAt && <div className="text-[11px] text-slate-400 mt-2">Last saved {fmtDate(sh.btaliPlan.updatedAt)}</div>}
     </Drawer>
   )
 }
@@ -101,10 +101,10 @@ export default function Containers() {
         <Stat label="Containers on the way" value={upcoming.length} icon={Ship} tone="ink" />
         <Stat label="Arriving within 7 days" value={in7.length} icon={CalendarDays} tone="amber" />
         <Stat label="Space to plan" value={`${fmtNum(Math.round(sum(allLines, (l) => l.cbm)))} CBM`} icon={Boxes} tone="brand" />
-        <Stat label="Plans saved" value={`${upcoming.filter((s) => s.starexPlan).length} / ${upcoming.length}`} icon={Users} tone="green" />
+        <Stat label="Plans saved" value={`${upcoming.filter((s) => s.btaliPlan).length} / ${upcoming.length}`} icon={Users} tone="green" />
       </Grid>
       <div className="mt-4 mb-3"><Segmented value={view} onChange={setView} options={[{ key: 'UPCOMING', label: 'Upcoming' }, { key: 'RECEIVED', label: 'Received' }]} /></div>
-      <DataTable rows={rows} onRowClick={(r) => setOpen(r.id)} exportName="starex-containers"
+      <DataTable rows={rows} onRowClick={(r) => setOpen(r.id)} exportName="btali-containers"
         columns={[
           { key: 'number', header: 'Shipment', render: (r) => <div><div className="font-medium text-slate-800">{r.number}</div><div className="text-[11px] font-mono text-slate-500">{r.containerNo}</div></div> },
           { key: 'vendor', header: 'Supplier', value: (r) => vendor(r.vendorId)?.name },
@@ -114,7 +114,7 @@ export default function Containers() {
           { key: 'cartons', header: 'Cartons', align: 'right', render: (r) => fmtNum(r.cartons) },
           { key: 'cbm', header: 'CBM', align: 'right', render: (r) => fmtNum(r.cbm) },
           { key: 'status', header: 'Status', render: (r) => <StatusBadge status={r.status} /> },
-          { key: 'plan', header: 'Warehouse plan', value: (r) => r.starexPlan?.bay || '', render: (r) => r.starexPlan ? <Badge tone="green">{r.starexPlan.bay} · {r.starexPlan.manpower} loaders</Badge> : r.status === 'RECEIVED' ? <span className="text-xs text-slate-500">{r.inward?.grnNo}</span> : <Badge tone="amber">Plan pending</Badge> },
+          { key: 'plan', header: 'Warehouse plan', value: (r) => r.btaliPlan?.bay || '', render: (r) => r.btaliPlan ? <Badge tone="green">{r.btaliPlan.bay} · {r.btaliPlan.manpower} loaders</Badge> : r.status === 'RECEIVED' ? <span className="text-xs text-slate-500">{r.inward?.grnNo}</span> : <Badge tone="amber">Plan pending</Badge> },
         ]} />
       {open && <PlanDrawer id={open} onClose={() => setOpen(null)} />}
     </div>

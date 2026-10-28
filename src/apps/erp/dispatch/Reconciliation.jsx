@@ -28,7 +28,7 @@ export default function Reconciliation() {
     return (
       <div className="space-y-5">
         <PageHeader breadcrumb={<button className="inline-flex items-center gap-1 hover:text-slate-800" onClick={() => setSel(null)}><ArrowLeft className="w-3 h-3" /> Reconciliation</button>}
-          title={current.fileName} subtitle={`${MIS_KIND[current.kind]} · ${current.source === 'STAREX' ? 'Starex 3PL' : 'Safex'} · ${current.period} · uploaded ${fmtDateTime(current.uploadedAt)} by ${users.find((u) => u.id === current.uploadedBy)?.name || '—'}`}
+          title={current.fileName} subtitle={`${MIS_KIND[current.kind]} · ${current.source === 'BTALI' ? 'Btali 3PL' : 'Safex'} · ${current.period} · uploaded ${fmtDateTime(current.uploadedAt)} by ${users.find((u) => u.id === current.uploadedBy)?.name || '—'}`}
           actions={<>
             {sm.open === 0 && <Badge tone="green">Fully reconciled</Badge>}
             <Button variant="ghost" icon={Trash2} onClick={async () => { if (await confirm({ title: 'Delete this upload?', message: 'Results and resolutions for this file will be removed.', tone: 'danger', confirmText: 'Delete' })) { removeMis(current.id); setSel(null); toast.success('Upload deleted') } }}>Delete</Button>
@@ -40,7 +40,7 @@ export default function Reconciliation() {
   }
   return (
     <div className="space-y-5">
-      <PageHeader title="Starex Reconciliation" subtitle="Starex reported vs ERP actual – weekly truck reports and monthly MIS auto-matched to invoices"
+      <PageHeader title="Btali Reconciliation" subtitle="Btali reported vs ERP actual – weekly truck reports and monthly MIS auto-matched to invoices"
         actions={<Button icon={Upload} onClick={() => setUpOpen(true)}>Upload report</Button>} />
       <Grid cols={4}>
         <Stat label="Weekly mismatch rate" value={agg.weekly ? `${agg.weekly.mismatchRate}%` : '—'} sub="latest truck report" icon={GitCompare} tone={agg.weekly?.mismatchRate > 10 ? 'red' : 'green'} />
@@ -49,7 +49,7 @@ export default function Reconciliation() {
         <Stat label="Over-billing prevented" value={fmtINR(agg.prevented)} sub={`${fmtINR(agg.sm.overbilled)} flagged in total`} icon={IndianRupee} tone="violet" />
       </Grid>
       <div className="grid lg:grid-cols-3 gap-5">
-        <Card title="Starex reported vs ERP actual" subtitle="Freight per uploaded report" className="lg:col-span-2">
+        <Card title="Btali reported vs ERP actual" subtitle="Freight per uploaded report" className="lg:col-span-2">
           {uploads.length ? <MisChart uploads={uploads} /> : <EmptyState title="No reports yet" />}
         </Card>
         <Card title="Exception mix" subtitle="All uploads">
@@ -57,7 +57,7 @@ export default function Reconciliation() {
             {[['Over / under charged', agg.sm.MISMATCH, 'red'], ['Extra trucks / consignments billed', agg.sm.EXTRA, 'violet'], ['Missing deliveries', agg.sm.MISSING, 'amber'], ['Matched', agg.sm.MATCH, 'green']].map(([l, v, t]) => (
               <div key={l} className="flex items-center justify-between"><span className="text-slate-600">{l}</span><Badge tone={t}>{v}</Badge></div>
             ))}
-            <div className="pt-3 border-t border-slate-100 text-xs text-slate-500">Matching keys: invoice number, trucks used vs consignment weight (9 t/truck), freight vs ERP freight cost or Starex rate card (₹3.4/kg, min ₹450). Tolerance ±2% or ₹50.</div>
+            <div className="pt-3 border-t border-slate-100 text-xs text-slate-500">Matching keys: invoice number, trucks used vs consignment weight (9 t/truck), freight vs ERP freight cost or Btali rate card (₹3.4/kg, min ₹450). Tolerance ±2% or ₹50.</div>
           </div>
         </Card>
       </div>

@@ -199,7 +199,7 @@ function OrderDetail() {
   const dlInvoice = () => downloadDocHtml(`${inv.number.replace(/\//g, '-')}.html`, 'Tax Invoice', inv.number, [['Date', fmtDate(inv.date)], ['Bill to', p.name], ['GSTIN', p.gstin || '—'], ['IRN', inv.irn], ['E-way bill', inv.ewayBill]], inv.lines, [['Taxable value', fmtINR(inv.subtotal, true)], ['GST @18%', fmtINR(inv.gst, true)], ['Invoice total', fmtINR(inv.total, true)]], company, state.products)
   const dlLR = () => {
     if (inv.lr?.file?.url) { window.open(inv.lr.file.url, '_blank'); return }
-    const html = `<!doctype html><html><head><meta charset="utf-8"><title>LR ${esc(inv.lr.number)}</title><style>body{font-family:Segoe UI,Arial;padding:32px;max-width:700px;margin:auto}td{padding:6px;border-bottom:1px solid #e2e8f0}</style></head><body><h2>Lorry Receipt – ${esc(inv.lr.number)}</h2><table>${[['Transporter', tr?.name], ['Vehicle', inv.lr.vehicleNo || inv.vehicleNo || tr?.vehicleNo], ['LR date', fmtDate(inv.lr.date)], ['Consignor', company.legalName + ', Starex 3PL Bhiwandi'], ['Consignee', `${p.name}, ${p.address || p.city}`], ['Invoice', inv.number], ['Packages', `${sum(inv.lines, (l) => l.qty)} units`], ['Invoice value', fmtINR(inv.total)]].map(([k, v]) => `<tr><td><b>${esc(k)}</b></td><td>${esc(v)}</td></tr>`).join('')}</table></body></html>`
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>LR ${esc(inv.lr.number)}</title><style>body{font-family:Segoe UI,Arial;padding:32px;max-width:700px;margin:auto}td{padding:6px;border-bottom:1px solid #e2e8f0}</style></head><body><h2>Lorry Receipt – ${esc(inv.lr.number)}</h2><table>${[['Transporter', tr?.name], ['Vehicle', inv.lr.vehicleNo || inv.vehicleNo || tr?.vehicleNo], ['LR date', fmtDate(inv.lr.date)], ['Consignor', company.legalName + ', Btali 3PL Bhiwandi'], ['Consignee', `${p.name}, ${p.address || p.city}`], ['Invoice', inv.number], ['Packages', `${sum(inv.lines, (l) => l.qty)} units`], ['Invoice value', fmtINR(inv.total)]].map(([k, v]) => `<tr><td><b>${esc(k)}</b></td><td>${esc(v)}</td></tr>`).join('')}</table></body></html>`
     downloadText(`LR-${inv.lr.number}.html`, html, 'text/html')
   }
 
@@ -224,7 +224,7 @@ function OrderDetail() {
       ) : (
         <Card className="mb-4"><Stepper steps={steps} current={stepCurrent} /></Card>
       )}
-      {so.status === 'PAID' && so.lines.some((l) => (state.stock['WH-STAREX']?.[l.productId] || 0) < l.qty) && (
+      {so.status === 'PAID' && so.lines.some((l) => (state.stock['WH-BTALI']?.[l.productId] || 0) < l.qty) && (
         <Alert tone="warn" className="mb-4" title="Stock short for invoicing">Dispatch cannot invoice until stock arrives. Check incoming ETA below and update the dealer.</Alert>
       )}
       <div className="grid lg:grid-cols-3 gap-4">
@@ -268,7 +268,7 @@ function OrderDetail() {
                 </div>
                 <div className="flex flex-wrap items-center justify-between gap-3 border border-slate-200 rounded-lg p-3">
                   {inv.lr ? <><div><div className="text-sm font-semibold">LR {inv.lr.number}</div><div className="text-xs text-slate-500">{tr?.name} · {fmtDate(inv.lr.date)} · emailed to dealer</div></div><Button size="sm" variant="secondary" icon={Truck} onClick={dlLR}>LR copy</Button></>
-                    : <div className="text-sm text-slate-500">LR not uploaded yet – Dispatch / Starex will upload after loading ({tr?.name || 'transporter'}).</div>}
+                    : <div className="text-sm text-slate-500">LR not uploaded yet – Dispatch / Btali will upload after loading ({tr?.name || 'transporter'}).</div>}
                 </div>
               </div>
             ) : <div className="text-sm text-slate-500">{so.paymentStatus === 'PAID' ? 'Fully paid – Dispatch will generate the invoice from the ready-to-invoice queue.' : 'Invoice is generated automatically once Accounts marks the advance as received.'}</div>}
@@ -288,7 +288,7 @@ function OrderDetail() {
               ['Dealer', <Link key="d" className="text-brand-600 hover:underline" to={`/erp/sales/dealers/${p?.id}`}>{p?.name}</Link>],
               ['Salesperson', <UserName key="u" id={so.salespersonId} />],
               ['Transporter', tr?.name || '—'],
-              ['Warehouse', so.warehouseId === 'WH-GUJ' ? 'Gujarat facility' : 'Starex 3PL – Bhiwandi'],
+              ['Warehouse', so.warehouseId === 'WH-GUJ' ? 'Gujarat facility' : 'Btali 3PL – Bhiwandi'],
               quotation && ['From quotation', <Link key="q" className="text-brand-600 hover:underline" to={`/erp/sales/quotations?open=${quotation.id}`}>{quotation.number}</Link>],
               so.note && ['Note', so.note],
               ['Order age', `${daysBetween(so.date, today())} days`],

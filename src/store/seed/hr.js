@@ -8,7 +8,7 @@ const iso = (d, h = 10, m = 0) => `${d}T${String(h).padStart(2, '0')}:${String(m
 
 const SHIFTS = [
   { id: 'sh1', code: 'GEN', name: 'General – HQ', start: '09:30', end: '18:30', graceMin: 15, breakMin: 60, weeklyOff: [0, 6], otAllowed: false, color: '#2f416b', location: 'Navi Mumbai HQ' },
-  { id: 'sh2', code: 'WH', name: 'Warehouse – Starex', start: '09:00', end: '18:00', graceMin: 10, breakMin: 45, weeklyOff: [0], otAllowed: true, color: '#0d9488', location: 'Starex Warehouse, Bhiwandi' },
+  { id: 'sh2', code: 'WH', name: 'Warehouse – Btali', start: '09:00', end: '18:00', graceMin: 10, breakMin: 45, weeklyOff: [0], otAllowed: true, color: '#0d9488', location: 'Btali Warehouse, Bhiwandi' },
   { id: 'sh3', code: 'FLD', name: 'Field Sales', start: '10:00', end: '19:00', graceMin: 30, breakMin: 60, weeklyOff: [0], otAllowed: false, color: '#f2541f', location: 'Field' },
   { id: 'sh4', code: 'SRV', name: 'Service – Field', start: '09:00', end: '18:00', graceMin: 15, breakMin: 45, weeklyOff: [0], otAllowed: true, color: '#7c3aed', location: 'Field' },
 ]
@@ -64,20 +64,20 @@ const EMP = [
   ['e6', 'Sameer Khan', 'u6', 'Sales', 'Sales Executive – North', 'M', '2022-07-04', 540000, 'ss3', 'sh3', 'e4', 'Field'],
   ['e7', 'Ankita Joshi', 'u7', 'Sales', 'Sales Executive – South', 'F', '2022-01-17', 540000, 'ss3', 'sh3', 'e4', 'Field'],
   ['e8', 'Amit Verma', 'u18', 'Sales', 'Sales Executive – East', 'M', '2024-03-11', 480000, 'ss3', 'sh3', 'e4', 'Field'],
-  ['e9', 'Deepak Yadav', 'u8', 'Dispatch & Logistics', 'Dispatch Executive', 'M', '2019-09-02', 360000, 'ss1', 'sh2', 'e3', 'Starex Warehouse, Bhiwandi'],
+  ['e9', 'Deepak Yadav', 'u8', 'Dispatch & Logistics', 'Dispatch Executive', 'M', '2019-09-02', 360000, 'ss1', 'sh2', 'e3', 'Btali Warehouse, Bhiwandi'],
   ['e10', 'Kavita Iyer', 'u9', 'Finance & Accounts', 'Accounts Executive', 'F', '2020-01-06', 420000, 'ss1', 'sh1', 'e2', 'Navi Mumbai HQ'],
   ['e11', 'Meera Pillai', 'u10', 'HR & Admin', 'HR Manager', 'F', '2019-04-15', 900000, 'ss2', 'sh1', 'e1', 'Navi Mumbai HQ'],
   ['e12', 'Imran Shaikh', 'u11', 'Service', 'Service Head', 'M', '2018-03-12', 780000, 'ss2', 'sh4', 'e1', 'Field'],
-  ['e13', 'Sunil More', 'u17', 'Warehouse', 'Warehouse Coordinator (Starex desk)', 'M', '2020-10-05', 300000, 'ss1', 'sh2', 'e9', 'Starex Warehouse, Bhiwandi'],
+  ['e13', 'Sunil More', 'u17', 'Warehouse', 'Warehouse Coordinator (Btali desk)', 'M', '2020-10-05', 300000, 'ss1', 'sh2', 'e9', 'Btali Warehouse, Bhiwandi'],
   ['e14', 'Pooja Sawant', null, 'Finance & Accounts', 'Accounts Assistant', 'F', '2023-06-01', 252000, 'ss1', 'sh1', 'e2', 'Navi Mumbai HQ'],
-  ['e15', 'Ramesh Gawde', null, 'Warehouse', 'Warehouse Helper', 'M', '2021-11-15', 192000, 'ss1', 'sh2', 'e13', 'Starex Warehouse, Bhiwandi'],
+  ['e15', 'Ramesh Gawde', null, 'Warehouse', 'Warehouse Helper', 'M', '2021-11-15', 192000, 'ss1', 'sh2', 'e13', 'Btali Warehouse, Bhiwandi'],
   ['e16', 'Sachin Jadhav', null, 'Service', 'Service Technician', 'M', '2022-05-02', 276000, 'ss1', 'sh4', 'e12', 'Field'],
   ['e17', 'Faizal Ansari', null, 'Service', 'Service Technician', 'M', '2023-09-18', 252000, 'ss1', 'sh4', 'e12', 'Field'],
   ['e18', 'Lata Shinde', null, 'HR & Admin', 'Office Administrator', 'F', '2020-02-03', 228000, 'ss1', 'sh1', 'e11', 'Navi Mumbai HQ'],
-  ['e19', 'Mahesh Patil', null, 'Dispatch & Logistics', 'Driver', 'M', '2019-12-09', 216000, 'ss1', 'sh2', 'e9', 'Starex Warehouse, Bhiwandi'],
+  ['e19', 'Mahesh Patil', null, 'Dispatch & Logistics', 'Driver', 'M', '2019-12-09', 216000, 'ss1', 'sh2', 'e9', 'Btali Warehouse, Bhiwandi'],
   ['e20', 'Nikhil Rane', null, 'Purchase & Imports', 'Import Executive', 'M', '2022-12-01', 420000, 'ss1', 'sh1', 'e3', 'Navi Mumbai HQ'],
   ['e21', 'Swati Kale', null, 'Sales', 'Sales Coordinator', 'F', '2021-08-16', 360000, 'ss1', 'sh1', 'e4', 'Navi Mumbai HQ'],
-  ['e22', 'Tejas Bhosale', null, 'Warehouse', 'Warehouse Assistant', 'M', null, 186000, 'ss1', 'sh2', 'e13', 'Starex Warehouse, Bhiwandi'],
+  ['e22', 'Tejas Bhosale', null, 'Warehouse', 'Warehouse Assistant', 'M', null, 186000, 'ss1', 'sh2', 'e13', 'Btali Warehouse, Bhiwandi'],
 ]
 const BANKS = [['HDFC Bank', 'HDFC0000540'], ['State Bank of India', 'SBIN0011853'], ['ICICI Bank', 'ICIC0001267'], ['Axis Bank', 'UTIB0000697'], ['Kotak Mahindra Bank', 'KKBK0000646'], ['Bank of Maharashtra', 'MAHB0000921']]
 const CITIES = ['Vashi, Navi Mumbai', 'Kharghar, Navi Mumbai', 'Thane West', 'Panvel', 'Kalyan', 'Bhiwandi', 'Airoli, Navi Mumbai', 'Nerul, Navi Mumbai', 'Dombivli East', 'Ghansoli, Navi Mumbai']
@@ -268,7 +268,7 @@ export const hrSeed = (core) => {
     ['e6', 'FOOD', 0, 14, 2400, 'Hotel – Chandigarh trade fair', 'PENDING'],
     ['e16', 'TRAVEL', 0, 15, 640, 'Auto fare – Kalyan service calls', 'PENDING'],
     ['e7', 'MOBILE', 0, 16, 799, 'Postpaid mobile bill', 'PENDING'],
-    ['e13', 'OTHER', 0, 10, 1250, 'Stationery & printer toner – Starex desk', 'PENDING'],
+    ['e13', 'OTHER', 0, 10, 1250, 'Stationery & printer toner – Btali desk', 'PENDING'],
   ]
   let empClaims = claimRows.map(([empId, type, off, day, amount, description, status, km], i) => {
     const period = addMonths(cur, off)
@@ -337,7 +337,7 @@ export const hrSeed = (core) => {
       lastSync: iso(addDays(t, -1), 19, 5),
       devices: [
         { id: 'BIO-HQ-01', name: 'ZKTeco K40 – HQ reception', location: 'Navi Mumbai HQ', status: 'ONLINE', users: 10 },
-        { id: 'BIO-WH-01', name: 'ZKTeco F18 – Starex gate', location: 'Starex Warehouse, Bhiwandi', status: 'ONLINE', users: 5 },
+        { id: 'BIO-WH-01', name: 'ZKTeco F18 – Btali gate', location: 'Btali Warehouse, Bhiwandi', status: 'ONLINE', users: 5 },
         { id: 'APP-GEO', name: 'Btali mobile app (geo check-in)', location: 'Field staff', status: 'ONLINE', users: 7 },
       ],
     },

@@ -95,7 +95,7 @@ function Recon({ bankId, setBankId }) {
     const res = importBankStatement(bankId, out, `${bank.short}-eStatement-${today()}.csv`)
     toast.success(`Statement fetched – ${res.count} new lines`, `${res.matched} auto-matched`)
   }
-  const template = () => downloadText('bank-statement-template.csv', 'Date,Description,Ref,Debit,Credit,Balance\n27/10/2026,NEFT CR-HDFCN2610271234-SHARMA AGRO TRADERS,HDFCN2610271234,,125000.00,8125000.00\n27/10/2026,NEFT DR-N2610279876-STAREX 3PL,N2610279876,218300.00,,7906700.00\n', 'text/csv')
+  const template = () => downloadText('bank-statement-template.csv', 'Date,Description,Ref,Debit,Credit,Balance\n27/10/2026,NEFT CR-HDFCN2610271234-SHARMA AGRO TRADERS,HDFCN2610271234,,125000.00,8125000.00\n27/10/2026,NEFT DR-N2610279876-BTALI 3PL,N2610279876,218300.00,,7906700.00\n', 'text/csv')
 
   return (
     <div className="space-y-4">

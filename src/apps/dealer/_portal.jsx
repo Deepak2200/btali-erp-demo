@@ -134,7 +134,7 @@ export function LRDoc({ inv, partner, transporter }) {
         </div>
       </div>
       <div className="grid sm:grid-cols-2 gap-4 text-sm">
-        <div><div className="text-[11px] uppercase text-slate-400 font-semibold">Consignor</div><div className="font-medium">{company.legalName}</div><div className="text-xs text-slate-600">Starex 3PL – Bhiwandi</div></div>
+        <div><div className="text-[11px] uppercase text-slate-400 font-semibold">Consignor</div><div className="font-medium">{company.legalName}</div><div className="text-xs text-slate-600">Btali 3PL – Bhiwandi</div></div>
         <div><div className="text-[11px] uppercase text-slate-400 font-semibold">Consignee</div><div className="font-medium">{partner?.name}</div><div className="text-xs text-slate-600">{partner?.address}, {partner?.city}</div></div>
         <div><div className="text-[11px] uppercase text-slate-400 font-semibold">Invoice</div><div className="font-mono">{inv.number}</div><div className="text-xs text-slate-600">Value {fmtINR(inv.total)}</div></div>
         <div><div className="text-[11px] uppercase text-slate-400 font-semibold">Vehicle</div><div className="font-mono">{inv.lr?.vehicleNo || inv.vehicleNo || transporter?.vehicleNo || '—'}</div><div className="text-xs text-slate-600">Packages: {fmtNum(inv.lines.reduce((a, l) => a + l.qty, 0))} nos</div></div>

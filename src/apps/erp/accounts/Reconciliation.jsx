@@ -9,8 +9,8 @@ import { billPayable } from './_books'
 
 const WW_STATUS = { OPEN: ['Open', 'amber'], RAISED_WITH_VENDOR: ['Raised with vendor', 'blue'], RESOLVED: ['Resolved', 'green'], WRITTEN_OFF: ['Written off', 'gray'] }
 const WW_CAT = { RATE_MISMATCH: 'Rate mismatch', QTY_MISMATCH: 'Quantity mismatch', DUPLICATE: 'Duplicate billing', NOT_ORDERED: 'Not ordered / cancelled', GST_ERROR: 'GST error', OTHER: 'Other' }
-const SOURCES = { STAREX: 'lg1', SAFEX: 'lg2', GAF: 'fw3', SHIV_SAI: 'lg3' }
-const SRC_LABEL = { STAREX: 'Starex 3PL', SAFEX: 'Safex', GAF: 'GAF Logistics', SHIV_SAI: 'Shiv Sai' }
+const SOURCES = { BTALI: 'lg1', SAFEX: 'lg2', GAF: 'fw3', SHIV_SAI: 'lg3' }
+const SRC_LABEL = { BTALI: 'Btali 3PL', SAFEX: 'Safex', GAF: 'GAF Logistics', SHIV_SAI: 'Shiv Sai' }
 
 export default function Reconciliation() {
   const mis = useStore((s) => s.misUploads) || []
@@ -24,7 +24,7 @@ export default function Reconciliation() {
   const wwOpen = ww.filter((w) => ['OPEN', 'RAISED_WITH_VENDOR'].includes(w.status))
   return (
     <div>
-      <PageHeader title="Logistics Reconciliation" subtitle="Starex · Safex · GAF Logistics · Shiv Sai – MIS uploads checked inside the ERP, billing errors tracked to recovery"
+      <PageHeader title="Logistics Reconciliation" subtitle="Btali · Safex · GAF Logistics · Shiv Sai – MIS uploads checked inside the ERP, billing errors tracked to recovery"
         actions={<><Button variant="secondary" icon={Plus} onClick={() => setWwEdit({})}>Log billing error</Button><Button icon={Upload} onClick={() => setUpload(true)}>Upload MIS file</Button></>} />
       <Grid cols={4} className="mb-5">
         <Stat icon={FileSearch} label="MIS files uploaded" value={mis.length} sub={`${mis.filter((u) => u.status !== 'MATCHED' && !u.accountsReviewed).length} awaiting Accounts review`} onClick={() => setTab('MIS')} />
@@ -35,7 +35,7 @@ export default function Reconciliation() {
       <Tabs className="mb-3" value={tab} onChange={setTab} tabs={[{ key: 'MIS', label: 'MIS uploads', count: mis.length }, { key: 'WW', label: 'Wrong Workings Tracker', count: ww.length }, { key: 'GAF', label: 'GAF invoice due (15 days post arrival)', count: gafDue.filter((g) => g.state !== 'RECEIVED').length }, { key: 'BILLS', label: 'Logistics bills check' }]} />
       {tab === 'MIS' && (
         <DataTable rows={mis} onRowClick={(u) => setOpenMis(u.id)} exportName="mis-uploads"
-          empty={<EmptyState icon={FileSearch} title="No MIS files yet" message="Upload the weekly truck report or monthly MIS from Starex / Safex / GAF to reconcile it against ERP invoices." action={<Button icon={Upload} onClick={() => setUpload(true)}>Upload MIS file</Button>} />}
+          empty={<EmptyState icon={FileSearch} title="No MIS files yet" message="Upload the weekly truck report or monthly MIS from Btali / Safex / GAF to reconcile it against ERP invoices." action={<Button icon={Upload} onClick={() => setUpload(true)}>Upload MIS file</Button>} />}
           columns={[
             { key: 'source', header: 'Source', render: (u) => <Badge tone="ink">{SRC_LABEL[u.source] || u.source}</Badge> },
             { key: 'kind', header: 'Report', render: (u) => <div><div className="font-medium">{{ WEEKLY_TRUCK: 'Weekly truck report', MONTHLY_MIS: 'Monthly MIS', INVOICE: 'Invoice annexure' }[u.kind] || u.kind}</div><div className="text-[11px] text-slate-500">{u.fileName}</div></div> },
@@ -97,7 +97,7 @@ function MisDrawer({ id, onClose, onLog }) {
 
 function MisUpload({ onClose }) {
   const ref = useRef(null)
-  const [f, setF] = useState({ source: 'STAREX', kind: 'WEEKLY_TRUCK', period: '', file: null, rows: [] })
+  const [f, setF] = useState({ source: 'BTALI', kind: 'WEEKLY_TRUCK', period: '', file: null, rows: [] })
   const onFile = async (file) => {
     if (!file) return
     const rows = parseCSV(await file.text())
@@ -116,7 +116,7 @@ function MisUpload({ onClose }) {
     onClose()
   }
   return (
-    <Modal open onClose={onClose} title="Upload MIS file" subtitle="CSV exported from Starex / Safex / GAF – lines are matched to ERP invoices automatically for your review"
+    <Modal open onClose={onClose} title="Upload MIS file" subtitle="CSV exported from Btali / Safex / GAF – lines are matched to ERP invoices automatically for your review"
       footer={<><Button variant="secondary" icon={Download} onClick={template}>CSV format</Button><Button variant="secondary" onClick={onClose}>Cancel</Button><Button icon={Upload} onClick={submit}>Upload & reconcile</Button></>}>
       <FormGrid>
         <Field label="Source"><Select value={f.source} onChange={(e) => setF({ ...f, source: e.target.value })} options={Object.entries(SRC_LABEL).map(([value, label]) => ({ value, label }))} /></Field>
@@ -185,7 +185,7 @@ function WrongWorkings({ onEdit }) {
 function WwForm({ init, onClose }) {
   const vendors = useStore((s) => s.vendors)
   const { createWrongWorking, updateWrongWorking } = useStore.getState()
-  const [f, setF] = useState({ vendorId: 'lg1', source: 'STAREX', ref: '', period: '', category: 'RATE_MISMATCH', issue: '', billedAmount: '', correctAmount: '', status: 'OPEN', recoveredAmount: 0, resolution: '', ...init })
+  const [f, setF] = useState({ vendorId: 'lg1', source: 'BTALI', ref: '', period: '', category: 'RATE_MISMATCH', issue: '', billedAmount: '', correctAmount: '', status: 'OPEN', recoveredAmount: 0, resolution: '', ...init })
   const isEdit = !!init.id
   const save = () => {
     if (!f.issue.trim() || !f.ref.trim()) return toast.error('Reference and issue are required')

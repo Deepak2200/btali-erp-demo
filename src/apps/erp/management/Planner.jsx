@@ -293,7 +293,7 @@ function PlanDetail({ rec, state, vname, onClose, onSelect, fms }) {
         </div>
         <div>
           <SectionTitle>Stock position</SectionTitle>
-          <KV label="On hand (Starex)" value={fmtNum(rec.onHand)} />
+          <KV label="On hand (Btali)" value={fmtNum(rec.onHand)} />
           <KV label="Booked (paid, not dispatched)" value={fmtNum(rec.book)} />
           <KV label="Incoming" value={fmtNum(rec.incoming)} />
           <KV label="Reorder level / Max" value={`${p.reorderLevel} / ${p.maxLevel}`} />

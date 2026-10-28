@@ -76,7 +76,7 @@ function useRoleKpis(state, user) {
       sla: { label: 'SLA breached', value: fmtNum(slaBreached.length), sub: 'past response window', icon: Clock, tone: slaBreached.length ? 'red' : 'green', to: '/erp/service/tickets' },
       wclaims: { label: 'Warranty claims', value: fmtNum(claims.length), sub: 'awaiting decision', icon: ShieldAlert, tone: 'amber', to: '/erp/service/claims' },
       esc: { label: 'Vendor escalations', value: fmtNum(openTickets.filter((x) => x.escalatedToVendor).length), sub: 'open with suppliers', icon: Package, tone: 'violet', to: '/erp/service/escalations' },
-      stockVal: { label: 'Stock value (Starex)', value: fmtCompact(stockValue(state)), sub: 'at landed cost', icon: Boxes, tone: 'ink', to: '/erp/inventory/stock' },
+      stockVal: { label: 'Stock value (Btali)', value: fmtCompact(stockValue(state)), sub: 'at landed cost', icon: Boxes, tone: 'ink', to: '/erp/inventory/stock' },
     }
     const L = (label, to, icon) => ({ label, to, icon })
     const map = {
@@ -85,7 +85,7 @@ function useRoleKpis(state, user) {
       PURCHASE: [['reorder', 'poPending', 'inProd', 'transit'], [L('Reorder alerts', '/erp/purchase/reorder', AlertTriangle), L('AI procurement planner', '/erp/management/planner', Brain), L('Purchase orders', '/erp/purchase/orders', ShoppingCart), L('Shipments & ETA', '/erp/purchase/shipments', Ship)]],
       SALES_MANAGER: [['salesMTD', 'openSO', 'review', 'target'], [L('Sales orders', '/erp/sales/orders', ShoppingCart), L('Dealer 360', '/erp/sales/dealers', Users), L('Targets & incentives', '/erp/sales/targets', Target), L('Franchise network', '/erp/franchise', Store)]],
       SALES_EXEC: [['salesMTD', 'openSO', 'review', 'target'], [L('Sales orders', '/erp/sales/orders', ShoppingCart), L('Reorder nudges', '/erp/sales/nudges', Brain), L('My tasks', '/erp/sales/tasks', CheckSquare), L('Dealer 360', '/erp/sales/dealers', Users)]],
-      DISPATCH: [['ready', 'lr', 'dispToday', 'safex'], [L('Sales invoices', '/erp/dispatch/invoices', Receipt), L('Dispatch & LR', '/erp/dispatch/lr', Truck), L('Daily schedule', '/erp/dispatch/schedule', CalendarDays), L('Starex reconciliation', '/erp/dispatch/reconciliation', FileText)]],
+      DISPATCH: [['ready', 'lr', 'dispToday', 'safex'], [L('Sales invoices', '/erp/dispatch/invoices', Receipt), L('Dispatch & LR', '/erp/dispatch/lr', Truck), L('Daily schedule', '/erp/dispatch/schedule', CalendarDays), L('Btali reconciliation', '/erp/dispatch/reconciliation', FileText)]],
       ACCOUNTS: [['advance', 'recv', 'receipts', 'billsDue'], [L('Customer receipts', '/erp/accounts/receipts', HandCoins), L('Vendor bills', '/erp/accounts/vendor-bills', FileText), L('Payment dashboard', '/erp/accounts/payments', Landmark), L('Banking', '/erp/accounts/banking', Wallet)]],
       HR: [['leaves', 'emps', 'payroll', 'empClaims'], [L('Leave management', '/erp/hr/leaves', CalendarDays), L('Payroll', '/erp/hr/payroll', Coins), L('Attendance', '/erp/hr/attendance', Clock), L('Employees', '/erp/hr/employees', Users)]],
       SERVICE: [['tickets', 'sla', 'wclaims', 'esc'], [L('Ticket desk', '/erp/service/tickets', Ticket), L('Warranty claims', '/erp/service/claims', ShieldAlert), L('Warranty registry', '/erp/service/warranties', ShieldAlert), L('Vendor escalations', '/erp/service/escalations', Package)]],

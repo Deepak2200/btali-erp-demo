@@ -18,7 +18,7 @@ function CreateInvoiceModal({ soId, onClose, onCreated }) {
   const so = s.salesOrders.find((x) => x.id === soId)
   const p = partner(so?.partnerId)
   const mapped = p?.transporterId || so?.transporterId
-  const [f, setF] = useState({ transporterId: so?.transporterId || mapped || '', vehicleNo: transporter(so?.transporterId || mapped)?.vehicleNo || '', locationId: so?.warehouseId || 'WH-STAREX', saveMapping: false })
+  const [f, setF] = useState({ transporterId: so?.transporterId || mapped || '', vehicleNo: transporter(so?.transporterId || mapped)?.vehicleNo || '', locationId: so?.warehouseId || 'WH-BTALI', saveMapping: false })
   const [block, setBlock] = useState(null)
   if (!so) return null
   const loc = f.locationId
@@ -33,7 +33,7 @@ function CreateInvoiceModal({ soId, onClose, onCreated }) {
       return
     }
     if (f.saveMapping && overridden) setPartnerTransporter(p.id, f.transporterId)
-    toast.success(`Invoice ${r.invoice.number} generated`, `Emailed to ${p.email} · pushed to Starex schedule${r.invoice.safex ? ' · Safex debit note raised' : ''}`)
+    toast.success(`Invoice ${r.invoice.number} generated`, `Emailed to ${p.email} · pushed to Btali schedule${r.invoice.safex ? ' · Safex debit note raised' : ''}`)
     onCreated(r.invoice.id)
   }
   return (
@@ -47,7 +47,7 @@ function CreateInvoiceModal({ soId, onClose, onCreated }) {
           </Field>
           <Field label="Vehicle no."><Input value={f.vehicleNo} onChange={(e) => setF({ ...f, vehicleNo: e.target.value.toUpperCase() })} /></Field>
           <Field label="Dispatch location">
-            <Select value={f.locationId} onChange={(e) => setF({ ...f, locationId: e.target.value })} options={[{ value: 'WH-STAREX', label: 'Starex 3PL – Bhiwandi' }, { value: 'WH-GUJ', label: 'Gujarat Facility (virtual)' }]} />
+            <Select value={f.locationId} onChange={(e) => setF({ ...f, locationId: e.target.value })} options={[{ value: 'WH-BTALI', label: 'Btali 3PL – Bhiwandi' }, { value: 'WH-GUJ', label: 'Gujarat Facility (virtual)' }]} />
           </Field>
         </FormGrid>
         {overridden && <Checkbox className="mt-3" checked={f.saveMapping} onChange={(v) => setF({ ...f, saveMapping: v })} label={`Also update ${p?.name}'s Transport Master to ${transporter(f.transporterId)?.name}`} />}
@@ -67,7 +67,7 @@ function CreateInvoiceModal({ soId, onClose, onCreated }) {
             </tbody>
           </table>
         </div>
-        <p className="text-xs text-slate-500 mt-3">On generation: stock is reduced, the GST invoice is emailed to {p?.email}, and the consignment is pushed to the Starex dispatch schedule for {fmtDate(new Date(Date.now() + 864e5).toISOString())}.</p>
+        <p className="text-xs text-slate-500 mt-3">On generation: stock is reduced, the GST invoice is emailed to {p?.email}, and the consignment is pushed to the Btali dispatch schedule for {fmtDate(new Date(Date.now() + 864e5).toISOString())}.</p>
       </Modal>
       {block && (
         <Modal open size="sm" onClose={() => setBlock(null)} title="Insufficient stock – invoice cannot be processed"
@@ -75,7 +75,7 @@ function CreateInvoiceModal({ soId, onClose, onCreated }) {
           <div className="flex gap-3">
             <XCircle className="w-8 h-8 text-red-600 shrink-0" />
             <div className="text-sm text-slate-700">
-              The following items are short at {loc === 'WH-GUJ' ? 'the Gujarat facility' : 'Starex Bhiwandi'}. Sales has to inform the client or wait for the next inward.
+              The following items are short at {loc === 'WH-GUJ' ? 'the Gujarat facility' : 'Btali Bhiwandi'}. Sales has to inform the client or wait for the next inward.
               <ul className="mt-3 space-y-1.5">
                 {block.shortages.map((x) => (
                   <li key={x.productId} className="border border-red-200 bg-red-50 rounded-lg px-3 py-2">
@@ -103,7 +103,7 @@ export default function Invoices() {
   useEffect(() => { if (params.get('id')) { setOpenId(params.get('id')); setTab('all') } if (params.get('so')) setCreating(params.get('so')) }, [params])
 
   const ready = useMemo(() => s.salesOrders.filter((o) => o.status === 'PAID' && !o.invoiceId && o.warehouseId !== 'WH-GUJ').map((o) => ({
-    ...o, short: o.lines.some((l) => (s.stock[o.warehouseId || 'WH-STAREX']?.[l.productId] || 0) < l.qty),
+    ...o, short: o.lines.some((l) => (s.stock[o.warehouseId || 'WH-BTALI']?.[l.productId] || 0) < l.qty),
   })), [s.salesOrders, s.stock])
   const all = useMemo(() => s.invoices.filter((i) => i.date >= daysAgo(400)), [s.invoices])
   const close = () => { setOpenId(null); setParams({}) }
@@ -111,7 +111,7 @@ export default function Invoices() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Sales Invoices" subtitle="Invoice paid orders – stock-validated, auto-emailed to client and pushed to Starex" />
+      <PageHeader title="Sales Invoices" subtitle="Invoice paid orders – stock-validated, auto-emailed to client and pushed to Btali" />
       <Grid cols={4}>
         <Stat label="Ready to invoice" value={ready.length} sub={fmtINR(sum(ready, (o) => o.total))} icon={FilePlus2} />
         <Stat label="Blocked by stock" value={ready.filter((o) => o.short).length} tone="red" icon={XCircle} />

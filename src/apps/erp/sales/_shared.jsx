@@ -122,7 +122,7 @@ export function LineStockCheck({ lines }) {
   if (!rows.length) return null
   return (
     <div className="border border-slate-200 rounded-xl overflow-hidden">
-      <div className="px-3 py-2 bg-slate-50 text-[11px] uppercase tracking-wide font-semibold text-slate-500 flex items-center gap-1.5"><PackageSearch className="w-3.5 h-3.5" />Live stock check – Starex Bhiwandi</div>
+      <div className="px-3 py-2 bg-slate-50 text-[11px] uppercase tracking-wide font-semibold text-slate-500 flex items-center gap-1.5"><PackageSearch className="w-3.5 h-3.5" />Live stock check – Btali Bhiwandi</div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="text-[11px] uppercase text-slate-400"><tr><th className="text-left px-3 py-1.5">Product</th><th className="text-right px-3">Ordered</th><th className="text-right px-3">On hand</th><th className="text-right px-3">Book stock</th><th className="text-right px-3">Available</th><th className="text-left px-3">Incoming</th></tr></thead>

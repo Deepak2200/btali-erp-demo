@@ -185,7 +185,7 @@ function QuotationDrawer({ id, onClose, onEdit, onDuplicate }) {
           <div className="text-sm mb-4"><div className="text-[11px] uppercase text-slate-400">To</div><div className="font-semibold">{p?.name}</div><div className="text-slate-600">{p?.contact} · {p?.address}, {p?.city} · GSTIN {p?.gstin || '—'}</div></div>
           <OrderLines lines={q.lines} subtotal={q.subtotal} gst={q.gst} total={q.total} />
           {schemes.length > 0 && <div className="text-xs text-slate-500 mt-3">Schemes included: {schemes.map((s) => `${s.code} – ${s.name}`).join('; ')}</div>}
-          <div className="text-xs text-slate-500 mt-6 space-y-1"><div>Terms: 100% advance payment. Prices ex-Starex Bhiwandi; freight as per transporter. GST extra as shown.</div>{q.note && <div>{q.note}</div>}</div>
+          <div className="text-xs text-slate-500 mt-6 space-y-1"><div>Terms: 100% advance payment. Prices ex-Btali Bhiwandi; freight as per transporter. GST extra as shown.</div>{q.note && <div>{q.note}</div>}</div>
         </PrintArea>
       </Modal>
     </Drawer>

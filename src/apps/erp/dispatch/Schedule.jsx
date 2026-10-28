@@ -22,22 +22,22 @@ export default function Schedule() {
   }
   const send = async () => {
     if (!invs.length) return toast.error('Nothing to schedule for this date')
-    const ok = await confirm({ title: 'Confirm & email to Starex?', message: `${invs.length} invoices · ${fmtNum(sum(rows, (r) => r.qty))} pcs · ${fmtNum(round2(sum(rows, (r) => r.weight)))} kg will be emailed to ops@starex3pl.in and published on the Starex portal.`, confirmText: 'Confirm & send' })
+    const ok = await confirm({ title: 'Confirm & email to Btali?', message: `${invs.length} invoices · ${fmtNum(sum(rows, (r) => r.qty))} pcs · ${fmtNum(round2(sum(rows, (r) => r.weight)))} kg will be emailed to ops@btali3pl.in and published on the Btali portal.`, confirmText: 'Confirm & send' })
     if (!ok) return
     confirmSchedule({ date, invoiceIds: invs.map((i) => i.id), email: true, attachment: makeAttachment(fileName.replace('.csv', '.xlsx'), { docType: 'SCHEDULE' }) })
-    toast.success('Schedule sent to Starex', `${fmtDate(date)} · ${invs.length} invoices`)
+    toast.success('Schedule sent to Btali', `${fmtDate(date)} · ${invs.length} invoices`)
   }
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Daily Dispatch Summary" subtitle="Auto-built from issued invoices – grouped by transporter for Starex loading & vehicle planning"
+      <PageHeader title="Daily Dispatch Summary" subtitle="Auto-built from issued invoices – grouped by transporter for Btali loading & vehicle planning"
         actions={<>
           <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-40" />
           <Button variant="secondary" icon={FileSpreadsheet} onClick={exportFile} disabled={!rows.length}>Export Excel</Button>
-          <Button icon={Send} onClick={send} disabled={!rows.length}>{rec ? 'Re-send to Starex' : 'Confirm & email Starex'}</Button>
+          <Button icon={Send} onClick={send} disabled={!rows.length}>{rec ? 'Re-send to Btali' : 'Confirm & email Btali'}</Button>
         </>} />
-      {rec && !changed && <Alert tone="success" title={`Schedule confirmed for ${fmtDate(date)}`}>Emailed to Starex {fmtDateTime(rec.emailedAt)} · revision {rec.revision}.</Alert>}
-      {rec && changed && <Alert tone="warn" title="Schedule changed since it was sent">New invoices were added after confirmation on {fmtDateTime(rec.confirmedAt)}. Re-send to keep Starex in sync.</Alert>}
+      {rec && !changed && <Alert tone="success" title={`Schedule confirmed for ${fmtDate(date)}`}>Emailed to Btali {fmtDateTime(rec.emailedAt)} · revision {rec.revision}.</Alert>}
+      {rec && changed && <Alert tone="warn" title="Schedule changed since it was sent">New invoices were added after confirmation on {fmtDateTime(rec.confirmedAt)}. Re-send to keep Btali in sync.</Alert>}
       <Grid cols={4}>
         <Stat label="Invoices" value={invs.length} sub={`${invs.filter((i) => i.dispatchDate < date).length} carried over`} icon={Package} />
         <Stat label="Transporters / vehicles" value={Object.keys(groups).length} icon={Truck} tone="ink" />

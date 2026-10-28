@@ -181,7 +181,7 @@ function Overview({ period, k, cc, shortfalls, ships, dealers, inv, trend, alert
         <Card title="Stock cover by category" subtitle="Days of stock at current sell-through">
           {inv.cats.map((c) => <ProgressRow key={c.category} label={c.category} value={Math.min(c.cover || 0, 180)} max={180} right={c.cover != null ? `${c.cover} d` : '—'} tone={(c.cover || 0) < 30 ? 'red' : (c.cover || 0) > 120 ? 'amber' : 'green'} />)}
         </Card>
-        <Card title="Reorder breaches" subtitle="Starex on-hand below reorder level" actions={<Button size="sm" variant="link" onClick={() => navigate('/erp/management/planner')}>AI planner</Button>}>
+        <Card title="Reorder breaches" subtitle="Btali on-hand below reorder level" actions={<Button size="sm" variant="link" onClick={() => navigate('/erp/management/planner')}>AI planner</Button>}>
           <ul className="divide-y divide-slate-100">
             {inv.breaches.slice(0, 6).map((p) => (
               <li key={p.id} className="flex items-center justify-between py-2 gap-2">

@@ -9,7 +9,7 @@ const GROUPS = [
   { label: 'Btali team (ERP)', icon: Building2, roles: ['ADMIN', 'FINANCE_HEAD', 'PURCHASE', 'SALES_MANAGER', 'SALES_EXEC', 'DISPATCH', 'ACCOUNTS', 'HR', 'SERVICE'] },
   { label: 'Vendor Portal', icon: Factory, roles: ['VENDOR'] },
   { label: 'Dealer & Franchise', icon: Store, roles: ['DEALER', 'FRANCHISE'] },
-  { label: 'Starex Warehouse', icon: Warehouse, roles: ['STAREX'] },
+  { label: 'Btali Warehouse', icon: Warehouse, roles: ['BTALI'] },
 ]
 
 export default function Login() {
@@ -41,7 +41,7 @@ export default function Login() {
             {[
               ['Procurement & imports', 'PO → PI → QC → container → landed cost'],
               ['Dealer & franchise sales', 'Live stock, schemes, portal ordering, POS'],
-              ['Dispatch & Starex', 'Invoice stock-check, LR, reconciliation'],
+              ['Dispatch & Btali', 'Invoice stock-check, LR, reconciliation'],
               ['Warranty & service', 'Barcode-driven warranty and ticketing'],
             ].map(([t, d]) => (
               <div key={t} className="rounded-xl bg-white/5 border border-white/10 p-3">

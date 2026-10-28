@@ -144,7 +144,7 @@ function DealersTab({ state, period, region }) {
 
 // ------------------------------------------------------------------ LOGISTICS
 const PROVIDERS = [
-  { id: 'lg1', key: 'STAREX', name: 'Starex 3PL', role: 'Warehousing & handling', icon: Warehouse, color: CHART_COLORS[1] },
+  { id: 'lg1', key: 'BTALI', name: 'Btali 3PL', role: 'Warehousing & handling', icon: Warehouse, color: CHART_COLORS[1] },
   { id: 'lg2', key: 'SAFEX', name: 'Safex Transport', role: 'Outbound pick-up & delivery', icon: Truck, color: CHART_COLORS[0] },
   { id: 'fw3', key: 'GAF', name: 'GAF Logistics', role: 'Import forwarding & clearing', icon: Container, color: CHART_COLORS[2] },
 ]
@@ -163,7 +163,7 @@ function LogisticsTab({ state, period, region }) {
     let driver = 0
     let driverLabel = ''
     let freightRecorded = 0
-    if (p.key === 'STAREX') { driver = invs.filter((i) => i.lr).length; driverLabel = 'dispatches handled' }
+    if (p.key === 'BTALI') { driver = invs.filter((i) => i.lr).length; driverLabel = 'dispatches handled' }
     if (p.key === 'SAFEX') {
       const si = invs.filter((i) => state.transporters.find((t) => t.id === i.transporterId)?.isSafex)
       driver = si.length
@@ -237,9 +237,9 @@ function LogisticsTab({ state, period, region }) {
         <Stat icon={IndianRupee} label="Outbound freight" value={fmtCompact(totFreight)} sub={`${fmtNum(withFreight)} invoices with freight`} />
         <Stat icon={Truck} tone="ink" label="Freight per invoice" value={withFreight ? fmtINR(totFreight / withFreight) : '—'} sub={period.label} />
         <Stat icon={TrendingDown} tone="amber" label="Freight % of sales" value={fmtPct(sum(byTransporter, (r) => r.value) ? (totFreight / sum(byTransporter, (r) => r.value)) * 100 : 0, 2)} sub="on invoice value" />
-        <Stat icon={ShieldCheck} tone="green" label="Starex billing accuracy" value={misResults.length ? fmtPct((misMatch / misResults.length) * 100, 0) : '—'} sub={misResults.length ? `${misResults.length - misMatch} mismatches in ${mis.length} MIS` : 'no MIS uploaded'} />
+        <Stat icon={ShieldCheck} tone="green" label="Btali billing accuracy" value={misResults.length ? fmtPct((misMatch / misResults.length) * 100, 0) : '—'} sub={misResults.length ? `${misResults.length - misMatch} mismatches in ${mis.length} MIS` : 'no MIS uploaded'} />
       </Grid>
-      <Card title="Logistics spend vs dispatches" subtitle={hasBills ? 'Monthly bills from Starex, Safex and GAF, outbound freight and dispatch count' : 'Monthly outbound freight (invoice freight) vs number of dispatches'}>
+      <Card title="Logistics spend vs dispatches" subtitle={hasBills ? 'Monthly bills from Btali, Safex and GAF, outbound freight and dispatch count' : 'Monthly outbound freight (invoice freight) vs number of dispatches'}>
         <ResponsiveContainer width="100%" height={290}>
           <ComposedChart data={monthly} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
             <CartesianGrid stroke="#f1f5f9" vertical={false} />
@@ -253,7 +253,7 @@ function LogisticsTab({ state, period, region }) {
             <Line yAxisId="r" dataKey="dispatches" name="Dispatches" stroke={CHART_COLORS[4]} strokeWidth={2} dot={{ r: 2 }} isAnimationActive={false} />
           </ComposedChart>
         </ResponsiveContainer>
-        {!hasBills && <Alert tone="info" className="mt-2">Starex, Safex and GAF bills will be stacked here as soon as Accounts posts them under Vendor Bills.</Alert>}
+        {!hasBills && <Alert tone="info" className="mt-2">Btali, Safex and GAF bills will be stacked here as soon as Accounts posts them under Vendor Bills.</Alert>}
       </Card>
       <div className="grid lg:grid-cols-2 gap-4">
         <DataTable

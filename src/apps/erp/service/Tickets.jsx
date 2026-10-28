@@ -80,7 +80,7 @@ export default function Tickets() {
 
   return (
     <div>
-      <PageHeader title="Service Ticket Desk" subtitle="All service requests from dealers, franchise stores, website, toll-free, Starex and vendors"
+      <PageHeader title="Service Ticket Desk" subtitle="All service requests from dealers, franchise stores, website, toll-free, Btali and vendors"
         actions={<>
           <Button variant="secondary" icon={PhoneCall} onClick={() => setNewOpen('TOLL_FREE')}>Toll-free intake</Button>
           <Button icon={Plus} onClick={() => setNewOpen('INTERNAL')}>New ticket</Button>

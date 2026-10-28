@@ -19,7 +19,7 @@ function NewComplaint({ onClose }) {
   const save = () => {
     if (!f.subject.trim()) return toast.error('Enter a short subject')
     if (!f.description.trim()) return toast.error('Describe the issue')
-    const t = createTicket({ source: 'STAREX', ...f, productId: f.productId || null, barcode: f.barcode || null })
+    const t = createTicket({ source: 'BTALI', ...f, productId: f.productId || null, barcode: f.barcode || null })
     toast.success(`${t.number} logged`, `Routed to ${ROUTE[f.category]} team`)
     onClose()
   }
@@ -70,11 +70,11 @@ function ComplaintDrawer({ id, onClose }) {
   )
 }
 
-export default function StarexComplaints() {
+export default function BtaliComplaints() {
   const tickets = useStore((s) => s.tickets)
   const [modal, setModal] = useState(false)
   const [open, setOpen] = useState(null)
-  const rows = useMemo(() => tickets.filter((t) => t.source === 'STAREX').sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)), [tickets])
+  const rows = useMemo(() => tickets.filter((t) => t.source === 'BTALI').sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)), [tickets])
   const openRows = rows.filter((t) => !['RESOLVED', 'CLOSED'].includes(t.stage))
   return (
     <div>
@@ -86,7 +86,7 @@ export default function StarexComplaints() {
         <Stat label="Total logged" value={rows.length} tone="ink" />
       </Grid>
       <div className="mt-4">
-        <DataTable rows={rows} onRowClick={(t) => setOpen(t.id)} exportName="starex-complaints"
+        <DataTable rows={rows} onRowClick={(t) => setOpen(t.id)} exportName="btali-complaints"
           filters={[{ key: 'category', label: 'types', options: Object.entries(CAT).map(([value, label]) => ({ value, label })) }, { key: 'stage', label: 'stages', options: ['LOGGED', 'UNDER_REVIEW', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'].map((v) => ({ value: v, label: v.replace(/_/g, ' ').toLowerCase() })) }]}
           columns={[
             { key: 'number', header: 'Ticket', render: (t) => <span className="font-mono text-xs">{t.number}</span> },

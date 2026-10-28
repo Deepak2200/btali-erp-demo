@@ -25,7 +25,7 @@ export default function Stock() {
     const partnerQty = sum(partners.filter((x) => x.type === 'DEALER' || x.type === 'FRANCHISE'), (x) => x.stock?.[p.id] || 0)
     const status = stockStatus(state, p)
     const nextEta = inc.map((x) => x.eta).filter(Boolean).sort()[0] || null
-    return { ...p, starex: st, guj, book, available: st - book, inc, incQty: sum(inc, (x) => x.qty), nextEta, partnerQty, status, value: (st + guj) * p.landedCost }
+    return { ...p, btali: st, guj, book, available: st - book, inc, incQty: sum(inc, (x) => x.qty), nextEta, partnerQty, status, value: (st + guj) * p.landedCost }
   }), [state]) // eslint-disable-line
 
   const view = rows.filter((r) => scope === 'ALL' || r.type === scope)
@@ -33,7 +33,7 @@ export default function Stock() {
   const cols = [
     { key: 'sku', header: 'Product', value: (r) => `${r.sku} ${r.shortName}`, render: (r) => <ProductCell product={r} /> },
     { key: 'category', header: 'Category' },
-    { key: 'starex', header: 'Starex', align: 'right', render: (r) => fmtNum(r.starex) },
+    { key: 'btali', header: 'Btali', align: 'right', render: (r) => fmtNum(r.btali) },
     { key: 'guj', header: 'Gujarat', align: 'right', render: (r) => (r.guj ? fmtNum(r.guj) : <span className="text-slate-300">0</span>) },
     { key: 'book', header: 'Book stock', align: 'right', render: (r) => (r.book ? <span className="text-amber-700">{fmtNum(r.book)}</span> : <span className="text-slate-300">0</span>) },
     { key: 'available', header: 'Available', align: 'right', render: (r) => <span className={r.available <= 0 ? 'text-red-600 font-bold' : 'font-semibold text-ink-900'}>{fmtNum(r.available)}</span> },
@@ -51,7 +51,7 @@ export default function Stock() {
       <PageHeader title="Stock Overview" subtitle="Stock in hand, book stock (paid, not dispatched), available and incoming – finished goods and spares"
         actions={<Segmented value={scope} onChange={setScope} options={[{ key: 'ALL', label: 'All' }, { key: 'FG', label: 'Finished goods' }, { key: 'SPARE', label: 'Spares' }]} />} />
       <Grid cols={4} className="mb-4">
-        <Stat label="Stock value at landed cost" value={fmtCompact(totVal)} icon={IndianRupee} sub={`${fmtNum(sum(view, (r) => r.starex + r.guj))} units`} />
+        <Stat label="Stock value at landed cost" value={fmtCompact(totVal)} icon={IndianRupee} sub={`${fmtNum(sum(view, (r) => r.btali + r.guj))} units`} />
         <Stat label={`Valuation (+${markup}% markup)`} value={fmtCompact(totVal * (1 + markup / 100))} icon={Boxes} tone="ink" />
         <Stat label="Below reorder / out" value={view.filter((r) => r.status.key === 'LOW' || r.status.key === 'OUT').length} icon={AlertTriangle} tone="amber" sub={`${view.filter((r) => r.status.key === 'OUT').length} out of stock`} />
         <Stat label="Incoming units" value={fmtNum(sum(view, (r) => r.incQty))} icon={Ship} tone="blue" sub={`${fmtNum(sum(view, (r) => r.partnerQty))} at dealers/franchise`} />
@@ -67,7 +67,7 @@ export default function Stock() {
         footer={p && <Link to={`/erp/masters/products?id=${p.id}`}><Button variant="secondary" icon={ExternalLink}>Open product master</Button></Link>}>
         {p && (
           <div className="space-y-5">
-            <DescriptionList cols={4} items={[['Starex', fmtNum(p.starex)], ['Gujarat', fmtNum(p.guj)], ['Book stock', fmtNum(p.book)], ['Available', fmtNum(p.available)], ['Reorder level', fmtNum(p.reorderLevel)], ['Max level', fmtNum(p.maxLevel)], ['Landed cost', fmtINR(p.landedCost)], ['Value', fmtINR(p.value)]]} />
+            <DescriptionList cols={4} items={[['Btali', fmtNum(p.btali)], ['Gujarat', fmtNum(p.guj)], ['Book stock', fmtNum(p.book)], ['Available', fmtNum(p.available)], ['Reorder level', fmtNum(p.reorderLevel)], ['Max level', fmtNum(p.maxLevel)], ['Landed cost', fmtINR(p.landedCost)], ['Value', fmtINR(p.value)]]} />
             <div>
               <SectionTitle>Incoming</SectionTitle>
               {p.inc.length ? (

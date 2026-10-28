@@ -14,7 +14,7 @@ function GrnDrawer({ id, onClose }) {
   const inw = sh.inward
   return (
     <Drawer open onClose={onClose} width="max-w-3xl" title={`${inw.grnNo} · ${sh.number}`} subtitle={`${sh.containerNo} · received ${fmtDate(inw.date)}`}>
-      <DescriptionList cols={3} items={[['GRN', inw.grnNo], ['Received on', fmtDate(inw.date)], ['Received by', user(inw.receivedBy)?.name || 'Starex desk'], ['Discrepancies', inw.discrepancies?.length || 0], ['QC files', inw.qcMedia?.length || 0], ['Remarks', inw.remarks || '—']]} />
+      <DescriptionList cols={3} items={[['GRN', inw.grnNo], ['Received on', fmtDate(inw.date)], ['Received by', user(inw.receivedBy)?.name || 'Btali desk'], ['Discrepancies', inw.discrepancies?.length || 0], ['QC files', inw.qcMedia?.length || 0], ['Remarks', inw.remarks || '—']]} />
       {inw.lines?.length > 0 && (
         <>
           <SectionTitle className="mt-5">Received quantities</SectionTitle>
@@ -83,7 +83,7 @@ export default function Inward() {
 
   const submit = async () => {
     if (!totRec) return toast.error('Nothing received yet', 'Scan barcodes or enter received quantities.')
-    const ok = await confirm({ title: `Post GRN for ${sh.number}?`, message: `${fmtNum(totRec)} of ${fmtNum(totExp)} units received.${variances.length ? `\n${variances.length} line(s) differ – a discrepancy ticket will be raised for Purchase.` : ''}\nStock at Starex will be updated immediately.`, confirmText: 'Post GRN' })
+    const ok = await confirm({ title: `Post GRN for ${sh.number}?`, message: `${fmtNum(totRec)} of ${fmtNum(totExp)} units received.${variances.length ? `\n${variances.length} line(s) differ – a discrepancy ticket will be raised for Purchase.` : ''}\nStock at Btali will be updated immediately.`, confirmText: 'Post GRN' })
     if (!ok) return
     const r = receiveShipment(sh.id, { lines, qcMedia: media.map((m) => ({ ...m, caption: m.caption || m.name })), remarks })
     setResult({ ...r, number: sh.number })
@@ -107,7 +107,7 @@ export default function Inward() {
           <Field label="Container / shipment" className="md:w-96">
             <Select value={shId} onChange={(e) => pickShipment(e.target.value)} placeholder="Select arriving container…" options={pending.map((s) => ({ value: s.id, label: `${s.number} · ${s.containerNo} · ETA ${fmtDate(s.eta)} · ${s.status.replace(/_/g, ' ')}` }))} />
           </Field>
-          {sh && <div className="flex items-center gap-2 text-sm text-slate-600 flex-wrap"><StatusBadge status={sh.status} /><span>BL {sh.blNo}</span><span>· {expected.length} SKUs · {fmtNum(totExp)} units expected</span>{sh.starexPlan?.bay && <Badge tone="green">{sh.starexPlan.bay}</Badge>}</div>}
+          {sh && <div className="flex items-center gap-2 text-sm text-slate-600 flex-wrap"><StatusBadge status={sh.status} /><span>BL {sh.blNo}</span><span>· {expected.length} SKUs · {fmtNum(totExp)} units expected</span>{sh.btaliPlan?.bay && <Badge tone="green">{sh.btaliPlan.bay}</Badge>}</div>}
         </div>
       </Card>
 
@@ -161,7 +161,7 @@ export default function Inward() {
       )}
 
       <h3 className="text-sm font-semibold text-slate-900 mt-6 mb-2">Inward history</h3>
-      <DataTable rows={received} onRowClick={(r) => setOpenGrn(r.id)} pageSize={8} exportName="starex-grn"
+      <DataTable rows={received} onRowClick={(r) => setOpenGrn(r.id)} pageSize={8} exportName="btali-grn"
         columns={[
           { key: 'grn', header: 'GRN', value: (r) => r.inward.grnNo, render: (r) => <span className="font-mono text-xs">{r.inward.grnNo}</span> },
           { key: 'number', header: 'Shipment' },

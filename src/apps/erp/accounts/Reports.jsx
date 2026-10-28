@@ -18,7 +18,7 @@ const REPORTS = [
   { key: 'CONT', label: 'Container Costing', icon: Container, group: 'MIS' },
   { key: 'MOVE', label: 'Product Movement', icon: ArrowLeftRight, group: 'MIS' },
   { key: 'SALES', label: 'Product-wise Sales', icon: ShoppingBag, group: 'MIS' },
-  { key: 'LOGI', label: 'GAF / Starex / Safex Payments', icon: Truck, group: 'MIS' },
+  { key: 'LOGI', label: 'GAF / Btali / Safex Payments', icon: Truck, group: 'MIS' },
   { key: 'TALLY', label: 'Tally Export', icon: Upload, group: 'Integration' },
 ]
 

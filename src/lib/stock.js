@@ -2,7 +2,7 @@
 // Book stock = paid sales orders not yet invoiced/dispatched. Available = on-hand − book stock.
 import { sum } from './format'
 
-export const MAIN_WH = 'WH-STAREX'
+export const MAIN_WH = 'WH-BTALI'
 
 export const onHand = (state, productId, locationId = MAIN_WH) => state.stock?.[locationId]?.[productId] ?? 0
 

@@ -42,9 +42,9 @@ export const createSeed = () => {
       counters.INV++
       const id = `inv_${so.id}`
       const date = addDays(so.date, 1)
-      invoices.push({ id, number: `BT/26-27/${String(counters.INV).padStart(4, '0')}`, soId: so.id, partnerId: so.partnerId, date, lines: so.lines, subtotal: so.subtotal, gst: so.gst, total: so.total, transporterId: so.transporterId, vehicleNo: '', status: 'ISSUED', lr: null, sentToStarex: true, emailed: true, irn: `IRN${String(9.4e9 + counters.INV * 31)}`, ewayBill: String(3.9e11 + counters.INV * 17).slice(0, 12), type: 'TAX', dispatchDate: addDays(date, 1), units: [] })
+      invoices.push({ id, number: `BT/26-27/${String(counters.INV).padStart(4, '0')}`, soId: so.id, partnerId: so.partnerId, date, lines: so.lines, subtotal: so.subtotal, gst: so.gst, total: so.total, transporterId: so.transporterId, vehicleNo: '', status: 'ISSUED', lr: null, sentToBtali: true, emailed: true, irn: `IRN${String(9.4e9 + counters.INV * 31)}`, ewayBill: String(3.9e11 + counters.INV * 17).slice(0, 12), type: 'TAX', dispatchDate: addDays(date, 1), units: [] })
       so.invoiceId = id
-      so.timeline.push({ ts: `${date}T11:00:00.000Z`, text: 'Invoice generated & emailed; pushed to Starex schedule' })
+      so.timeline.push({ ts: `${date}T11:00:00.000Z`, text: 'Invoice generated & emailed; pushed to Btali schedule' })
     }
   }
   const salesOrders = [...hist.salesOrders, ...openSOs]

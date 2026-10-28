@@ -9,8 +9,8 @@ import { ROLE_LABEL, ROLE_MODULES, APPS } from '../../../nav'
 import { fmtDateTime, timeAgo } from '../../../lib/format'
 
 const REGIONS = ['North', 'South', 'East', 'West', 'Central']
-const PORTAL_ROLES = ['VENDOR', 'DEALER', 'FRANCHISE', 'STAREX']
-const APP_LABEL = { erp: 'Btali ERP', vendor: 'Vendor Portal', dealer: 'Dealer Portal', franchise: 'Franchise Portal', starex: 'Starex Portal' }
+const PORTAL_ROLES = ['VENDOR', 'DEALER', 'FRANCHISE', 'BTALI']
+const APP_LABEL = { erp: 'Btali ERP', vendor: 'Vendor Portal', dealer: 'Dealer Portal', franchise: 'Franchise Portal', btali: 'Btali Portal' }
 const roleTone = (r) => (r === 'ADMIN' ? 'brand' : r === 'FINANCE_HEAD' ? 'violet' : PORTAL_ROLES.includes(r) ? 'teal' : 'ink')
 
 const EMPTY = { name: '', title: '', role: 'SALES_EXEC', email: '', phone: '', username: '', regions: [], vendorId: '', partnerId: '' }
@@ -90,7 +90,7 @@ function PermissionMatrix() {
     return null
   }
   return (
-    <Card title="Role permission matrix" subtitle="Modules each internal role can open in Btali ERP. Portal roles (Vendor, Dealer, Franchise, Starex) see only their own portal and data." padded={false}>
+    <Card title="Role permission matrix" subtitle="Modules each internal role can open in Btali ERP. Portal roles (Vendor, Dealer, Franchise, Btali) see only their own portal and data." padded={false}>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
@@ -198,7 +198,7 @@ export default function Users() {
         <Stat label="Total users" value={rows.length} sub={`${rows.filter((u) => u.status === 'ACTIVE').length} active`} icon={UsersIcon} />
         <Stat label="Internal staff" value={internal.length} sub={`${new Set(internal.map((u) => u.role)).size} roles`} icon={ShieldCheck} tone="ink" />
         <Stat label="Vendor portal users" value={rows.filter((u) => u.role === 'VENDOR').length} icon={Building2} tone="violet" />
-        <Stat label="Dealer / franchise / Starex" value={rows.filter((u) => ['DEALER', 'FRANCHISE', 'STAREX'].includes(u.role)).length} icon={Store} tone="green" />
+        <Stat label="Dealer / franchise / Btali" value={rows.filter((u) => ['DEALER', 'FRANCHISE', 'BTALI'].includes(u.role)).length} icon={Store} tone="green" />
       </Grid>
       <Tabs className="mb-4" value={tab} onChange={setTab} tabs={[{ key: 'users', label: 'Users', count: rows.length }, { key: 'matrix', label: 'Role permissions' }, { key: 'audit', label: 'Audit log', count: auditLog.length }]} />
       {tab === 'users' && (

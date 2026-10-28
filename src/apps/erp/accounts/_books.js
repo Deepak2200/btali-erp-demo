@@ -94,7 +94,7 @@ const COA_DEF = [
   ['5001', 'Cost of Goods Sold', 'Expenses', 'Direct Expenses', 'DR'],
   ['5101', 'Freight Inward & Forwarding (GAF)', 'Expenses', 'Direct Expenses', 'DR'],
   ['5102', 'Port Transport (Shiv Sai)', 'Expenses', 'Direct Expenses', 'DR'],
-  ['5103', 'Warehousing Charges (Starex)', 'Expenses', 'Direct Expenses', 'DR'],
+  ['5103', 'Warehousing Charges (Btali)', 'Expenses', 'Direct Expenses', 'DR'],
   ['5104', 'Carriage Outward (Safex & Transporters)', 'Expenses', 'Direct Expenses', 'DR'],
   ['5105', 'Sales Returns & Discounts', 'Expenses', 'Direct Expenses', 'DR'],
   ['5106', 'Clearing Charges (CHA)', 'Expenses', 'Direct Expenses', 'DR'],
@@ -128,7 +128,7 @@ export const BILL_CATEGORIES = [
   { value: 'SUPPLIER', label: 'Supplier (goods)', account: '1201' },
   { value: 'FREIGHT', label: 'Freight / Forwarding', account: '5101' },
   { value: 'CHA', label: 'CHA / Clearing', account: '5106' },
-  { value: 'WAREHOUSE', label: 'Warehousing (Starex)', account: '5103' },
+  { value: 'WAREHOUSE', label: 'Warehousing (Btali)', account: '5103' },
   { value: 'TRANSPORT', label: 'Transport', account: '5104' },
   { value: 'OTHER', label: 'Other', account: '5207' },
 ]

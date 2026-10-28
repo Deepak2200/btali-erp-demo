@@ -38,7 +38,7 @@ export default function Inward() {
 
   return (
     <div>
-      <PageHeader title="Inward & Discrepancies" subtitle="Record Starex inward against each container, log short / excess receipts and settle them against the vendor's next order" />
+      <PageHeader title="Inward & Discrepancies" subtitle="Record Btali inward against each container, log short / excess receipts and settle them against the vendor's next order" />
       <Grid cols={4} className="mb-5">
         <Stat label="Awaiting GRN" value={awaiting.length} icon={Ship} tone="blue" sub={`${awaiting.filter((s) => s.status !== 'IN_TRANSIT').length} at port / cleared`} />
         <Stat label="Open discrepancies" value={discs.filter((d) => !d.settled).length} icon={AlertTriangle} tone="amber" sub={`${discs.length} logged`} />
@@ -112,14 +112,14 @@ function RecordInward({ sh, onClose }) {
   const diff = lines.filter((l) => l.received !== l.expected)
   const save = async () => {
     if (lines.some((l) => l.received === '' || l.received < 0)) return toast.error('Enter received quantity for every line')
-    const ok = await confirm({ title: `Post GRN for ${sh.number}?`, message: `${fmtNum(sum(lines, (l) => l.received))} pcs will be added to Starex stock and barcoded units marked in warehouse.${diff.length ? `\n${diff.length} discrepancy line(s) will raise a ticket for Purchase.` : ''}`, confirmText: 'Post GRN' })
+    const ok = await confirm({ title: `Post GRN for ${sh.number}?`, message: `${fmtNum(sum(lines, (l) => l.received))} pcs will be added to Btali stock and barcoded units marked in warehouse.${diff.length ? `\n${diff.length} discrepancy line(s) will raise a ticket for Purchase.` : ''}`, confirmText: 'Post GRN' })
     if (!ok) return
     const r = receiveShipment(sh.id, { lines: lines.map((l) => ({ ...l, received: Number(l.received) })), qcMedia: media.map((m) => ({ ...m, docType: 'QC' })), remarks })
     toast.success(`${r.grnNo} posted`, r.discrepancies.length ? `${r.discrepancies.length} discrepancy(ies) logged` : 'Received in full')
     onClose()
   }
   return (
-    <Modal open onClose={onClose} size="lg" title={`Record inward – ${sh.number}`} subtitle={`${sh.containerNo} · expected vs received at Starex Bhiwandi`}
+    <Modal open onClose={onClose} size="lg" title={`Record inward – ${sh.number}`} subtitle={`${sh.containerNo} · expected vs received at Btali Bhiwandi`}
       footer={<><Button variant="secondary" onClick={onClose}>Cancel</Button><Button icon={PackageCheck} onClick={save}>Post GRN</Button></>}>
       {sh.status === 'IN_TRANSIT' && <Alert tone="warn" className="mb-3">This container is still marked in transit. Posting the GRN will close all pending milestones.</Alert>}
       <div className="border border-slate-200 rounded-xl overflow-x-auto">
@@ -157,7 +157,7 @@ function GrnDrawer({ sh, onClose, onSettle }) {
   const lines = inwardLines(sh, pos)
   return (
     <Drawer open onClose={onClose} title={`${sh.inward.grnNo} · ${sh.number}`} subtitle={`${sh.containerNo} · received ${fmtDate(sh.inward.date)}`}>
-      <DescriptionList cols={3} items={[['Arrived', fmtDate(arrival(sh))], ['GRN date', fmtDate(sh.inward.date)], ['Received by', <UserName id={sh.inward.receivedBy} fallback="Starex desk" />], ['Telex', sh.telexReleased ? 'Released' : 'Pending'], ['Landed cost', sh.landedCost?.finalized ? 'Finalised' : 'Pending'], ['Remarks', sh.inward.remarks || '—']]} />
+      <DescriptionList cols={3} items={[['Arrived', fmtDate(arrival(sh))], ['GRN date', fmtDate(sh.inward.date)], ['Received by', <UserName id={sh.inward.receivedBy} fallback="Btali desk" />], ['Telex', sh.telexReleased ? 'Released' : 'Pending'], ['Landed cost', sh.landedCost?.finalized ? 'Finalised' : 'Pending'], ['Remarks', sh.inward.remarks || '—']]} />
       <h4 className="text-sm font-semibold mt-5 mb-2">Expected vs received</h4>
       <div className="border border-slate-200 rounded-xl overflow-x-auto">
         <table className="w-full text-sm">

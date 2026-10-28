@@ -44,7 +44,7 @@ export default function Shipments() {
 
   return (
     <div>
-      <PageHeader title="Import Shipments & ETA" subtitle="Live container board for Purchase, Sales, Dispatch, Accounts and Starex"
+      <PageHeader title="Import Shipments & ETA" subtitle="Live container board for Purchase, Sales, Dispatch, Accounts and Btali"
         actions={<>
           <Segmented value={view} onChange={setView} options={[{ key: 'list', label: <span className="inline-flex items-center gap-1"><LayoutList className="w-4 h-4" />List</span> }, { key: 'board', label: <span className="inline-flex items-center gap-1"><Columns3 className="w-4 h-4" />Board</span> }, { key: 'calendar', label: <span className="inline-flex items-center gap-1"><CalendarDays className="w-4 h-4" />ETA calendar</span> }]} />
           {canEdit && <Button icon={Plus} onClick={() => setParam({ create: '1' })}>Create shipment</Button>}
@@ -147,7 +147,7 @@ function ShipmentDrawer({ id, onClose, canEdit, canTelex }) {
   const saveEta = () => {
     s.changeShipmentEta(sh.id, eta.date, eta.reason)
     setEta(null)
-    toast.success('ETA updated', 'Sales, Dispatch, Accounts & Starex notified')
+    toast.success('ETA updated', 'Sales, Dispatch, Accounts & Btali notified')
   }
 
   return (
@@ -244,7 +244,7 @@ function CreateShipment({ preselect, planId, onClose, onCreated }) {
   const valid = f.poIds.length && /^[A-Z]{4}\s?\d{6}\s?\d$/i.test(f.containerNo.trim()) && f.etd && f.eta && f.eta > f.etd
   const save = () => {
     const sh = s.createShipment({ ...f, containerNo: f.containerNo.toUpperCase().replace(/^([A-Z]{4})\s?(\d{6})\s?(\d)$/, '$1 $2 $3'), planId })
-    toast.success(`${sh.number} created`, 'Sales, Dispatch, Starex & Accounts notified')
+    toast.success(`${sh.number} created`, 'Sales, Dispatch, Btali & Accounts notified')
     onCreated(sh)
   }
   return (

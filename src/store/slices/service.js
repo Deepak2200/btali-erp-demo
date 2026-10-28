@@ -14,7 +14,7 @@ export const CATEGORY_LABEL = {
   PRODUCT_DEFECT: 'Product Defect', INSTALLATION: 'Installation', SPARE_REQUIREMENT: 'Spare Requirement', WARRANTY_CLAIM: 'Warranty Claim',
   GENERAL: 'General Complaint', DAMAGE_IN_TRANSIT: 'Damage in Transit', SHORTAGE: 'Shortage', MISLABEL: 'Mislabel', VENDOR_ISSUE: 'Vendor Issue',
 }
-export const SOURCE_LABEL = { DEALER: 'Dealer', FRANCHISE: 'Franchise', VENDOR: 'Vendor', STAREX: 'Starex', INTERNAL: 'Internal', WEBSITE: 'Website', TOLL_FREE: 'Toll-free' }
+export const SOURCE_LABEL = { DEALER: 'Dealer', FRANCHISE: 'Franchise', VENDOR: 'Vendor', BTALI: 'Btali', INTERNAL: 'Internal', WEBSITE: 'Website', TOLL_FREE: 'Toll-free' }
 export const RESPONSE_TYPES = { REPLACEMENT: 'Free replacement', CREDIT_NOTE: 'Credit note', REPAIR_INSTRUCTIONS: 'Repair instructions / spare kit', REJECTED: 'Not accepted' }
 
 const CITY_REGION = {

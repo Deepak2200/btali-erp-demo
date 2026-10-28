@@ -8,7 +8,7 @@ import { LRUploadModal, InvoiceDrawer } from '../erp/dispatch/_shared'
 
 const STAGE_ORDER = { LOADED: 0, PICKED: 1 }
 
-export default function StarexLR() {
+export default function BtaliLR() {
   const invoices = useStore((s) => s.invoices)
   const userId = useStore((s) => s.session.userId)
   const { partner, transporter } = useLookup()
@@ -17,7 +17,7 @@ export default function StarexLR() {
   const [drawer, setDrawer] = useState(null)
   const t = today()
   const pending = useMemo(() => invoices.filter((i) => i.status === 'ISSUED' && i.locationId !== 'WH-GUJ')
-    .sort((a, b) => (STAGE_ORDER[a.starexStage] ?? 2) - (STAGE_ORDER[b.starexStage] ?? 2) || (a.date < b.date ? -1 : 1)), [invoices])
+    .sort((a, b) => (STAGE_ORDER[a.btaliStage] ?? 2) - (STAGE_ORDER[b.btaliStage] ?? 2) || (a.date < b.date ? -1 : 1)), [invoices])
   const done = useMemo(() => invoices.filter((i) => i.lr && i.locationId !== 'WH-GUJ' && i.lr.uploadedAt).sort((a, b) => (a.lr.uploadedAt < b.lr.uploadedAt ? 1 : -1)), [invoices])
   const recentHist = useMemo(() => invoices.filter((i) => i.lr && i.status === 'DISPATCHED').sort((a, b) => (a.lr.date < b.lr.date ? 1 : -1)).slice(0, 60), [invoices])
   const uploadedToday = invoices.filter((i) => i.lr?.date === t && i.lr?.uploadedAt).length
@@ -30,8 +30,8 @@ export default function StarexLR() {
     { key: 'qty', header: 'Qty', align: 'right', value: (r) => sum(r.lines, (l) => l.qty), render: (r) => fmtNum(sum(r.lines, (l) => l.qty)) },
     { key: 'date', header: 'Invoiced', render: (r) => fmtDate(r.date) },
     { key: 'age', header: 'Age', value: (r) => daysBetween(r.date, t), render: (r) => { const d = daysBetween(r.date, t); return <Badge tone={d > 2 ? 'red' : d > 1 ? 'amber' : 'green'}>{d}d {d > 2 ? '· SLA breach' : ''}</Badge> } },
-    { key: 'stage', header: 'Floor status', value: (r) => r.starexStage || '', render: (r) => r.starexStage === 'LOADED' ? <StatusBadge status="DONE" label="Loaded" /> : r.starexStage === 'PICKED' ? <StatusBadge status="IN_PROGRESS" label="Picked" /> : <StatusBadge status="PENDING" label="Awaiting pick" /> },
-    { key: 'act', header: '', sortable: false, export: false, render: (r) => <Button size="sm" variant={r.starexStage === 'LOADED' ? 'primary' : 'secondary'} icon={Upload} onClick={(e) => { e.stopPropagation(); setUpload(r.id) }}>Upload LR</Button> },
+    { key: 'stage', header: 'Floor status', value: (r) => r.btaliStage || '', render: (r) => r.btaliStage === 'LOADED' ? <StatusBadge status="DONE" label="Loaded" /> : r.btaliStage === 'PICKED' ? <StatusBadge status="IN_PROGRESS" label="Picked" /> : <StatusBadge status="PENDING" label="Awaiting pick" /> },
+    { key: 'act', header: '', sortable: false, export: false, render: (r) => <Button size="sm" variant={r.btaliStage === 'LOADED' ? 'primary' : 'secondary'} icon={Upload} onClick={(e) => { e.stopPropagation(); setUpload(r.id) }}>Upload LR</Button> },
   ]
   const doneCols = [
     { key: 'number', header: 'Invoice', render: (r) => <span className="font-mono text-xs">{r.number}</span> },
@@ -48,7 +48,7 @@ export default function StarexLR() {
       <PageHeader title="LR upload" subtitle="Upload lorry receipts after loading – ERP emails the LR to the customer and Btali Sales automatically" />
       <Grid cols={4}>
         <Stat label="Awaiting LR" value={pending.length} icon={Clock} tone="amber" />
-        <Stat label="Loaded, LR due" value={pending.filter((i) => i.starexStage === 'LOADED').length} icon={PackageCheck} tone="brand" />
+        <Stat label="Loaded, LR due" value={pending.filter((i) => i.btaliStage === 'LOADED').length} icon={PackageCheck} tone="brand" />
         <Stat label="Uploaded today" value={uploadedToday} icon={FileCheck2} tone="green" />
         <Stat label="Beyond 48h SLA" value={overdue} icon={Clock} tone="red" />
       </Grid>

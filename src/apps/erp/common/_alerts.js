@@ -32,7 +32,7 @@ export const computeAlerts = (state) => {
       out.push({
         id: `pe-${sh.id}`, kind: 'PRE_ETA', severity: 'info', date: sh.eta,
         title: `${sh.number} arriving ${late === 0 ? 'today' : `in ${-late} day${-late > 1 ? 's' : ''}`}`,
-        body: `${sh.containerNo || ''} · ${vname(sh.vendorId)} – arrange CHA, duty funds and Starex unloading slot`,
+        body: `${sh.containerNo || ''} · ${vname(sh.vendorId)} – arrange CHA, duty funds and Btali unloading slot`,
         link: '/erp/purchase/shipments',
       })
     }

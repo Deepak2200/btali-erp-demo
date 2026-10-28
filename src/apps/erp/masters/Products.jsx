@@ -100,7 +100,7 @@ function ProductDrawer({ open, product, onClose }) {
         <div className="flex items-center gap-4 mb-4">
           <ProductImage product={live} size="lg" />
           <div className="grid grid-cols-3 gap-3 flex-1 text-sm">
-            <div><div className="text-[11px] uppercase text-slate-400">On hand (Starex)</div><div className="font-bold text-lg">{fmtNum(onHand({ stock }, live.id))}</div></div>
+            <div><div className="text-[11px] uppercase text-slate-400">On hand (Btali)</div><div className="font-bold text-lg">{fmtNum(onHand({ stock }, live.id))}</div></div>
             <div><div className="text-[11px] uppercase text-slate-400">Landed cost</div><div className="font-bold text-lg">{fmtINR(live.landedCost)}</div></div>
             <div><div className="text-[11px] uppercase text-slate-400">MRP</div><div className="font-bold text-lg">{fmtINR(live.mrp)}</div></div>
           </div>
@@ -238,7 +238,7 @@ export default function Products() {
     { key: 'mrp', header: 'MRP', align: 'right', render: (r) => fmtINR(r.mrp) },
     { key: 'moq', header: 'MOQ', align: 'right', render: (r) => fmtNum(r.moq) },
     { key: 'reorderLevel', header: 'Reorder / Max', align: 'right', render: (r) => `${fmtNum(r.reorderLevel)} / ${fmtNum(r.maxLevel)}` },
-    { key: 'oh', header: 'On hand', align: 'right', value: (r) => stock['WH-STAREX']?.[r.id] || 0, render: (r) => { const q = stock['WH-STAREX']?.[r.id] || 0; return <span className={q < r.reorderLevel ? 'text-red-600 font-semibold' : ''}>{fmtNum(q)}</span> } },
+    { key: 'oh', header: 'On hand', align: 'right', value: (r) => stock['WH-BTALI']?.[r.id] || 0, render: (r) => { const q = stock['WH-BTALI']?.[r.id] || 0; return <span className={q < r.reorderLevel ? 'text-red-600 font-semibold' : ''}>{fmtNum(q)}</span> } },
     { key: 'active', header: 'Status', value: (r) => (r.active ? 'Active' : 'Inactive'), render: (r) => <StatusBadge status={r.active ? 'ACTIVE' : 'INACTIVE'} /> },
     { key: 'edit', header: '', sortable: false, export: false, render: (r) => <IconButton icon={Pencil} title="Edit" onClick={(e) => { e.stopPropagation(); setEditing(r) }} /> },
   ]
@@ -249,7 +249,7 @@ export default function Products() {
       <Grid cols={4} className="mb-4">
         <Stat label="Finished goods" value={fg.length} icon={Package} sub={`${fg.filter((p) => p.active).length} active`} />
         <Stat label="Spare parts" value={products.length - fg.length} icon={Cog} tone="ink" sub={`${sum(fg, (p) => p.bom?.length || 0)} BOM links`} />
-        <Stat label="Below reorder level" value={products.filter((p) => p.active && (stock['WH-STAREX']?.[p.id] || 0) < p.reorderLevel).length} icon={Boxes} tone="amber" />
+        <Stat label="Below reorder level" value={products.filter((p) => p.active && (stock['WH-BTALI']?.[p.id] || 0) < p.reorderLevel).length} icon={Boxes} tone="amber" />
         <Stat label="Inactive" value={products.filter((p) => !p.active).length} icon={Ban} tone="red" />
       </Grid>
       <DataTable rows={rows} columns={cols} onRowClick={(r) => setEditing(r)} exportName="btali-product-master" searchPlaceholder="Search SKU, name…"

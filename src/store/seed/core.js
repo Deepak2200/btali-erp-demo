@@ -27,7 +27,7 @@ export const seedUsers = () => [
   { id: 'u14', name: 'Rajesh Sharma', title: 'Owner, Sharma Agro Traders', role: 'DEALER', partnerId: 'd1', email: 'rajesh@sharmaagro.in', phone: '98140 22001', app: 'dealer', username: 'rajesh' },
   { id: 'u15', name: 'Ganesh Patil', title: 'Owner, Shree Ganesh Hardware', role: 'DEALER', partnerId: 'd2', email: 'ganesh@shreeganesh.in', phone: '98220 22002', app: 'dealer', username: 'ganesh' },
   { id: 'u16', name: 'Snehal Kadam', title: 'Store Manager, Btali Store Pune', role: 'FRANCHISE', partnerId: 'f1', email: 'pune.store@btali.in', phone: '98900 33001', app: 'franchise', username: 'snehal' },
-  { id: 'u17', name: 'Sunil More', title: 'Btali Desk @ Starex Warehouse', role: 'STAREX', email: 'sunil.starex@btali.in', phone: '98200 11017', app: 'starex', username: 'sunil' },
+  { id: 'u17', name: 'Sunil More', title: 'Btali Desk @ Btali Warehouse', role: 'BTALI', email: 'sunil.btali@btali.in', phone: '98200 11017', app: 'btali', username: 'sunil' },
 ]
 
 // ------------------------------------------------------------------ VENDORS (suppliers, forwarders, CHA, logistics)
@@ -46,7 +46,7 @@ export const seedVendors = () => [
   { id: 'fw5', code: 'CCA', name: 'Colombo Cargo Agents', type: 'FORWARDER', subtype: 'DESTINATION', country: 'Sri Lanka', city: 'Colombo', currency: 'USD', contact: 'Dinesh Perera', email: 'dinesh@colombocargo.lk', phone: '+94 11 244 8800', paymentTerms: { advancePct: 0, balancePct: 100, creditDays: 0 }, rating: 4.0 },
   { id: 'fw6', code: 'DFL', name: 'Dhaka Freight Link', type: 'FORWARDER', subtype: 'DESTINATION', country: 'Bangladesh', city: 'Dhaka', currency: 'USD', contact: 'Rafiq Hasan', email: 'rafiq@dhakafreight.bd', phone: '+880 2 988 1122', paymentTerms: { advancePct: 0, balancePct: 100, creditDays: 0 }, rating: 3.7 },
   { id: 'cha1', code: 'SCH', name: 'Seaport Customs House Agents', type: 'CHA', country: 'India', city: 'Nhava Sheva', currency: 'INR', contact: 'Mahesh Gawde', email: 'mahesh@seaportcha.in', phone: '022 2747 3300', paymentTerms: { advancePct: 0, balancePct: 100, creditDays: 7 }, gst: '27AAECS4410H1Z1', rating: 4.1 },
-  { id: 'lg1', code: 'STX', name: 'Starex 3PL Warehousing', type: 'LOGISTICS', subtype: 'WAREHOUSE', country: 'India', city: 'Bhiwandi', currency: 'INR', contact: 'Prakash Shetty', email: 'mis@starex3pl.in', phone: '022 2520 7700', paymentTerms: { advancePct: 0, balancePct: 100, creditDays: 30 }, gst: '27AAFCS9981K1ZT', rating: 3.9 },
+  { id: 'lg1', code: 'STX', name: 'Btali 3PL Warehousing', type: 'LOGISTICS', subtype: 'WAREHOUSE', country: 'India', city: 'Bhiwandi', currency: 'INR', contact: 'Prakash Shetty', email: 'mis@btali3pl.in', phone: '022 2520 7700', paymentTerms: { advancePct: 0, balancePct: 100, creditDays: 30 }, gst: '27AAFCS9981K1ZT', rating: 3.9 },
   { id: 'lg2', code: 'SFX', name: 'Safex Transport', type: 'LOGISTICS', subtype: 'TRANSPORT', country: 'India', city: 'Bhiwandi', currency: 'INR', contact: 'Ravi Bhosale', email: 'billing@safextransport.in', phone: '022 2520 8811', paymentTerms: { advancePct: 0, balancePct: 100, creditDays: 15 }, gst: '27AAKFS2231N1Z6', rating: 4.0 },
   { id: 'lg3', code: 'SST', name: 'Shiv Sai Transport', type: 'LOGISTICS', subtype: 'PORT_TRANSPORT', country: 'India', city: 'Uran', currency: 'INR', contact: 'Santosh Mhatre', email: 'shivsaitransport@gmail.com', phone: '98201 44556', paymentTerms: { advancePct: 0, balancePct: 100, creditDays: 15 }, gst: '27ABJPM4471C1ZK', rating: 4.2 },
 ]
@@ -155,7 +155,7 @@ export const seedProducts = () =>
 
 // ------------------------------------------------------------------ LOCATIONS / TRANSPORTERS
 export const seedLocations = () => [
-  { id: 'WH-STAREX', code: 'STX-BHW', name: 'Starex 3PL – Bhiwandi', type: 'WAREHOUSE', address: 'Gala 14-18, Starex Logistics Park, Vadape, Bhiwandi 421302', managedBy: 'Starex 3PL Warehousing', primary: true },
+  { id: 'WH-BTALI', code: 'STX-BHW', name: 'Btali 3PL – Bhiwandi', type: 'WAREHOUSE', address: 'Gala 14-18, Btali Logistics Park, Vadape, Bhiwandi 421302', managedBy: 'Btali 3PL Warehousing', primary: true },
   { id: 'WH-GUJ', code: 'GUJ-FAC', name: 'Gujarat Manufacturing Facility (Virtual)', type: 'VIRTUAL', address: 'Plot 211, GIDC Metoda, Rajkot 360021', managedBy: 'Partner facility – direct delivery', note: 'Pending client confirmation' },
   { id: 'WH-TRANSIT', code: 'TRANSIT', name: 'In Transit (Import)', type: 'TRANSIT', address: '—', managedBy: 'System' },
 ]
@@ -376,8 +376,8 @@ const MILESTONES = [
   ['BOE', 'Bill of Entry filed & duty paid'],
   ['CLEARED', 'Customs cleared'],
   ['TELEX', 'Telex release received'],
-  ['PORT_TO_WH', 'Shiv Sai Transport – port to Starex'],
-  ['INWARD', 'Inward at Starex (GRN)'],
+  ['PORT_TO_WH', 'Shiv Sai Transport – port to Btali'],
+  ['INWARD', 'Inward at Btali (GRN)'],
 ]
 export const SHIPMENT_MILESTONES = MILESTONES.map(([key, label]) => ({ key, label }))
 // slip = days the vendor dispatched later than planned (affects vendor on-time delivery KPIs)
@@ -426,7 +426,7 @@ export const seedPurchase = (products) => {
     po6: ['PI-NHP-0826-71.pdf', 'PI-NHP-0826-71-STAMPED.pdf', 'MRP-Stickers-PO0094.pdf', 'Barcodes-PO0094.pdf', 'CI-NHP-0826-71.pdf', 'PL-NHP-0826-71.xlsx'],
     po7: ['PI-ZAQ-0726-12.pdf', 'PI-ZAQ-0726-12-STAMPED.pdf', 'MRP-Stickers-PO0088.pdf', 'CI-ZAQ-0726-12.pdf', 'PL-ZAQ-0726-12.xlsx', 'BL-OLS2609114.pdf', 'Insurance-ICICI-LOMBARD-8812.pdf', 'SWIFT-Advance-PO0088.pdf', 'Freight-Selection-RFQ7.pdf'],
     po8: ['PI-TJC-0626-88.pdf', 'CI-TJC-0626-88.pdf', 'PL-TJC-0626-88.xlsx', 'BL-OLS2608870.pdf', 'Insurance-8790.pdf', 'CAN-NSICT-2210.pdf', 'IGM-2610-4471.pdf', 'BOE-6612009.pdf', 'SWIFT-Advance-PO0082.pdf'],
-    po9: ['PI-YGS-0526-40.pdf', 'CI-YGS-0526-40.pdf', 'PL-YGS-0526-40.xlsx', 'BL-OLS2607702.pdf', 'Insurance-8611.pdf', 'CAN-2608.pdf', 'IGM-2608-1180.pdf', 'BOE-6588120.pdf', 'SWIFT-Advance-PO0071.pdf', 'SWIFT-Balance-PO0071.pdf', 'TELEX-Release-PO0071.pdf', 'CHA-Bill-SCH-0912.pdf', 'GRN-Starex-0021.pdf'],
+    po9: ['PI-YGS-0526-40.pdf', 'CI-YGS-0526-40.pdf', 'PL-YGS-0526-40.xlsx', 'BL-OLS2607702.pdf', 'Insurance-8611.pdf', 'CAN-2608.pdf', 'IGM-2608-1180.pdf', 'BOE-6588120.pdf', 'SWIFT-Advance-PO0071.pdf', 'SWIFT-Balance-PO0071.pdf', 'TELEX-Release-PO0071.pdf', 'CHA-Bill-SCH-0912.pdf', 'GRN-Btali-0021.pdf'],
   }
   for (const po of pos) if (lock[po.id]) po.docs = docs(lock[po.id])
 
@@ -518,8 +518,8 @@ export const seedSales = (products, partners, priceLists) => {
       const invId = `invh${invN}`
       const invDate = addDays(dateStr, 1)
       const dispDate = addDays(dateStr, 2)
-      salesOrders.push({ id: soId, number: `SO/${back > 207 ? '25-26' : '26-27'}/${String(soN).padStart(4, '0')}`, partnerId: dealer.id, date: dateStr, source: rnd() < 0.3 ? 'PORTAL' : 'SALES', salespersonId: dealer.salespersonId, lines, subtotal, gst, total, status: 'DISPATCHED', paymentStatus: 'PAID', paidAmount: total, invoiceId: invId, warehouseId: 'WH-STAREX', transporterId: dealer.transporterId, history: true })
-      invoices.push({ id: invId, number: `BT/${back > 207 ? '25-26' : '26-27'}/${String(invN).padStart(4, '0')}`, soId, partnerId: dealer.id, date: invDate, lines, subtotal, gst, total, transporterId: dealer.transporterId, vehicleNo: '', status: 'DISPATCHED', lr: { number: `LR${String(700000 + invN * 13)}`, date: dispDate, uploadedBy: 'u8' }, dispatchDate: dispDate, sentToStarex: true, emailed: true, irn: `IRN${String(9.1e9 + invN * 7919)}`, ewayBill: `${String(3.81e11 + invN * 1031).slice(0, 12)}`, type: 'TAX', history: true, freightCost: Math.round(400 + rnd() * 2400), units: [] })
+      salesOrders.push({ id: soId, number: `SO/${back > 207 ? '25-26' : '26-27'}/${String(soN).padStart(4, '0')}`, partnerId: dealer.id, date: dateStr, source: rnd() < 0.3 ? 'PORTAL' : 'SALES', salespersonId: dealer.salespersonId, lines, subtotal, gst, total, status: 'DISPATCHED', paymentStatus: 'PAID', paidAmount: total, invoiceId: invId, warehouseId: 'WH-BTALI', transporterId: dealer.transporterId, history: true })
+      invoices.push({ id: invId, number: `BT/${back > 207 ? '25-26' : '26-27'}/${String(invN).padStart(4, '0')}`, soId, partnerId: dealer.id, date: invDate, lines, subtotal, gst, total, transporterId: dealer.transporterId, vehicleNo: '', status: 'DISPATCHED', lr: { number: `LR${String(700000 + invN * 13)}`, date: dispDate, uploadedBy: 'u8' }, dispatchDate: dispDate, sentToBtali: true, emailed: true, irn: `IRN${String(9.1e9 + invN * 7919)}`, ewayBill: `${String(3.81e11 + invN * 1031).slice(0, 12)}`, type: 'TAX', history: true, freightCost: Math.round(400 + rnd() * 2400), units: [] })
       receipts.push({ id: `rch${rcN}`, number: `RCPT/${String(rcN).padStart(4, '0')}`, partnerId: dealer.id, soId, amount: total, mode: rnd() < 0.7 ? 'NEFT' : rnd() < 0.5 ? 'RTGS' : 'UPI', ref: `UTR${String(5e10 + rcN * 7717).slice(0, 12)}`, date: dateStr, bankId: 'bk1', history: true })
     }
   }
@@ -541,7 +541,7 @@ export const seedOpenOrders = (products, partners, priceLists, counters) => {
     const gst = round2(subtotal * 0.18)
     const total = round2(subtotal + gst)
     counters.SO++
-    return { id, number: `SO/26-27/${String(counters.SO).padStart(4, '0')}`, partnerId, date, source: 'SALES', salespersonId: d.salespersonId, lines, subtotal, gst, total, status, paymentStatus: status === 'CONFIRMED' || status === 'PENDING_REVIEW' ? 'UNPAID' : 'PAID', paidAmount: status === 'CONFIRMED' || status === 'PENDING_REVIEW' ? 0 : total, warehouseId: 'WH-STAREX', transporterId: d.transporterId, timeline: [{ ts: iso(date, 11), text: 'Order created' }], ...extra }
+    return { id, number: `SO/26-27/${String(counters.SO).padStart(4, '0')}`, partnerId, date, source: 'SALES', salespersonId: d.salespersonId, lines, subtotal, gst, total, status, paymentStatus: status === 'CONFIRMED' || status === 'PENDING_REVIEW' ? 'UNPAID' : 'PAID', paidAmount: status === 'CONFIRMED' || status === 'PENDING_REVIEW' ? 0 : total, warehouseId: 'WH-BTALI', transporterId: d.transporterId, timeline: [{ ts: iso(date, 11), text: 'Order created' }], ...extra }
   }
   const so = [
     mk('so_open_1', 'd1', today(), [['p2', 20], ['p1', 15], ['p25', 100]], 'PENDING_REVIEW', { source: 'PORTAL', note: 'Placed via Dealer Portal' }),
@@ -582,11 +582,11 @@ export const seedUnits = (products, partners) => {
   const sprayerDealers = ['d5', 'd2', 'd16', 'f1', 'f2']
   for (let i = 0; i < 60; i++) {
     const pid = i < 30 ? 'p20' : i < 48 ? 'p21' : 'p22'
-    const u = make(pid, 'po9', 'v5', 'IN_WAREHOUSE', 'WH-STAREX')
+    const u = make(pid, 'po9', 'v5', 'IN_WAREHOUSE', 'WH-BTALI')
     u.history.push({ ts: iso(daysAgo(130)), event: 'Barcode generated', ref: 'PO/25-26/0071' })
     u.history.push({ ts: iso(daysAgo(66)), event: 'Packed & scanned at factory', ref: 'Yongkang Greenfield' })
     u.history.push({ ts: iso(daysAgo(58)), event: 'Shipped in container CMAU 551809 1', ref: 'SH/26-27/0019' })
-    u.history.push({ ts: iso(daysAgo(27)), event: 'Inward scanned at Starex', ref: 'GRN/26-27/0021' })
+    u.history.push({ ts: iso(daysAgo(27)), event: 'Inward scanned at Btali', ref: 'GRN/26-27/0021' })
     if (i % 3 === 0 || i % 5 === 0) {
       const pid2 = sprayerDealers[i % sprayerDealers.length]
       u.status = 'AT_PARTNER'
@@ -623,7 +623,7 @@ export const seedUnits = (products, partners) => {
     const u = make(pid, 'po10', products.find((p) => p.id === pid).vendorId, 'SOLD', partnerId, { partnerId })
     u.saleDate = daysAgo(40 + i * 31)
     u.history.push({ ts: iso(daysAgo(200 + i)), event: 'Barcode generated', ref: 'PO/25-26/0058' })
-    u.history.push({ ts: iso(daysAgo(118)), event: 'Inward scanned at Starex', ref: 'GRN/25-26/0118' })
+    u.history.push({ ts: iso(daysAgo(118)), event: 'Inward scanned at Btali', ref: 'GRN/25-26/0118' })
     u.history.push({ ts: iso(daysAgo(60 + i * 31 > 110 ? 110 : 60 + i * 31)), event: `Dispatched to ${partners.find((p) => p.id === partnerId).name}`, ref: 'Invoice' })
     u.history.push({ ts: iso(u.saleDate), event: 'Sold to end customer (warranty activated)', ref: 'POS / Warranty card' })
   })
@@ -682,13 +682,13 @@ export const seedTickets = () => {
   return [
     t('tk1', 1201, 'DEALER', 'PRODUCT_DEFECT', 'Monoblock 1 HP – motor humming, not starting', { partnerId: 'd1', productId: 'p2', barcode: null, priority: 'HIGH', stage: 'IN_PROGRESS', assigneeId: 'u11', createdAt: iso(daysAgo(4)), updates: [{ ts: iso(daysAgo(4)), by: 'u14', text: 'Customer reports humming sound, shaft jammed.' }, { ts: iso(daysAgo(3)), by: 'u11', text: 'Capacitor suspected. Replacement capacitor dispatched with next order.', stage: 'IN_PROGRESS' }] }),
     t('tk2', 1202, 'DEALER', 'SPARE_REQUIREMENT', 'Need 20 HEPA filters urgently', { partnerId: 'd2', productId: 'p31', stage: 'UNDER_REVIEW', assigneeId: 'u5', createdAt: iso(daysAgo(1)) }),
-    t('tk3', 1203, 'STAREX', 'DAMAGE_IN_TRANSIT', '3 cartons of WD30 damaged at inward (SH/26-27/0019)', { productId: 'p13', orderRef: 'SH/26-27/0019', priority: 'HIGH', stage: 'LOGGED', createdAt: iso(daysAgo(6)), attachments: [makeAttachment('damage-WD30-carton.jpg')] }),
+    t('tk3', 1203, 'BTALI', 'DAMAGE_IN_TRANSIT', '3 cartons of WD30 damaged at inward (SH/26-27/0019)', { productId: 'p13', orderRef: 'SH/26-27/0019', priority: 'HIGH', stage: 'LOGGED', createdAt: iso(daysAgo(6)), attachments: [makeAttachment('damage-WD30-carton.jpg')] }),
     t('tk4', 1204, 'VENDOR', 'VENDOR_ISSUE', 'Ningbo Hailong: request to revise MRP sticker font size', { vendorId: 'v1', orderRef: 'PO/26-27/0094', stage: 'RESOLVED', assigneeId: 'u3', createdAt: iso(daysAgo(15)), updates: [{ ts: iso(daysAgo(14)), by: 'u3', text: 'Approved new font (Arial Bold 9pt).', stage: 'RESOLVED' }] }),
     t('tk5', 1205, 'FRANCHISE', 'WARRANTY_CLAIM', 'Battery sprayer not holding charge', { partnerId: 'f1', productId: 'p20', stage: 'UNDER_REVIEW', assigneeId: 'u11', createdAt: iso(daysAgo(3)), claimId: 'wc2' }),
     t('tk6', 1206, 'WEBSITE', 'INSTALLATION', 'Openwell submersible – need installation help', { productId: 'p4', customer: { name: 'Lakshmi Narayanan', phone: '94430 51190', city: 'Coimbatore' }, stage: 'LOGGED', createdAt: iso(daysAgo(0)) }),
     t('tk7', 1207, 'DEALER', 'GENERAL', 'Invoice copy missing for SO/26-27 last week', { partnerId: 'd7', stage: 'CLOSED', assigneeId: 'u8', createdAt: iso(daysAgo(20)), updates: [{ ts: iso(daysAgo(19)), by: 'u8', text: 'Invoice re-sent by email.', stage: 'CLOSED' }] }),
     t('tk8', 1208, 'DEALER', 'PRODUCT_DEFECT', 'Pressure washer 2200 W – pressure drops after 10 min', { partnerId: 'd10', productId: 'p17', priority: 'HIGH', stage: 'IN_PROGRESS', assigneeId: 'u11', escalatedToVendor: true, vendorId: 'v4', vendorResponse: null, createdAt: iso(daysAgo(9)), updates: [{ ts: iso(daysAgo(8)), by: 'u11', text: 'Unloader valve defect suspected – batch issue. Escalated to Zhejiang Aquajet.', stage: 'IN_PROGRESS' }] }),
-    t('tk9', 1209, 'STAREX', 'SHORTAGE', 'Short receipt: Battery Sprayer 20 L – 4 pcs', { productId: 'p21', orderRef: 'GRN/26-27/0021', stage: 'IN_PROGRESS', assigneeId: 'u3', createdAt: iso(daysAgo(27)) }),
+    t('tk9', 1209, 'BTALI', 'SHORTAGE', 'Short receipt: Battery Sprayer 20 L – 4 pcs', { productId: 'p21', orderRef: 'GRN/26-27/0021', stage: 'IN_PROGRESS', assigneeId: 'u3', createdAt: iso(daysAgo(27)) }),
     t('tk10', 1210, 'INTERNAL', 'GENERAL', 'Update brochure for BT-PW22 with new specs', { productId: 'p17', priority: 'LOW', stage: 'LOGGED', createdAt: iso(daysAgo(5)) }),
   ]
 }
@@ -704,7 +704,7 @@ export const seedWarrantyClaims = (warranties) => {
 }
 
 export const seedStock = (products) => {
-  // Starex on-hand; a few deliberately below reorder level to trigger alerts
+  // Btali on-hand; a few deliberately below reorder level to trigger alerts
   const low = { p2: 46, p20: 70, p25: 180, p27: 210, p11: 85, p36: 120 }
   const zero = { p10: 4, p18: 6 }
   const wh = {}
@@ -715,7 +715,7 @@ export const seedStock = (products) => {
   }
   wh.p21 = 246
   const guj = { p5: 18, p7: 22, p26: 140 }
-  return { 'WH-STAREX': wh, 'WH-GUJ': guj }
+  return { 'WH-BTALI': wh, 'WH-GUJ': guj }
 }
 
 export const seedPartnerStock = (partners, products) => {
@@ -736,7 +736,7 @@ export const seedPartnerStock = (partners, products) => {
 
 export const seedNotifications = () => [
   { id: 'n1', ts: iso(today(), 9), title: 'Stock below reorder level', body: '6 items breached threshold incl. Monoblock Pump 1 HP (46 / 80).', type: 'warning', link: '/erp/purchase/reorder', roles: ['PURCHASE', 'ADMIN'], read: false },
-  { id: 'n2', ts: iso(today(), 8), title: 'Container at port', body: 'SH/26-27/0022 (MSKU 702213 6) arrived Nhava Sheva – BOE filed, awaiting clearance.', type: 'info', link: '/erp/purchase/shipments', roles: ['PURCHASE', 'ACCOUNTS', 'ADMIN', 'FINANCE_HEAD', 'STAREX', 'DISPATCH'], read: false },
+  { id: 'n2', ts: iso(today(), 8), title: 'Container at port', body: 'SH/26-27/0022 (MSKU 702213 6) arrived Nhava Sheva – BOE filed, awaiting clearance.', type: 'info', link: '/erp/purchase/shipments', roles: ['PURCHASE', 'ACCOUNTS', 'ADMIN', 'FINANCE_HEAD', 'BTALI', 'DISPATCH'], read: false },
   { id: 'n3', ts: iso(daysAgo(1), 16), title: 'New portal order', body: 'Sharma Agro Traders placed an order via Dealer Portal – review required.', type: 'info', link: '/erp/sales/orders', roles: ['SALES_MANAGER', 'SALES_EXEC', 'ADMIN'], read: false },
   { id: 'n4', ts: iso(daysAgo(1), 12), title: 'PI uploaded by vendor', body: 'Yongkang Greenfield uploaded PI for PO/26-27/0106 – approval pending.', type: 'info', link: '/erp/purchase/orders', roles: ['PURCHASE', 'ADMIN'], read: false },
   { id: 'n5', ts: iso(daysAgo(2), 15), title: 'QC media awaiting review', body: 'Suzhou Clearvac uploaded 3 QC files for PO/26-27/0097.', type: 'info', link: '/erp/purchase/qc', roles: ['PURCHASE', 'ADMIN'], read: false },

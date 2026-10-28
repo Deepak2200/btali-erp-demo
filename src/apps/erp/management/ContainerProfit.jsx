@@ -9,7 +9,7 @@ import { useAnalyticsState, marginTone } from './_pdKit'
 
 const SOLD = new Set(['INVOICED', 'AT_PARTNER', 'SOLD'])
 const CHARGE_KEYS = ['freightINR', 'insurance', 'duty', 'cha', 'portTransport', 'other']
-const CHARGE_LABEL = { freightINR: 'Ocean freight', insurance: 'Insurance', duty: 'Customs duty', cha: 'CHA charges', portTransport: 'Port → Starex transport', other: 'Other' }
+const CHARGE_LABEL = { freightINR: 'Ocean freight', insurance: 'Insurance', duty: 'Customs duty', cha: 'CHA charges', portTransport: 'Port → Btali transport', other: 'Other' }
 
 const buildContainers = (state) => {
   const prof = Object.fromEntries(profitability(state, dateRangePresets()['12M']).map((r) => [r.productId, r]))

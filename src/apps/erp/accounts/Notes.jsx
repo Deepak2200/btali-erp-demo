@@ -79,7 +79,7 @@ function NoteView({ id, onClose }) {
           </tbody>
           <tfoot className="bg-slate-50 font-semibold"><tr><td className="px-3 py-2 text-right">Total</td><td className="px-3 py-2 text-right tabular-nums">{fmtINR(noteTotal(n), true)}</td></tr></tfoot>
         </table>
-        <div className="text-xs text-slate-500 mt-3">Source: {(SRC[n.source] || SRC.MANUAL)[0]}{n.source === 'SAFEX' ? ' – Safex Transport collected the consignment directly from Starex; pickup charges recovered from the dealer.' : ''}</div>
+        <div className="text-xs text-slate-500 mt-3">Source: {(SRC[n.source] || SRC.MANUAL)[0]}{n.source === 'SAFEX' ? ' – Safex Transport collected the consignment directly from Btali; pickup charges recovered from the dealer.' : ''}</div>
         <div className="mt-10 text-xs text-right text-slate-500">For Btali International Pvt. Ltd.<br /><br />Authorised signatory</div>
       </PrintArea>
     </Modal>

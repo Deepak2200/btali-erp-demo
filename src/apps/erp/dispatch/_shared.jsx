@@ -1,4 +1,4 @@
-// Shared Dispatch / Starex building blocks: tax invoice document, invoice drawer, LR upload modal,
+// Shared Dispatch / Btali building blocks: tax invoice document, invoice drawer, LR upload modal,
 // schedule builder, MIS upload + reconciliation views.
 import React, { useMemo, useState } from 'react'
 import { Mail, Truck, FileText, Download, Upload, CheckCircle2, FileSpreadsheet } from 'lucide-react'
@@ -62,7 +62,7 @@ export function TaxInvoiceDoc({ inv }) {
         </div>
         <div>
           <div className="font-semibold text-slate-500 uppercase tracking-wide text-[10px] mb-1">Dispatch</div>
-          <div className="text-slate-700">From: {inv.locationId === 'WH-GUJ' ? 'Gujarat Facility, Rajkot' : 'Starex 3PL, Bhiwandi'}</div>
+          <div className="text-slate-700">From: {inv.locationId === 'WH-GUJ' ? 'Gujarat Facility, Rajkot' : 'Btali 3PL, Bhiwandi'}</div>
           <div className="text-slate-700">Transporter: {tr?.name || '—'}</div>
           <div className="text-slate-700">Vehicle: {inv.vehicleNo || '—'}</div>
           {inv.lr && <div className="text-slate-700">LR: {inv.lr.number} ({fmtDate(inv.lr.date)})</div>}
@@ -159,14 +159,14 @@ export function InvoiceDrawer({ invoiceId, onClose, onUploadLR }) {
           <DescriptionList cols={3} items={[
             ['Sales order', so?.number], ['Transporter', transporter(inv.transporterId)?.name], ['Vehicle', inv.vehicleNo || '—'],
             ['Scheduled dispatch', fmtDate(inv.dispatchDate)], ['Weight', `${fmtNum(invoiceWeight(inv, products))} kg`], ['Volume', `${fmtNum(invoiceCbm(inv, products))} CBM`],
-            ['Starex', inv.starexStage ? inv.starexStage.toLowerCase() : inv.sentToStarex ? 'In schedule' : '—'], ['LR number', inv.lr?.number || 'Awaiting'], ['LR date', inv.lr ? fmtDate(inv.lr.date) : '—'],
+            ['Btali', inv.btaliStage ? inv.btaliStage.toLowerCase() : inv.sentToBtali ? 'In schedule' : '—'], ['LR number', inv.lr?.number || 'Awaiting'], ['LR date', inv.lr ? fmtDate(inv.lr.date) : '—'],
             ['Lead time (invoice → LR)', inv.lr ? `${lrAgeDays(inv)} day(s)` : `${lrAgeDays(inv)} day(s) open`], ['IRN', inv.irn || '—'], ['e-Way bill', inv.ewayBill || '—'],
           ]} />
           {inv.lr ? (
             <Alert tone={lrAgeDays(inv) <= 2 ? 'success' : 'warn'} title={`LR ${inv.lr.number} shared with client`}>
               Uploaded {fmtDateTime(inv.lr.uploadedAt || inv.lr.date)} · {lrAgeDays(inv) <= 2 ? 'within' : 'outside'} 48-hour SLA. Visible to Sales and on the dealer portal.
             </Alert>
-          ) : <Alert tone="warn" title="LR pending">Upload the LR once Starex loads the vehicle – the client and Sales are emailed automatically.</Alert>}
+          ) : <Alert tone="warn" title="LR pending">Upload the LR once Btali loads the vehicle – the client and Sales are emailed automatically.</Alert>}
           {inv.lr?.file && <AttachmentList items={[inv.lr.file]} />}
           {dn && (
             <div>
@@ -230,7 +230,7 @@ export function LRUploadModal({ invoiceId, onClose }) {
 }
 
 // ------------------------------------------------------------------ dispatch schedule
-/** ISSUED invoices due on or before `date` (carry-overs included), Starex-handled only */
+/** ISSUED invoices due on or before `date` (carry-overs included), Btali-handled only */
 export const scheduleInvoices = (invoices, date) =>
   invoices.filter((i) => i.status === 'ISSUED' && i.locationId !== 'WH-GUJ' && (i.dispatchDate || addDays(i.date, 1)) <= date)
     .sort((a, b) => (a.dispatchDate < b.dispatchDate ? -1 : 1))
@@ -254,7 +254,7 @@ export const scheduleCSV = (rows) => toCSV(rows, SCHEDULE_COLS)
 // ------------------------------------------------------------------ MIS / reconciliation
 export const MIS_KIND = { WEEKLY_TRUCK: 'Weekly truck report', MONTHLY_MIS: 'Monthly MIS', INVOICE: 'Transport invoice' }
 
-export function MisUploadModal({ onClose, onDone, defaultSource = 'STAREX' }) {
+export function MisUploadModal({ onClose, onDone, defaultSource = 'BTALI' }) {
   const state = useStore()
   const uploadMIS = useStore((s) => s.uploadMIS)
   const [kind, setKind] = useState('WEEKLY_TRUCK')
@@ -267,7 +267,7 @@ export function MisUploadModal({ onClose, onDone, defaultSource = 'STAREX' }) {
     try {
       const text = a.url?.startsWith('data:') ? decodeURIComponent(escape(atob(a.url.split(',')[1]))) : await (await fetch(a.url)).text()
       const parsed = parseCSV(text)
-      if (!parsed.length) return toast.error('No rows found', 'Upload a CSV export of the Starex report (first row = headers).')
+      if (!parsed.length) return toast.error('No rows found', 'Upload a CSV export of the Btali report (first row = headers).')
       setRows(parsed)
       setFile(a)
       const dates = parsed.map((r) => r.Date || r.date).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort()
@@ -279,7 +279,7 @@ export function MisUploadModal({ onClose, onDone, defaultSource = 'STAREX' }) {
   const downloadSample = () => {
     const to = daysAgo(1), from = daysAgo(kind === 'MONTHLY_MIS' ? 30 : 7)
     const r = buildMisRows(state, from, to, { inject: true, seed: Math.floor(Date.now() / 1000) % 7 + 3 })
-    downloadText(`Starex-${kind === 'MONTHLY_MIS' ? 'MIS' : 'Truck-Report'}-${to}.csv`, toCSV(r, Object.keys(r[0] || { Date: 1 }).map((k) => ({ key: k, header: k }))), 'text/csv')
+    downloadText(`Btali-${kind === 'MONTHLY_MIS' ? 'MIS' : 'Truck-Report'}-${to}.csv`, toCSV(r, Object.keys(r[0] || { Date: 1 }).map((k) => ({ key: k, header: k }))), 'text/csv')
     toast.info('Template downloaded', `${r.length} consignments from ${fmtDate(from)} – ${fmtDate(to)}. Upload it here to reconcile.`)
   }
   const submit = () => {
@@ -295,7 +295,7 @@ export function MisUploadModal({ onClose, onDone, defaultSource = 'STAREX' }) {
       footer={<><Button variant="secondary" onClick={onClose}>Cancel</Button><Button icon={CheckCircle2} disabled={!rows} onClick={submit}>Upload & reconcile</Button></>}>
       <FormGrid cols={3}>
         <Field label="Report type"><Select value={kind} onChange={(e) => setKind(e.target.value)} options={Object.entries(MIS_KIND).map(([value, label]) => ({ value, label }))} /></Field>
-        <Field label="Source"><Select value={source} onChange={(e) => setSource(e.target.value)} options={[{ value: 'STAREX', label: 'Starex 3PL' }, { value: 'SAFEX', label: 'Safex Transport' }]} /></Field>
+        <Field label="Source"><Select value={source} onChange={(e) => setSource(e.target.value)} options={[{ value: 'BTALI', label: 'Btali 3PL' }, { value: 'SAFEX', label: 'Safex Transport' }]} /></Field>
         <Field label="Period"><Input value={period} onChange={(e) => setPeriod(e.target.value)} /></Field>
       </FormGrid>
       <div className="mt-4">
@@ -304,7 +304,7 @@ export function MisUploadModal({ onClose, onDone, defaultSource = 'STAREX' }) {
       </div>
       {rows && <Alert className="mt-3" tone="info" title={`${rows.length} rows read`}>Columns detected: {Object.keys(rows[0]).join(', ')}</Alert>}
       <div className="mt-4 flex items-center justify-between gap-3 border border-dashed border-slate-300 rounded-lg p-3">
-        <div className="text-xs text-slate-600"><span className="font-semibold text-slate-800">Need the format?</span> Download the Starex template pre-filled with recent dispatches.</div>
+        <div className="text-xs text-slate-600"><span className="font-semibold text-slate-800">Need the format?</span> Download the Btali template pre-filled with recent dispatches.</div>
         <Button size="sm" variant="soft" icon={FileSpreadsheet} onClick={downloadSample}>Download template</Button>
       </div>
     </Modal>
@@ -321,7 +321,7 @@ export function MisResults({ upload, canResolve = true, onOpenInvoice }) {
   const rows = upload.results.map((r, i) => ({ ...r, idx: i, id: `${upload.id}-${i}`, partnerId: invoices.find((x) => x.id === r.invoiceId)?.partnerId }))
   const view = filter === 'ALL' ? rows : filter === 'EXCEPTIONS' ? rows.filter((r) => r.status !== 'MATCH') : rows.filter((r) => r.status === filter)
   const doResolve = async (r) => {
-    const note = await prompt({ title: `Resolve ${r.ref}`, label: 'Resolution note', placeholder: 'e.g. Starex agreed to credit ₹650 in next bill', required: true })
+    const note = await prompt({ title: `Resolve ${r.ref}`, label: 'Resolution note', placeholder: 'e.g. Btali agreed to credit ₹650 in next bill', required: true })
     if (!note) return
     resolve(upload.id, r.idx, note)
     toast.success('Exception resolved', r.ref)
@@ -336,7 +336,7 @@ export function MisResults({ upload, canResolve = true, onOpenInvoice }) {
         <Stat label="Missing in report" value={fmtNum(sm.MISSING)} tone="amber" />
       </Grid>
       <div className="grid md:grid-cols-3 gap-3 text-sm">
-        <div className="rounded-xl border border-slate-200 p-3"><div className="text-xs text-slate-500">Starex reported freight</div><div className="text-lg font-bold tabular-nums">{fmtINR(sm.billed)}</div></div>
+        <div className="rounded-xl border border-slate-200 p-3"><div className="text-xs text-slate-500">Btali reported freight</div><div className="text-lg font-bold tabular-nums">{fmtINR(sm.billed)}</div></div>
         <div className="rounded-xl border border-slate-200 p-3"><div className="text-xs text-slate-500">ERP expected (rate card / recorded)</div><div className="text-lg font-bold tabular-nums">{fmtINR(sm.expected)}</div></div>
         <div className="rounded-xl border border-red-200 bg-red-50/50 p-3"><div className="text-xs text-red-700">Over-billing flagged</div><div className="text-lg font-bold tabular-nums text-red-700">{fmtINR(sm.overbilled)}</div></div>
       </div>
@@ -348,7 +348,7 @@ export function MisResults({ upload, canResolve = true, onOpenInvoice }) {
           { key: 'customer', header: 'Customer', value: (r) => partner(r.partnerId)?.name || '—' },
           { key: 'status', header: 'Result', render: (r) => <Badge tone={RESULT_TONE[r.status]} dot>{r.status === 'MISMATCH' ? (r.diff > 0 ? 'Over-charged' : r.diff < 0 ? 'Under-charged' : 'Mismatch') : r.status === 'EXTRA' ? 'Extra (billed)' : r.status === 'MISSING' ? 'Missing' : 'Match'}</Badge> },
           { key: 'trucks', header: 'Trucks', align: 'right' },
-          { key: 'amount', header: 'Starex', align: 'right', render: (r) => fmtINR(r.amount) },
+          { key: 'amount', header: 'Btali', align: 'right', render: (r) => fmtINR(r.amount) },
           { key: 'expected', header: 'ERP', align: 'right', render: (r) => fmtINR(r.expected) },
           { key: 'diff', header: 'Difference', align: 'right', render: (r) => <span className={cx(r.diff > 0 ? 'text-red-600' : r.diff < 0 ? 'text-amber-700' : 'text-slate-500', 'font-medium')}>{r.diff > 0 ? '+' : ''}{fmtINR(r.diff)}</span> },
           { key: 'note', header: 'Finding', className: 'max-w-xs', render: (r) => <div className="text-xs text-slate-600">{r.note}{r.resolved && <div className="text-emerald-700 mt-0.5">Resolved: {r.resolution}</div>}</div> },
@@ -364,7 +364,7 @@ export function MisHistoryTable({ uploads, onOpen }) {
       columns={[
         { key: 'fileName', header: 'File', render: (u) => <div className="flex items-center gap-2"><FileText className="w-4 h-4 text-slate-400" /><span className="text-sm font-medium text-slate-800">{u.fileName}</span></div> },
         { key: 'kind', header: 'Type', value: (u) => MIS_KIND[u.kind] || u.kind },
-        { key: 'source', header: 'Source', render: (u) => <Badge tone={u.source === 'SAFEX' ? 'violet' : 'ink'}>{u.source === 'STAREX' ? 'Starex' : 'Safex'}</Badge> },
+        { key: 'source', header: 'Source', render: (u) => <Badge tone={u.source === 'SAFEX' ? 'violet' : 'ink'}>{u.source === 'BTALI' ? 'Btali' : 'Safex'}</Badge> },
         { key: 'period', header: 'Period' },
         { key: 'uploadedAt', header: 'Uploaded', render: (u) => fmtDateTime(u.uploadedAt) },
         { key: 'lines', header: 'Lines', align: 'right', value: (u) => u.results.length },
@@ -379,5 +379,5 @@ export function MisChart({ uploads }) {
     const sm = misSummary(u.results)
     return { label: `${u.kind === 'MONTHLY_MIS' ? 'MIS' : 'Wk'} ${fmtDate(u.uploadedAt).slice(0, 6)}`, reported: sm.billed, erp: sm.expected }
   })
-  return <BarsChart data={data} height={240} series={[{ key: 'reported', label: 'Starex reported' }, { key: 'erp', label: 'ERP actual' }]} />
+  return <BarsChart data={data} height={240} series={[{ key: 'reported', label: 'Btali reported' }, { key: 'erp', label: 'ERP actual' }]} />
 }

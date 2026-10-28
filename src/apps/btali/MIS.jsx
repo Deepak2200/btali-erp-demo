@@ -6,8 +6,8 @@ import { fmtINR, fmtDate, fmtDateTime } from '../../lib/format'
 import { MisUploadModal, MisResults, MisHistoryTable, MisChart, MIS_KIND } from '../erp/dispatch/_shared'
 import { misSummary } from '../../store/slices/dispatch'
 
-export default function StarexMIS() {
-  const uploads = useStore((s) => (s.misUploads || []).filter((u) => u.source === 'STAREX'))
+export default function BtaliMIS() {
+  const uploads = useStore((s) => (s.misUploads || []).filter((u) => u.source === 'BTALI'))
   const [modal, setModal] = useState(false)
   const [openId, setOpenId] = useState(null)
   const open = uploads.find((u) => u.id === openId)
@@ -37,12 +37,12 @@ export default function StarexMIS() {
         <Stat label="Billing differences flagged" value={fmtINR(totals.over)} tone="amber" />
       </Grid>
       <div className="grid lg:grid-cols-3 gap-4 mt-4">
-        <Card className="lg:col-span-2" title="Starex reported vs ERP actual" subtitle="Freight per uploaded report">
+        <Card className="lg:col-span-2" title="Btali reported vs ERP actual" subtitle="Freight per uploaded report">
           {uploads.length ? <MisChart uploads={uploads} /> : <EmptyState title="No reports yet" />}
         </Card>
         <Card title="How it works">
           <ol className="text-sm text-slate-600 space-y-2 list-decimal pl-4">
-            <li>Export the week's truck sheet or month's MIS from the Starex system as CSV.</li>
+            <li>Export the week's truck sheet or month's MIS from the Btali system as CSV.</li>
             <li>Upload it here – each line is matched to Btali invoice numbers.</li>
             <li>Over/under charges, extra trucks, unknown invoices and missing dispatches are flagged.</li>
             <li>Btali Dispatch resolves exceptions; you see the outcome on each report.</li>

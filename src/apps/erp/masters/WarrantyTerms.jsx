@@ -87,7 +87,7 @@ export default function WarrantyTerms() {
               </div>
               <CoverCard title={`Customer (${res.terms.months} mo)`} c={res.customer} sub="Not registered to an end customer yet" />
               <CoverCard title={`Dealer / franchise (${res.terms.partnerMonths} mo)`} c={res.partnerCover} sub="Starts on dispatch to partner" />
-              <CoverCard title={`Vendor → Btali (${res.terms.vendorMonths} mo)`} c={res.vendorCover} sub="Starts on inward at Starex" />
+              <CoverCard title={`Vendor → Btali (${res.terms.vendorMonths} mo)`} c={res.vendorCover} sub="Starts on inward at Btali" />
               {res.terms.exclusions && <div className="text-xs text-slate-600 md:col-span-2 xl:col-span-4"><span className="font-semibold">Exclusions:</span> {res.terms.exclusions}</div>}
               {res.terms.extended && <div className="text-xs text-emerald-700 md:col-span-2 xl:col-span-4"><span className="font-semibold">Extended:</span> {res.terms.extended}</div>}
               <div className="text-[11px] text-slate-400 md:col-span-2 xl:col-span-4">Rules applied: {res.terms.ruleIds.map((id) => { const r = rules.find((x) => x.id === id); return r ? `${r.scope.toLowerCase()} ${refLabel(r)}` : id }).join(', ') || 'product master'}</div>

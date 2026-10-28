@@ -68,7 +68,7 @@ export default function VendorBills() {
 
   return (
     <div>
-      <PageHeader title="Vendor Bills" subtitle="Supplier, Starex, Safex, GAF, Shiv Sai & CHA invoices · Accounts → Boss approval → Madam payment"
+      <PageHeader title="Vendor Bills" subtitle="Supplier, Btali, Safex, GAF, Shiv Sai & CHA invoices · Accounts → Boss approval → Madam payment"
         actions={<Button icon={Plus} onClick={() => setForm({ mode: 'new' })}>New vendor bill</Button>} />
       <Grid cols={4} className="mb-5">
         <Stat icon={Clock} tone="amber" label="Pending Boss approval" value={pend.length} sub={fmtINR(sum(pend, billPayable))} onClick={() => setTab('PENDING_BOSS')} />

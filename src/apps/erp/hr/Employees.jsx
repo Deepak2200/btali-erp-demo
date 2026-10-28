@@ -12,7 +12,7 @@ import { DEPARTMENTS, ctcBreakup, attendanceSummary, currentPeriod, LEAVE_TYPES 
 import { EmpCell, EmpStatus, MaskedId, useCanSeeSalary, useEmpMap } from './_parts'
 
 const DOC_TYPES = ['ID proof', 'Address proof', 'Offer letter', 'Contract', 'Previous employment', 'Education', 'Other']
-const LOCATIONS = ['Navi Mumbai HQ', 'Starex Warehouse, Bhiwandi', 'Field']
+const LOCATIONS = ['Navi Mumbai HQ', 'Btali Warehouse, Bhiwandi', 'Field']
 const PAN_RE = /^[A-Z]{5}[0-9]{4}[A-Z]$/
 const IFSC_RE = /^[A-Z]{4}0[A-Z0-9]{6}$/
 const FIELD_LABEL = { phone: 'Mobile', address: 'Address', personalEmail: 'Personal email', emergencyContact: 'Emergency contact', bank: 'Bank details', maritalStatus: 'Marital status', bloodGroup: 'Blood group' }

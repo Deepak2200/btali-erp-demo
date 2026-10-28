@@ -59,7 +59,7 @@ export default function Moves() {
   }, [stockMoves, invoices, shipments, pos])
 
   const last30 = log.filter((m) => m.date >= daysAgo(30))
-  const prodOpts = products.filter((p) => p.active).map((p) => ({ value: p.id, label: `${p.sku} – ${p.shortName}`, sub: `Starex ${fmtNum(stock[MAIN_WH]?.[p.id] || 0)} · Gujarat ${fmtNum(stock['WH-GUJ']?.[p.id] || 0)}` }))
+  const prodOpts = products.filter((p) => p.active).map((p) => ({ value: p.id, label: `${p.sku} – ${p.shortName}`, sub: `Btali ${fmtNum(stock[MAIN_WH]?.[p.id] || 0)} · Gujarat ${fmtNum(stock['WH-GUJ']?.[p.id] || 0)}` }))
   const locOpts = locations.filter((l) => l.type !== 'TRANSIT').map((l) => ({ value: l.id, label: l.name }))
   const avail = f.productId && f.locationId ? onHand({ stock }, f.productId, f.locationId) : null
   const fromAvail = f.productId && f.fromLoc ? onHand({ stock }, f.productId, f.fromLoc) : null
@@ -120,7 +120,7 @@ export default function Moves() {
           <div><div className="text-xs font-medium text-slate-600 mb-1">Direction</div><Segmented value={f.direction} onChange={(v) => set({ direction: v })} options={[{ key: 'OUT', label: 'Reduce (−)' }, { key: 'IN', label: 'Increase (+)' }]} /></div>
           <Field label="Quantity" hint={avail != null ? `On hand: ${fmtNum(avail)}` : undefined}><NumberInput min={1} value={f.qty} onChange={(v) => set({ qty: v })} /></Field>
           <Field label="Reason code"><Select value={f.reason || ''} options={REASONS} onChange={(e) => set({ reason: e.target.value })} /></Field>
-          <Field label="Reference / remarks" required className="md:col-span-2"><Input value={f.note || ''} onChange={(e) => set({ note: e.target.value })} placeholder="e.g. Physical count 26-Oct, Starex MIS row 41" /></Field>
+          <Field label="Reference / remarks" required className="md:col-span-2"><Input value={f.note || ''} onChange={(e) => set({ note: e.target.value })} placeholder="e.g. Physical count 26-Oct, Btali MIS row 41" /></Field>
         </FormGrid>
       </Modal>
 

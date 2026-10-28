@@ -198,7 +198,7 @@ const coreSlice = (set, get) => ({
     get().notify({ title: ok ? 'PI approved' : 'PI rejected', body: `${po.number}${remark ? ` – ${remark}` : ''}`, link: `/vendor/orders/${poId}`, vendorId: po.vendorId })
     get().audit(ok ? 'Approved PI' : 'Rejected PI', 'PO', po.number)
   },
-  /** Starex / purchase inward against a shipment. lines: [{productId, expected, received}] */
+  /** Btali / purchase inward against a shipment. lines: [{productId, expected, received}] */
   receiveShipment: (shipmentId, { lines, qcMedia = [], remarks = '' }) => {
     const s = get()
     const sh = s.shipments.find((x) => x.id === shipmentId)
@@ -209,17 +209,17 @@ const coreSlice = (set, get) => ({
       if (l.received !== l.expected) discrepancies.push({ productId: l.productId, expected: l.expected, received: l.received, type: l.received < l.expected ? 'SHORT' : 'EXCESS', note: remarks, settled: false })
     }
     const codes = s.units.filter((u) => sh.poIds.includes(u.poId) && ['IN_TRANSIT', 'PACKED', 'GENERATED'].includes(u.status)).map((u) => u.code)
-    get().updateUnits(codes, { status: 'IN_WAREHOUSE', locationId: MAIN_WH }, 'Inward scanned at Starex', grnNo)
+    get().updateUnits(codes, { status: 'IN_WAREHOUSE', locationId: MAIN_WH }, 'Inward scanned at Btali', grnNo)
     get().updateItem('shipments', shipmentId, (x) => ({
       ...x, status: 'RECEIVED', ata: x.ata || today(),
       milestones: x.milestones.map((m) => (m.done ? m : { ...m, done: true, date: today() })),
       inward: { grnNo, date: today(), receivedBy: s.session.userId, discrepancies, qcMedia, remarks, lines },
     }))
-    set((st) => ({ purchaseOrders: st.purchaseOrders.map((p) => (sh.poIds.includes(p.id) ? { ...p, status: 'RECEIVED', receivedAt: today(), timeline: [...p.timeline, { ts: nowISO(), text: `Received at Starex – ${grnNo}` }] } : p)) }))
+    set((st) => ({ purchaseOrders: st.purchaseOrders.map((p) => (sh.poIds.includes(p.id) ? { ...p, status: 'RECEIVED', receivedAt: today(), timeline: [...p.timeline, { ts: nowISO(), text: `Received at Btali – ${grnNo}` }] } : p)) }))
     if (discrepancies.length) {
-      get().createTicket({ source: 'STAREX', category: discrepancies.some((d) => d.type === 'SHORT') ? 'SHORTAGE' : 'GENERAL', subject: `Inward discrepancy on ${sh.number} (${grnNo})`, description: discrepancies.map((d) => `${s.products.find((p) => p.id === d.productId)?.sku}: expected ${d.expected}, received ${d.received}`).join('\n'), orderRef: sh.number, priority: 'HIGH' })
+      get().createTicket({ source: 'BTALI', category: discrepancies.some((d) => d.type === 'SHORT') ? 'SHORTAGE' : 'GENERAL', subject: `Inward discrepancy on ${sh.number} (${grnNo})`, description: discrepancies.map((d) => `${s.products.find((p) => p.id === d.productId)?.sku}: expected ${d.expected}, received ${d.received}`).join('\n'), orderRef: sh.number, priority: 'HIGH' })
     }
-    get().notify({ title: 'Container received at Starex', body: `${sh.number} · ${grnNo}${discrepancies.length ? ` · ${discrepancies.length} discrepancies` : ''}`, link: `/erp/purchase/inward`, roles: ['PURCHASE', 'SALES_MANAGER', 'SALES_EXEC', 'DISPATCH', 'ADMIN', 'ACCOUNTS'] })
+    get().notify({ title: 'Container received at Btali', body: `${sh.number} · ${grnNo}${discrepancies.length ? ` · ${discrepancies.length} discrepancies` : ''}`, link: `/erp/purchase/inward`, roles: ['PURCHASE', 'SALES_MANAGER', 'SALES_EXEC', 'DISPATCH', 'ADMIN', 'ACCOUNTS'] })
     get().audit('Inward GRN', 'Shipment', grnNo)
     return { grnNo, discrepancies }
   },
@@ -347,27 +347,27 @@ const coreSlice = (set, get) => ({
     }
     const inv = {
       id: uid('inv'), number, soId, partnerId: so.partnerId, date: today(), lines: so.lines, subtotal: so.subtotal, gst: so.gst, total: so.total,
-      transporterId: tr?.id, vehicleNo: vehicleNo || tr?.vehicleNo || '', status: 'ISSUED', lr: null, sentToStarex: true, emailed: true,
+      transporterId: tr?.id, vehicleNo: vehicleNo || tr?.vehicleNo || '', status: 'ISSUED', lr: null, sentToBtali: true, emailed: true,
       irn: `IRN${Date.now().toString().slice(-10)}`, ewayBill: String(Date.now()).slice(-12), type: 'TAX', dispatchDate: addDays(today(), 1), units, locationId: loc, safex: !!tr?.isSafex,
     }
     for (const l of so.lines) get().adjustStock(loc, l.productId, -l.qty, 'Sales invoice', number)
     get().updateUnits(units, { status: 'INVOICED', invoiceId: inv.id }, `Invoiced on ${number}`, number)
     set((st) => ({
       invoices: [inv, ...st.invoices],
-      salesOrders: st.salesOrders.map((x) => (x.id === soId ? { ...x, status: 'INVOICED', invoiceId: inv.id, transporterId: inv.transporterId, timeline: [...x.timeline, { ts: nowISO(), text: `Invoice ${number} generated · emailed to client · pushed to Starex schedule` }] } : x)),
+      salesOrders: st.salesOrders.map((x) => (x.id === soId ? { ...x, status: 'INVOICED', invoiceId: inv.id, transporterId: inv.transporterId, timeline: [...x.timeline, { ts: nowISO(), text: `Invoice ${number} generated · emailed to client · pushed to Btali schedule` }] } : x)),
     }))
     get().sendEmail({ to: partner.email, subject: `Invoice ${number} – Btali International`, body: `Dear ${partner.contact},\n\nPlease find attached invoice ${number} for ${fmtINR(inv.total)}. Goods will be dispatched via ${tr?.name || 'transporter'}.\n\nRegards,\nBtali Dispatch`, attachments: [makeAttachment(`${number.replace(/\//g, '-')}.pdf`)], ref: number })
-    get().sendEmail({ to: 'ops@starex3pl.in', subject: `Dispatch request ${number}`, body: `Please prepare ${so.lines.length} line(s) for ${partner.name} via ${tr?.name}.`, ref: number, kind: 'STAREX_PUSH' })
+    get().sendEmail({ to: 'ops@btali3pl.in', subject: `Dispatch request ${number}`, body: `Please prepare ${so.lines.length} line(s) for ${partner.name} via ${tr?.name}.`, ref: number, kind: 'BTALI_PUSH' })
     if (tr?.isSafex) get().raiseSafexDebitNote?.(inv.id)
     // e-invoicing: register IRN and e-way bill with the GST portal connector (Accounts module)
     get().generateIrn?.(inv.id)
     get().generateEwayBill?.(inv.id, { vehicleNo: inv.vehicleNo, transporterId: inv.transporterId })
     get().notify({ title: 'Invoice generated', body: `${number} for your order ${so.number}`, link: '/dealer/documents', partnerId: so.partnerId })
-    get().notify({ title: 'New dispatch in schedule', body: `${number} · ${partner.name} · ${tr?.name}`, link: '/starex/schedule', roles: ['STAREX'] })
+    get().notify({ title: 'New dispatch in schedule', body: `${number} · ${partner.name} · ${tr?.name}`, link: '/btali/schedule', roles: ['BTALI'] })
     get().audit('Created invoice', 'Invoice', number)
     return { ok: true, invoice: inv }
   },
-  /** LR upload (Dispatch or Starex). Marks dispatched, emails client, moves units to partner. */
+  /** LR upload (Dispatch or Btali). Marks dispatched, emails client, moves units to partner. */
   uploadLR: (invoiceId, { lrNo, date = today(), file = null, vehicleNo = '' }) => {
     const s = get()
     const inv = s.invoices.find((x) => x.id === invoiceId)
@@ -502,7 +502,7 @@ export const useStore = create(
     }),
     {
       name: 'btali-erp-demo',
-      version: 2,
+      version: 3,
       // Bump when seed data changes shape or values: older saved data is discarded and the fresh seed loads.
       migrate: () => undefined,
       storage: createJSONStorage(() => localStorage),

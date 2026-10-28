@@ -44,7 +44,7 @@ function SafexTab({ onOpenInvoice }) {
         <Stat label="Consignments without debit note" value={missing.length} sub="Safex billing vs ERP debit notes" icon={IndianRupee} tone={missing.length ? 'amber' : 'green'} />
         <Stat label="Safex customers" value={s.partners.filter((p) => p.safex).length} icon={Users} tone="ink" />
       </Grid>
-      <Card padded={false} title="Safex dispatch jobs" subtitle="Collected directly from Starex by Safex – segregated from standard transport"
+      <Card padded={false} title="Safex dispatch jobs" subtitle="Collected directly from Btali by Safex – segregated from standard transport"
         actions={missing.length > 0 && <Button size="sm" icon={FileText} onClick={raiseAll}>Raise {missing.length} pending debit notes</Button>}>
         <DataTable rows={jobs} onRowClick={(i) => onOpenInvoice(i.id)} exportName="safex-jobs" initialSort={{ key: 'date', dir: 'desc' }} pageSize={8} className="border-0 shadow-none rounded-none"
           filters={[{ key: 'dnstate', label: 'debit note states', value: (j) => (j.dn ? 'Raised' : 'Pending'), options: ['Raised', 'Pending'] }, { key: 'status', label: 'statuses', options: ['ISSUED', 'DISPATCHED'] }]}

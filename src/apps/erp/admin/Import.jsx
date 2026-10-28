@@ -37,7 +37,7 @@ const ENTITIES = {
   OPENING_STOCK: {
     label: 'Opening stock', icon: Boxes, desc: 'Physical stock per warehouse. Quantity replaces the current on-hand (difference posted as a stock move).',
     cols: ['sku', 'location', 'qty'],
-    sample: [['BT-MB05', 'WH-STAREX', '240'], ['BT-PW16', 'WH-STAREX', '190'], ['BT-BS16', 'WH-STAREX', '420'], ['SP-IMP10', 'WH-GUJ', '150'], ['BT-XX99', 'WH-STAREX', '30'], ['BT-WD20', 'WH-STAREX', '-5']],
+    sample: [['BT-MB05', 'WH-BTALI', '240'], ['BT-PW16', 'WH-BTALI', '190'], ['BT-BS16', 'WH-BTALI', '420'], ['SP-IMP10', 'WH-GUJ', '150'], ['BT-XX99', 'WH-BTALI', '30'], ['BT-WD20', 'WH-BTALI', '-5']],
   },
   LEDGERS: {
     label: 'Tally ledgers & opening balances', icon: BookOpen, desc: 'Ledger masters exported from Tally with group and opening Dr/Cr balance as on 01-Apr.',
@@ -46,7 +46,7 @@ const ENTITIES = {
       ['HDFC Bank Current A/c', 'Bank Accounts', '4825000', '0', ''],
       ['Sharma Agro Traders', 'Sundry Debtors', '186400', '0', '03AAAF1000B1Z0'],
       ['Ningbo Hailong Pump Co., Ltd.', 'Sundry Creditors', '0', '2214000', ''],
-      ['Starex 3PL Warehousing', 'Sundry Creditors', '0', '142500', '27AAFCS9981K1ZT'],
+      ['Btali 3PL Warehousing', 'Sundry Creditors', '0', '142500', '27AAFCS9981K1ZT'],
       ['Office Rent', 'Indirect Expenses', '0', '0', ''],
       ['Share Capital', 'Capital Account', '0', '5000000', ''],
       ['Misc Suspense', 'Suspense Group', '12000', '12000', ''],

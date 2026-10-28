@@ -9,7 +9,7 @@ import { fmtDate, fmtDateTime, fmtNum, exportCSV } from '../../../lib/format'
 import { checkWarranty } from '../../../lib/warranty'
 
 const STAGES = ['GENERATED', 'PACKED', 'IN_TRANSIT', 'IN_WAREHOUSE', 'INVOICED', 'AT_PARTNER', 'SOLD']
-const STAGE_LABEL = { GENERATED: 'Barcode generated', PACKED: 'Packed at factory', IN_TRANSIT: 'In transit', IN_WAREHOUSE: 'At Starex', INVOICED: 'Invoiced', AT_PARTNER: 'At dealer / store', SOLD: 'Sold to customer' }
+const STAGE_LABEL = { GENERATED: 'Barcode generated', PACKED: 'Packed at factory', IN_TRANSIT: 'In transit', IN_WAREHOUSE: 'At Btali', INVOICED: 'Invoiced', AT_PARTNER: 'At dealer / store', SOLD: 'Sold to customer' }
 const eventIcon = (e) => (/generated/i.test(e) ? Package : /packed/i.test(e) ? Factory : /shipped|transit|container/i.test(e) ? Ship : /inward|warehouse/i.test(e) ? Warehouse : /dispatch|invoice/i.test(e) ? Store : /sold|warranty/i.test(e) ? User : FileText)
 
 function CoverTile({ title, c, empty }) {

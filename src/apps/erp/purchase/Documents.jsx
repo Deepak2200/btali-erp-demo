@@ -64,7 +64,7 @@ const buildRepo = (state, po) => {
   if (po.pi?.stampedFile) push('PI_STAMPED', { ...po.pi.stampedFile, docType: 'PI_STAMPED' }, 'System')
   if (po.commercialInvoice) push('CI', { ...po.commercialInvoice, docType: 'CI' }, 'Vendor portal')
   for (const q of po.qc || []) push('QC', { ...q.file, docType: 'QC', caption: q.caption }, `Vendor QC · ${q.status.toLowerCase()}`)
-  for (const m of sh?.inward?.qcMedia || []) push('QC', { ...m, docType: 'QC' }, 'Starex inward QC')
+  for (const m of sh?.inward?.qcMedia || []) push('QC', { ...m, docType: 'QC' }, 'Btali inward QC')
   if (sh?.landedCost?.chaBill) push('CHA', sh.landedCost.chaBill, 'Landed cost')
   const system = []
   if (po.labelsSent || po.mrpConfirmed) system.push({ key: 'MRP', text: `MRP labels ${po.mrpConfirmed ? 'confirmed' : 'prepared'}${po.labelsSent ? ' and sent to vendor' : ''}${po.barcodesGenerated ? '; barcodes generated' : ''}` })

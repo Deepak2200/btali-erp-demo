@@ -125,12 +125,12 @@ export const purchaseSlice = (set, get) => ({
   },
 
   // ------------------------------------------------------------ packing list / domestic flow
-  sendPackingListToStarex: (poId, lines) => {
+  sendPackingListToBtali: (poId, lines) => {
     const po = get().purchaseOrders.find((p) => p.id === poId)
     const file = makeAttachment(`Packing-List-${safe(po.number)}.xlsx`, { docType: 'PL' })
-    get().updateItem('purchaseOrders', poId, (x) => ({ ...x, packingList: { ...(x.packingList || {}), lines: x.packingList?.lines?.length ? x.packingList.lines : lines, generatedAt: x.packingList?.generatedAt || nowISO(), source: x.packingList?.source || 'ERP', sentToStarexAt: nowISO() }, docs: [...(x.docs || []), file], timeline: tl(x, 'Packing list shared with Starex warehouse') }))
-    get().sendEmail({ to: 'ops@starex3pl.in', subject: `Expected inward – ${po.number}`, body: `Packing list for ${po.number} attached (${lines.length} lines, ${sum(lines, (l) => l.cartons)} cartons).`, attachments: [file], ref: po.number, kind: 'STAREX_PUSH' })
-    get().notify({ title: 'Expected inward', body: `${po.number} packing list shared`, link: '/starex/inward', roles: ['STAREX'] })
+    get().updateItem('purchaseOrders', poId, (x) => ({ ...x, packingList: { ...(x.packingList || {}), lines: x.packingList?.lines?.length ? x.packingList.lines : lines, generatedAt: x.packingList?.generatedAt || nowISO(), source: x.packingList?.source || 'ERP', sentToBtaliAt: nowISO() }, docs: [...(x.docs || []), file], timeline: tl(x, 'Packing list shared with Btali warehouse') }))
+    get().sendEmail({ to: 'ops@btali3pl.in', subject: `Expected inward – ${po.number}`, body: `Packing list for ${po.number} attached (${lines.length} lines, ${sum(lines, (l) => l.cartons)} cartons).`, attachments: [file], ref: po.number, kind: 'BTALI_PUSH' })
+    get().notify({ title: 'Expected inward', body: `${po.number} packing list shared`, link: '/btali/inward', roles: ['BTALI'] })
   },
   requestCustomerPayment: (poId) => {
     const s = get()
@@ -143,7 +143,7 @@ export const purchaseSlice = (set, get) => ({
     const po = get().purchaseOrders.find((p) => p.id === poId)
     if (po.requiresCustomerPayment && !po.customerPaid) return { ok: false, error: 'Customer payment not yet received.' }
     get().updateItem('purchaseOrders', poId, (x) => ({ ...x, status: ['APPROVED', 'PI_RECEIVED', 'IN_PRODUCTION', 'READY_TO_SHIP'].includes(x.status) ? 'SHIPPED' : x.status, vendorDispatch: { lrNo, date, vehicleNo, note, confirmedAt: nowISO(), by: get().session.userId }, timeline: tl(x, `Vendor dispatch confirmed – LR ${lrNo}`) }))
-    get().notify({ title: 'Domestic dispatch confirmed', body: `${po.number} · LR ${lrNo}`, link: `/erp/purchase/orders/${poId}`, roles: ['STAREX', 'SALES_MANAGER', 'DISPATCH'] })
+    get().notify({ title: 'Domestic dispatch confirmed', body: `${po.number} · LR ${lrNo}`, link: `/erp/purchase/orders/${poId}`, roles: ['BTALI', 'SALES_MANAGER', 'DISPATCH'] })
     get().audit('Confirmed vendor dispatch', 'PO', po.number)
     return { ok: true }
   },
@@ -154,7 +154,7 @@ export const purchaseSlice = (set, get) => ({
       const q = received?.[l.productId] ?? l.qty
       if (q > 0) get().adjustStock(MAIN_WH, l.productId, q, 'Domestic PO inward', grnNo)
     }
-    get().updateItem('purchaseOrders', poId, (x) => ({ ...x, status: 'RECEIVED', receivedAt: today(), grnNo, timeline: tl(x, `Goods received at Starex – ${grnNo}; stock updated`) }))
+    get().updateItem('purchaseOrders', poId, (x) => ({ ...x, status: 'RECEIVED', receivedAt: today(), grnNo, timeline: tl(x, `Goods received at Btali – ${grnNo}; stock updated`) }))
     get().notify({ title: 'Domestic goods received', body: `${po.number} · ${grnNo}`, link: `/erp/purchase/orders/${poId}`, roles: ['PURCHASE', 'SALES_MANAGER', 'DISPATCH', 'ACCOUNTS'] })
     get().audit('Received domestic PO', 'PO', po.number)
     return grnNo
@@ -183,8 +183,8 @@ export const purchaseSlice = (set, get) => ({
     const codes = s.units.filter((u) => poIds.includes(u.poId) && ['GENERATED', 'PACKED'].includes(u.status)).map((u) => u.code)
     if (codes.length) get().updateUnits(codes, { status: 'IN_TRANSIT', locationId: 'WH-TRANSIT' }, `Shipped in container ${containerNo}`, number)
     const body = `${number} · ${containerNo} (${containerType}) · ${pos.map((p) => p.number).join(', ')} · ETA ${eta}`
-    get().notify({ title: 'New container booked', body, link: '/erp/purchase/shipments', roles: ['SALES_MANAGER', 'SALES_EXEC', 'DISPATCH', 'ACCOUNTS', 'STAREX', 'ADMIN'] })
-    get().sendEmail({ to: 'ops@starex3pl.in', cc: 'accounts@btali.in', subject: `Container advance notice – ${containerNo}`, body: `Container ${containerNo} (${containerType}) under ${number} is expected at Nhava Sheva on ${eta}. POs: ${pos.map((p) => p.number).join(', ')}.`, ref: number, kind: 'STAREX_PUSH' })
+    get().notify({ title: 'New container booked', body, link: '/erp/purchase/shipments', roles: ['SALES_MANAGER', 'SALES_EXEC', 'DISPATCH', 'ACCOUNTS', 'BTALI', 'ADMIN'] })
+    get().sendEmail({ to: 'ops@btali3pl.in', cc: 'accounts@btali.in', subject: `Container advance notice – ${containerNo}`, body: `Container ${containerNo} (${containerType}) under ${number} is expected at Nhava Sheva on ${eta}. POs: ${pos.map((p) => p.number).join(', ')}.`, ref: number, kind: 'BTALI_PUSH' })
     for (const p of pos) get().notify({ title: 'Shipment booked', body: `${p.number} · ${containerNo} · BL ${blNo || 'to follow'}`, vendorId: p.vendorId, link: `/vendor/orders/${p.id}` })
     get().audit('Created shipment', 'Shipment', number)
     return sh
@@ -197,7 +197,7 @@ export const purchaseSlice = (set, get) => ({
       const next = { ...x, milestones, telexReleased: key === 'TELEX' ? done : x.telexReleased, ata: key === 'ARRIVED' ? (done ? date : null) : x.ata }
       return { ...next, status: deriveShipmentStatus(next), log: [...(x.log || []), { ts: nowISO(), text: `${m0.label} ${done ? `marked done (${date})` : 'reopened'}`, by: get().session.userId }] }
     })
-    if (done && ['ARRIVED', 'CLEARED', 'PORT_TO_WH'].includes(key)) get().notify({ title: `${sh0.containerNo}: ${m0.label}`, body: sh0.number, link: '/erp/purchase/shipments', roles: ['PURCHASE', 'SALES_MANAGER', 'SALES_EXEC', 'DISPATCH', 'ACCOUNTS', 'STAREX'] })
+    if (done && ['ARRIVED', 'CLEARED', 'PORT_TO_WH'].includes(key)) get().notify({ title: `${sh0.containerNo}: ${m0.label}`, body: sh0.number, link: '/erp/purchase/shipments', roles: ['PURCHASE', 'SALES_MANAGER', 'SALES_EXEC', 'DISPATCH', 'ACCOUNTS', 'BTALI'] })
   },
   changeShipmentEta: (shId, eta, reason = '') => {
     const sh = get().shipments.find((x) => x.id === shId)
@@ -208,7 +208,7 @@ export const purchaseSlice = (set, get) => ({
       etaHistory: [...(x.etaHistory || []), { ts: nowISO(), from: x.eta, to: eta, reason, by: get().session.userId }],
       log: [...(x.log || []), { ts: nowISO(), text: `ETA changed ${x.eta} → ${eta}: ${reason}`, by: get().session.userId }],
     }))
-    get().notify({ title: `ETA ${delta > 0 ? 'delayed' : 'advanced'}: ${sh.containerNo}`, body: `${sh.number} now ${eta} (${delta > 0 ? '+' : ''}${delta}d) – ${reason}`, type: delta > 0 ? 'warning' : 'info', link: '/erp/purchase/shipments', roles: ['SALES_MANAGER', 'SALES_EXEC', 'DISPATCH', 'ACCOUNTS', 'STAREX', 'ADMIN'] })
+    get().notify({ title: `ETA ${delta > 0 ? 'delayed' : 'advanced'}: ${sh.containerNo}`, body: `${sh.number} now ${eta} (${delta > 0 ? '+' : ''}${delta}d) – ${reason}`, type: delta > 0 ? 'warning' : 'info', link: '/erp/purchase/shipments', roles: ['SALES_MANAGER', 'SALES_EXEC', 'DISPATCH', 'ACCOUNTS', 'BTALI', 'ADMIN'] })
     get().audit('Changed ETA', 'Shipment', sh.number)
   },
   setTelexRelease: (shId, val) => {

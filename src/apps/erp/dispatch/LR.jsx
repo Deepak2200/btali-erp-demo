@@ -43,7 +43,7 @@ export default function LR() {
                 { key: 'number', header: 'Invoice', render: (i) => <div><div className="font-mono text-xs whitespace-nowrap">{i.number}</div>{i.type === 'FOC' && <Badge tone="amber">FOC</Badge>}</div> },
                 { key: 'partner', header: 'Customer', value: (i) => partner(i.partnerId)?.name, render: (i) => <PartnerCell id={i.partnerId} /> },
                 { key: 'tr', header: 'Transporter', value: (i) => transporter(i.transporterId)?.name },
-                { key: 'stage', header: 'Starex', value: (i) => i.starexStage || 'Scheduled', render: (i) => <Badge tone={i.starexStage === 'LOADED' ? 'green' : i.starexStage === 'PICKED' ? 'blue' : 'gray'}>{i.starexStage === 'LOADED' ? 'Loaded' : i.starexStage === 'PICKED' ? 'Picked' : 'Scheduled'}</Badge> },
+                { key: 'stage', header: 'Btali', value: (i) => i.btaliStage || 'Scheduled', render: (i) => <Badge tone={i.btaliStage === 'LOADED' ? 'green' : i.btaliStage === 'PICKED' ? 'blue' : 'gray'}>{i.btaliStage === 'LOADED' ? 'Loaded' : i.btaliStage === 'PICKED' ? 'Picked' : 'Scheduled'}</Badge> },
                 { key: 'age', header: 'Age', align: 'right', value: (i) => lrAgeDays(i), render: (i) => <Badge tone={ageTone(lrAgeDays(i))}>{lrAgeDays(i)} d</Badge> },
                 { key: 'act', header: '', sortable: false, export: false, render: (i) => <Button size="sm" icon={Upload} onClick={(e) => { e.stopPropagation(); setLrFor(i.id) }}>Upload LR</Button> },
               ]}

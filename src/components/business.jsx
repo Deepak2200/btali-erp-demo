@@ -95,7 +95,7 @@ export function LineItemsEditor({ lines, onChange, mode = 'dealer', partnerId, v
                     {readOnly ? <ProductCell id={l.productId} /> : <Combobox options={options} value={l.productId} onChange={(v) => update(i, { productId: v })} placeholder="Select product…" />}
                     {p && mode === 'vendor' && <div className="text-[11px] text-slate-400 mt-1">MOQ {p.moq} · MRP {fmtINR(p.mrp)}</div>}
                   </td>
-                  {showStock && <td className="px-3 py-2 text-right tabular-nums text-slate-600">{p ? fmtNum(state.stock['WH-STAREX']?.[p.id] || 0) : '—'}</td>}
+                  {showStock && <td className="px-3 py-2 text-right tabular-nums text-slate-600">{p ? fmtNum(state.stock['WH-BTALI']?.[p.id] || 0) : '—'}</td>}
                   <td className="px-3 py-2 text-right">
                     {readOnly ? fmtNum(l.qty) : <NumberInput min={0} value={l.qty} onChange={(v) => update(i, { qty: v })} className="text-right" />}
                     {p && mode === 'vendor' && l.qty > 0 && l.qty < p.moq && <div className="text-[10px] text-amber-600 mt-0.5">Below MOQ</div>}

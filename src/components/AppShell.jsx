@@ -13,7 +13,7 @@ export const notificationVisible = (n, user) => {
   if (n.partnerId) return n.partnerId === user.partnerId
   if (n.vendorId) return n.vendorId === user.vendorId
   if (!n.roles?.length) return false
-  if (user.role === 'ADMIN') return !n.roles.every((r) => ['VENDOR', 'DEALER', 'FRANCHISE', 'STAREX'].includes(r))
+  if (user.role === 'ADMIN') return !n.roles.every((r) => ['VENDOR', 'DEALER', 'FRANCHISE', 'BTALI'].includes(r))
   return n.roles.includes(user.role)
 }
 

@@ -1,4 +1,4 @@
-// Module seed for "dispatch": returns & FOC register and Starex MIS uploads (with reconciliation results).
+// Module seed for "dispatch": returns & FOC register and Btali MIS uploads (with reconciliation results).
 import { daysAgo, addDays, makeAttachment, round2, fmtDate } from '../../lib/format'
 import { buildMisRows, matchMisRows } from '../slices/dispatch'
 
@@ -38,11 +38,11 @@ export const dispatchSeed = (core) => {
   const monthlyRows = buildMisRows(state, mFrom, mTo, { inject: true, seed: 2 })
   const monthlyResults = matchMisRows(state, monthlyRows).map((r, i, arr) => {
     const firstBad = arr.findIndex((x) => x.status !== 'MATCH')
-    return i === firstBad ? { ...r, resolved: true, resolution: 'Starex issued credit for the excess in next bill', resolvedBy: 'u8', resolvedAt: iso(daysAgo(10)) } : r
+    return i === firstBad ? { ...r, resolved: true, resolution: 'Btali issued credit for the excess in next bill', resolvedBy: 'u8', resolvedAt: iso(daysAgo(10)) } : r
   })
   const misUploads = [
-    { id: 'mis1', source: 'STAREX', kind: 'WEEKLY_TRUCK', period: `${fmtDate(wFrom)} – ${fmtDate(wTo)}`, fileName: `Starex-Truck-Report-${wTo}.csv`, file: makeAttachment(`Starex-Truck-Report-${wTo}.csv`), rows: weeklyRows, results: weeklyResults, uploadedBy: 'u17', uploadedAt: iso(daysAgo(5), 11), status: weeklyResults.some((r) => r.status !== 'MATCH') ? 'OPEN' : 'MATCHED' },
-    { id: 'mis2', source: 'STAREX', kind: 'MONTHLY_MIS', period: `${fmtDate(mFrom)} – ${fmtDate(mTo)}`, fileName: `Starex-MIS-${mTo.slice(0, 7)}.csv`, file: makeAttachment(`Starex-MIS-${mTo.slice(0, 7)}.csv`), rows: monthlyRows, results: monthlyResults, uploadedBy: 'u17', uploadedAt: iso(daysAgo(12), 16), status: 'OPEN' },
+    { id: 'mis1', source: 'BTALI', kind: 'WEEKLY_TRUCK', period: `${fmtDate(wFrom)} – ${fmtDate(wTo)}`, fileName: `Btali-Truck-Report-${wTo}.csv`, file: makeAttachment(`Btali-Truck-Report-${wTo}.csv`), rows: weeklyRows, results: weeklyResults, uploadedBy: 'u17', uploadedAt: iso(daysAgo(5), 11), status: weeklyResults.some((r) => r.status !== 'MATCH') ? 'OPEN' : 'MATCHED' },
+    { id: 'mis2', source: 'BTALI', kind: 'MONTHLY_MIS', period: `${fmtDate(mFrom)} – ${fmtDate(mTo)}`, fileName: `Btali-MIS-${mTo.slice(0, 7)}.csv`, file: makeAttachment(`Btali-MIS-${mTo.slice(0, 7)}.csv`), rows: monthlyRows, results: monthlyResults, uploadedBy: 'u17', uploadedAt: iso(daysAgo(12), 16), status: 'OPEN' },
   ]
   return { returns, misUploads, dispatchSchedules: [] }
 }

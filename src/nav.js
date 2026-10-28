@@ -11,7 +11,7 @@ import {
 
 export const ROLE_LABEL = {
   ADMIN: 'Director', FINANCE_HEAD: 'Finance Head', PURCHASE: 'Purchase', SALES_MANAGER: 'Sales Manager', SALES_EXEC: 'Sales Executive', DISPATCH: 'Dispatch',
-  ACCOUNTS: 'Accounts', HR: 'HR', SERVICE: 'Service', VENDOR: 'Vendor', DEALER: 'Dealer', FRANCHISE: 'Franchise', STAREX: 'Starex Warehouse',
+  ACCOUNTS: 'Accounts', HR: 'HR', SERVICE: 'Service', VENDOR: 'Vendor', DEALER: 'Dealer', FRANCHISE: 'Franchise', BTALI: 'Btali Warehouse',
 }
 
 // modules visible per role inside the internal ERP
@@ -80,7 +80,7 @@ export const APPS = {
         { label: 'Sales Invoices', path: 'dispatch/invoices', file: 'erp/dispatch/Invoices', icon: Receipt },
         { label: 'Dispatch & LR', path: 'dispatch/lr', file: 'erp/dispatch/LR', icon: Send },
         { label: 'Daily Dispatch Schedule', path: 'dispatch/schedule', file: 'erp/dispatch/Schedule', icon: CalendarClock },
-        { label: 'Starex Reconciliation', path: 'dispatch/reconciliation', file: 'erp/dispatch/Reconciliation', icon: GitCompare },
+        { label: 'Btali Reconciliation', path: 'dispatch/reconciliation', file: 'erp/dispatch/Reconciliation', icon: GitCompare },
         { label: 'Returns & FOC', path: 'dispatch/returns', file: 'erp/dispatch/Returns', icon: RotateCcw },
         { label: 'Safex & Special Flows', path: 'dispatch/special', file: 'erp/dispatch/SpecialFlows', icon: Split },
       ] },
@@ -214,17 +214,17 @@ export const APPS = {
       ] },
     ],
   },
-  starex: {
-    key: 'starex', base: '/starex', name: 'Starex Warehouse Portal', tagline: 'Btali desk at Starex 3PL', roles: ['STAREX'],
+  btali: {
+    key: 'btali', base: '/btali', name: 'Btali Warehouse Portal', tagline: 'Btali desk at Btali 3PL', roles: ['BTALI'],
     sections: [{ label: 'Warehouse', items: [
-      { label: 'Dashboard', path: 'dashboard', file: 'starex/Dashboard', icon: LayoutDashboard },
-      { label: 'Upcoming Containers', path: 'containers', file: 'starex/Containers', icon: Ship },
-      { label: 'Goods Inward & QC', path: 'inward', file: 'starex/Inward', icon: PackageCheck },
-      { label: 'Dispatch Schedule', path: 'schedule', file: 'starex/Schedule', icon: CalendarClock },
-      { label: 'LR Upload', path: 'lr', file: 'starex/LR', icon: Send },
-      { label: 'MIS Upload', path: 'mis', file: 'starex/MIS', icon: Upload },
-      { label: 'Stock on Hand', path: 'stock', file: 'starex/Stock', icon: Warehouse },
-      { label: 'Complaints', path: 'complaints', file: 'starex/Complaints', icon: AlertTriangle },
+      { label: 'Dashboard', path: 'dashboard', file: 'btali/Dashboard', icon: LayoutDashboard },
+      { label: 'Upcoming Containers', path: 'containers', file: 'btali/Containers', icon: Ship },
+      { label: 'Goods Inward & QC', path: 'inward', file: 'btali/Inward', icon: PackageCheck },
+      { label: 'Dispatch Schedule', path: 'schedule', file: 'btali/Schedule', icon: CalendarClock },
+      { label: 'LR Upload', path: 'lr', file: 'btali/LR', icon: Send },
+      { label: 'MIS Upload', path: 'mis', file: 'btali/MIS', icon: Upload },
+      { label: 'Stock on Hand', path: 'stock', file: 'btali/Stock', icon: Warehouse },
+      { label: 'Complaints', path: 'complaints', file: 'btali/Complaints', icon: AlertTriangle },
     ] }],
   },
   site: {
@@ -260,6 +260,6 @@ export const homePathFor = (user) => {
   if (user.role === 'VENDOR') return '/vendor/dashboard'
   if (user.role === 'DEALER') return '/dealer/dashboard'
   if (user.role === 'FRANCHISE') return '/franchise/dashboard'
-  if (user.role === 'STAREX') return '/starex/dashboard'
+  if (user.role === 'BTALI') return '/btali/dashboard'
   return '/erp/home'
 }

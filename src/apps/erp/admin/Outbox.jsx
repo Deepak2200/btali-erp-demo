@@ -7,7 +7,7 @@ import { fmtDateTime, timeAgo, today, daysAgo, titleCase, exportCSV } from '../.
 
 const channelOf = (k = '') => (/WHATSAPP|WA_/.test(k) ? 'WhatsApp' : /SMS/.test(k) ? 'SMS' : 'Email')
 const sameDay = (ts) => String(ts || '').slice(0, 10)
-const KIND_LABEL = { EMAIL: 'Transactional', STAREX_PUSH: 'Starex dispatch push', USER_INVITE: 'User invite', PASSWORD_RESET: 'Password reset', TEST: 'Template test', COMPLIANCE: 'Compliance reminder', SMS: 'SMS alert', WHATSAPP: 'WhatsApp message' }
+const KIND_LABEL = { EMAIL: 'Transactional', BTALI_PUSH: 'Btali dispatch push', USER_INVITE: 'User invite', PASSWORD_RESET: 'Password reset', TEST: 'Template test', COMPLIANCE: 'Compliance reminder', SMS: 'SMS alert', WHATSAPP: 'WhatsApp message' }
 const kindLabel = (k) => KIND_LABEL[k] || titleCase(k || 'EMAIL')
 const ChannelIcon = ({ c }) => (c === 'WhatsApp' ? <MessageSquare className="w-4 h-4 text-emerald-600" /> : c === 'SMS' ? <Smartphone className="w-4 h-4 text-sky-600" /> : <Mail className="w-4 h-4 text-ink-500" />)
 
@@ -38,7 +38,7 @@ export default function Outbox() {
 
   return (
     <div>
-      <PageHeader title="Communication Log" subtitle="Every email, SMS and WhatsApp message sent by Btali ERP to dealers, vendors, Starex and staff"
+      <PageHeader title="Communication Log" subtitle="Every email, SMS and WhatsApp message sent by Btali ERP to dealers, vendors, Btali and staff"
         actions={<Segmented value={range} onChange={setRange} options={[{ key: 'TODAY', label: 'Today' }, { key: '7D', label: '7 days' }, { key: '30D', label: '30 days' }, { key: 'ALL', label: 'All' }]} />} />
       <Grid cols={4} className="mb-5">
         <Stat label="Messages in period" value={rows.length} sub={`${emails.length} all-time`} icon={Send} />
@@ -66,7 +66,7 @@ export default function Outbox() {
           { key: 'channel', header: 'Channel', render: (r) => <span className="inline-flex items-center gap-1.5 whitespace-nowrap"><ChannelIcon c={r.channel} />{r.channel}</span> },
           { key: 'to', header: 'To', render: (r) => <span className="text-xs block max-w-[190px] truncate" title={r.to}>{r.to}</span> },
           { key: 'subject', header: 'Subject', render: (r) => <div className="min-w-[220px]"><div className="font-medium text-slate-800 line-clamp-1">{r.subject}</div><div className="text-[11px] text-slate-400 line-clamp-1">{(r.body || '').replace(/\n+/g, ' ')}</div></div> },
-          { key: 'kindLabel', header: 'Type', render: (r) => <Badge tone={r.kind === 'STAREX_PUSH' ? 'teal' : r.kind === 'TEST' ? 'gray' : 'ink'}>{r.kindLabel}</Badge> },
+          { key: 'kindLabel', header: 'Type', render: (r) => <Badge tone={r.kind === 'BTALI_PUSH' ? 'teal' : r.kind === 'TEST' ? 'gray' : 'ink'}>{r.kindLabel}</Badge> },
           { key: 'ref', header: 'Reference', render: (r) => <span className="font-mono text-xs whitespace-nowrap">{r.ref || '—'}</span> },
           { key: 'attCount', header: 'Files', align: 'right', render: (r) => (r.attCount ? <span className="inline-flex items-center gap-1 text-slate-600"><Paperclip className="w-3.5 h-3.5" />{r.attCount}</span> : '—') },
           { key: 'status', header: 'Status', render: (r) => <StatusBadge status={r.status || 'SENT'} label={r.resentOf ? 'Re-sent' : undefined} /> },

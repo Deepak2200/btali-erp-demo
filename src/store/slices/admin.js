@@ -10,7 +10,7 @@ export const adminSlice = (set, get, api) => ({
     if (!data.name?.trim()) return { ok: false, error: 'Name is required' }
     if (!uname) return { ok: false, error: 'Username is required' }
     if (s.users.some((u) => u.username?.toLowerCase() === uname && u.id !== data.id)) return { ok: false, error: `Username "${uname}" is already taken` }
-    const app = { VENDOR: 'vendor', DEALER: 'dealer', FRANCHISE: 'franchise', STAREX: 'starex' }[data.role] || 'erp'
+    const app = { VENDOR: 'vendor', DEALER: 'dealer', FRANCHISE: 'franchise', BTALI: 'btali' }[data.role] || 'erp'
     if (data.id && s.users.some((u) => u.id === data.id)) {
       const user = get().updateItem('users', data.id, (u) => ({ ...u, ...data, username: uname, app, updatedAt: nowISO() }))
       get().audit('Updated user', 'User', user.name)

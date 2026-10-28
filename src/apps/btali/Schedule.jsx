@@ -14,7 +14,7 @@ function PickList({ invs, date, onClose }) {
   return (
     <Modal open onClose={onClose} size="lg" title="Pick list" subtitle={`Dispatch date ${fmtDate(date)} · ${invs.length} invoices`}>
       <PrintArea title={`Pick list ${date}`}>
-        <DocHeader title="Warehouse pick list" number={`STAREX / ${date}`} date={today()} right={<div className="text-xs text-slate-500">Starex 3PL – Bhiwandi</div>} />
+        <DocHeader title="Warehouse pick list" number={`BTALI / ${date}`} date={today()} right={<div className="text-xs text-slate-500">Btali 3PL – Bhiwandi</div>} />
         <div className="text-xs font-semibold uppercase text-slate-500 mb-1">Consolidated picking (by SKU)</div>
         <table className="w-full text-xs border border-slate-200 mb-5">
           <thead className="bg-slate-50"><tr><th className="p-1.5 text-left">SKU</th><th className="p-1.5 text-left">Product</th><th className="p-1.5 text-right">Qty</th><th className="p-1.5 text-right">Kg</th><th className="p-1.5 text-center">Picked ✓</th></tr></thead>
@@ -35,13 +35,13 @@ function PickList({ invs, date, onClose }) {
   )
 }
 
-export default function StarexSchedule() {
+export default function BtaliSchedule() {
   const invoices = useStore((s) => s.invoices)
   const products = useStore((s) => s.products)
   const partners = useStore((s) => s.partners)
   const transporters = useStore((s) => s.transporters)
   const schedules = useStore((s) => s.dispatchSchedules || [])
-  const setStage = useStore((s) => s.setStarexStage)
+  const setStage = useStore((s) => s.setBtaliStage)
   const { partner, transporter, product } = useLookup()
   const [day, setDay] = useState('TOMORROW')
   const [pick, setPick] = useState(false)
@@ -51,10 +51,10 @@ export default function StarexSchedule() {
   const groups = useMemo(() => groupBy(invs, (i) => i.transporterId || 'none'), [invs])
   const conf = schedules.find((s) => s.date === date)
   const totals = { qty: sum(invs, (i) => sum(i.lines, (l) => l.qty)), wt: sum(invs, (i) => invoiceWeight(i, products)), cbm: sum(invs, (i) => invoiceCbm(i, products)) }
-  const picked = invs.filter((i) => i.starexStage).length
-  const loaded = invs.filter((i) => i.starexStage === 'LOADED').length
+  const picked = invs.filter((i) => i.btaliStage).length
+  const loaded = invs.filter((i) => i.btaliStage === 'LOADED').length
 
-  const exportSheet = () => exportCSV(`Starex-Dispatch-Schedule-${date}.csv`, scheduleRows(invs, { products, partners, transporters }), SCHEDULE_COLS)
+  const exportSheet = () => exportCSV(`Btali-Dispatch-Schedule-${date}.csv`, scheduleRows(invs, { products, partners, transporters }), SCHEDULE_COLS)
   const mark = (inv, stage) => { setStage(inv.id, stage); toast.success(stage === 'LOADED' ? 'Marked loaded' : 'Marked picked', `${inv.number}${stage === 'LOADED' ? ' – upload LR once issued' : ''}`) }
   const markGroup = (list, stage) => { list.forEach((i) => setStage(i.id, stage)); toast.success(`${list.length} invoice${list.length === 1 ? "" : "s"} marked ${stage.toLowerCase()}`) }
 
@@ -84,25 +84,25 @@ export default function StarexSchedule() {
               <Card key={tid} padded={false} title={<span className="flex items-center gap-2"><Truck className="w-4 h-4 text-brand-500" />{tr?.name || 'Transporter not assigned'}{tr?.isSafex && <Badge tone="violet">Safex pickup</Badge>}</span>}
                 subtitle={`${tr?.vehicleNo || ''} · ${tr?.contact || ''} ${tr?.phone || ''} · ${list.length} invoice${list.length === 1 ? "" : "s"} · ${fmtNum(Math.round(wt))} kg`}
                 actions={<>
-                  <Button size="sm" variant="secondary" disabled={list.every((i) => i.starexStage)} onClick={() => markGroup(list.filter((i) => !i.starexStage), 'PICKED')}>Pick all</Button>
-                  <Button size="sm" variant="success" disabled={list.every((i) => i.starexStage === 'LOADED')} onClick={() => markGroup(list.filter((i) => i.starexStage !== 'LOADED'), 'LOADED')}>Load all</Button>
+                  <Button size="sm" variant="secondary" disabled={list.every((i) => i.btaliStage)} onClick={() => markGroup(list.filter((i) => !i.btaliStage), 'PICKED')}>Pick all</Button>
+                  <Button size="sm" variant="success" disabled={list.every((i) => i.btaliStage === 'LOADED')} onClick={() => markGroup(list.filter((i) => i.btaliStage !== 'LOADED'), 'LOADED')}>Load all</Button>
                 </>}>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead className="bg-slate-50 text-[11px] uppercase text-slate-500"><tr><th className="text-left px-4 py-2">Invoice</th><th className="text-left px-4 py-2">Customer</th><th className="text-left px-4 py-2">Items</th><th className="text-right px-4 py-2">Qty</th><th className="text-right px-4 py-2">Kg / CBM</th><th className="text-left px-4 py-2">Status</th><th className="px-4 py-2" /></tr></thead>
                     <tbody className="divide-y divide-slate-100">
                       {list.map((i) => (
-                        <tr key={i.id} className={i.starexStage === 'LOADED' ? 'bg-emerald-50/40' : ''}>
+                        <tr key={i.id} className={i.btaliStage === 'LOADED' ? 'bg-emerald-50/40' : ''}>
                           <td className="px-4 py-2"><button className="font-mono text-xs text-brand-600 hover:underline" onClick={() => setDrawer(i.id)}>{i.number}</button>{i.type === 'FOC' && <Badge tone="amber" className="ml-1">FOC</Badge>}{i.dispatchDate < date && <div className="text-[10px] text-red-600">carried over from {fmtDate(i.dispatchDate)}</div>}</td>
                           <td className="px-4 py-2"><div className="font-medium text-slate-800">{partner(i.partnerId)?.name}</div><div className="text-[11px] text-slate-500">{partner(i.partnerId)?.city}</div></td>
                           <td className="px-4 py-2 text-xs text-slate-600 max-w-xs">{i.lines.map((l) => `${product(l.productId)?.sku} × ${l.qty}`).join(', ')}</td>
                           <td className="px-4 py-2 text-right tabular-nums">{fmtNum(sum(i.lines, (l) => l.qty))}</td>
                           <td className="px-4 py-2 text-right tabular-nums text-xs">{fmtNum(invoiceWeight(i, products))} / {fmtNum(invoiceCbm(i, products))}</td>
-                          <td className="px-4 py-2">{i.starexStage === 'LOADED' ? <StatusBadge status="DONE" label="Loaded" /> : i.starexStage === 'PICKED' ? <StatusBadge status="IN_PROGRESS" label="Picked" /> : <StatusBadge status="PENDING" label="To pick" />}</td>
+                          <td className="px-4 py-2">{i.btaliStage === 'LOADED' ? <StatusBadge status="DONE" label="Loaded" /> : i.btaliStage === 'PICKED' ? <StatusBadge status="IN_PROGRESS" label="Picked" /> : <StatusBadge status="PENDING" label="To pick" />}</td>
                           <td className="px-4 py-2 text-right whitespace-nowrap">
-                            {!i.starexStage && <Button size="sm" variant="secondary" onClick={() => mark(i, 'PICKED')}>Picked</Button>}
-                            {i.starexStage === 'PICKED' && <Button size="sm" variant="success" onClick={() => mark(i, 'LOADED')}>Loaded</Button>}
-                            {i.starexStage === 'LOADED' && <span className="text-[11px] text-slate-500">{fmtDateTime(i.loadedAt)}</span>}
+                            {!i.btaliStage && <Button size="sm" variant="secondary" onClick={() => mark(i, 'PICKED')}>Picked</Button>}
+                            {i.btaliStage === 'PICKED' && <Button size="sm" variant="success" onClick={() => mark(i, 'LOADED')}>Loaded</Button>}
+                            {i.btaliStage === 'LOADED' && <span className="text-[11px] text-slate-500">{fmtDateTime(i.loadedAt)}</span>}
                           </td>
                         </tr>
                       ))}

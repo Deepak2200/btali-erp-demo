@@ -48,7 +48,7 @@ export default function Dashboard() {
     const fms = fmsMap(state, 90)
     const fmsCount = { F: 0, M: 0, S: 0 }
     Object.values(fms).forEach((x) => { fmsCount[x.cls]++ })
-    const fastLow = state.products.filter((p) => fms[p.id]?.cls === 'F' && (state.stock['WH-STAREX']?.[p.id] || 0) < p.reorderLevel)
+    const fastLow = state.products.filter((p) => fms[p.id]?.cls === 'F' && (state.stock['WH-BTALI']?.[p.id] || 0) < p.reorderLevel)
     const nudges = dealerNudges(state).filter((n) => inScope(n.partnerId))
     const actioned = new Set((state.nudgeActions || []).filter((a) => daysBetween(a.date, today()) <= 14).map((a) => a.partnerId))
     const myTasks = (state.tasks || []).filter((t) => t.status === 'OPEN' && t.dueDate <= today() && (scope.mine ? t.assigneeId === scope.user?.id || (!scope.isExec && inScope(t.partnerId)) : true)).sort((a, b) => a.dueDate.localeCompare(b.dueDate))
@@ -157,7 +157,7 @@ export default function Dashboard() {
           </ul>
         </Card>
         <Card title="Stock alerts for Sales" subtitle="Fast movers below reorder level – sell with care">
-          {d.fastLow.length ? <ul className="divide-y divide-slate-100">{d.fastLow.map((p) => <li key={p.id} className="py-2 flex items-center justify-between gap-2"><button className="text-left min-w-0" onClick={() => setLookup(p.id)}><ProductCell product={p} size="xs" /></button><div className="text-right text-xs whitespace-nowrap"><FMSBadge cls="F" /><div className="text-red-600 mt-0.5">{fmtNum(state.stock['WH-STAREX']?.[p.id] || 0)} / {fmtNum(p.reorderLevel)}</div></div></li>)}</ul> : <EmptyState title="All fast movers healthy" />}
+          {d.fastLow.length ? <ul className="divide-y divide-slate-100">{d.fastLow.map((p) => <li key={p.id} className="py-2 flex items-center justify-between gap-2"><button className="text-left min-w-0" onClick={() => setLookup(p.id)}><ProductCell product={p} size="xs" /></button><div className="text-right text-xs whitespace-nowrap"><FMSBadge cls="F" /><div className="text-red-600 mt-0.5">{fmtNum(state.stock['WH-BTALI']?.[p.id] || 0)} / {fmtNum(p.reorderLevel)}</div></div></li>)}</ul> : <EmptyState title="All fast movers healthy" />}
           <Button variant="link" size="sm" className="mt-2" iconRight={ArrowRight} onClick={() => navigate('/erp/inventory/stock')}>Full stock view</Button>
         </Card>
       </div>

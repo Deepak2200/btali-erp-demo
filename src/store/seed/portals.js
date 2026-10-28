@@ -39,7 +39,7 @@ export const portalsSeed = (core) => {
     S.series.SO += 1
     const so = {
       id: soId, number: `SO/26-27/${pad(S.series.SO)}`, partnerId, date, source, salespersonId: pt.salespersonId, lines: priced.lines, subtotal: priced.subtotal, gst: priced.gst, total: priced.total,
-      appliedSchemes: priced.appliedSchemes, status: 'CONFIRMED', paymentStatus: 'UNPAID', paidAmount: 0, warehouseId: 'WH-STAREX', transporterId: pt.transporterId, note,
+      appliedSchemes: priced.appliedSchemes, status: 'CONFIRMED', paymentStatus: 'UNPAID', paidAmount: 0, warehouseId: 'WH-BTALI', transporterId: pt.transporterId, note,
       timeline: [{ ts: iso(date, 10), text: source === 'PORTAL' ? 'Placed via Dealer Portal – awaiting Sales review' : 'Order created & confirmed' }],
     }
     core.salesOrders.push(so)
@@ -59,7 +59,7 @@ export const portalsSeed = (core) => {
       if (!unitsFor.includes(productId)) continue
       for (let i = 0; i < qty; i++) {
         const u = newUnit(productId, { partnerId, locationId: partnerId, invoiceId: invId })
-        u.history.push({ ts: iso(addDays(date, -60)), event: 'Inward scanned at Starex', ref: 'GRN/26-27/0019' })
+        u.history.push({ ts: iso(addDays(date, -60)), event: 'Inward scanned at Btali', ref: 'GRN/26-27/0019' })
         u.history.push({ ts: iso(invDate, 11), event: `Invoiced on ${number}`, ref: number })
         u.history.push({ ts: iso(lrDate, 16), event: `Dispatched to ${pt.name}`, ref: number })
         if (inward) u.history.push({ ts: iso(inward.date, 12), event: `Inward scanned at ${pt.name}`, ref: number })
@@ -70,13 +70,13 @@ export const portalsSeed = (core) => {
     const inv = {
       id: invId, number, soId, partnerId, date: invDate, lines: so.lines, subtotal: so.subtotal, gst: so.gst, total: so.total, transporterId: pt.transporterId, vehicleNo: tr?.vehicleNo || '',
       status: 'DISPATCHED', lr: { number: `LR${700000 + S.series.INV * 13}`, date: lrDate, uploadedBy: 'u8', uploadedAt: iso(lrDate, 17), file: makeAttachment(`LR-${700000 + S.series.INV * 13}.pdf`) },
-      dispatchDate: lrDate, sentToStarex: true, emailed: true, irn: `IRN${String(9.6e9 + S.series.INV * 41)}`, ewayBill: String(3.95e11 + S.series.INV * 23).slice(0, 12), type: 'TAX', units,
+      dispatchDate: lrDate, sentToBtali: true, emailed: true, irn: `IRN${String(9.6e9 + S.series.INV * 41)}`, ewayBill: String(3.95e11 + S.series.INV * 23).slice(0, 12), type: 'TAX', units,
       inward: inward ? { acknowledged: true, date: inward.date, ackAt: iso(inward.date, 12), by: inward.by, scanned: units, lines: so.lines.map((l) => ({ productId: l.productId, expected: l.qty, received: l.qty, damaged: 0 })), remarks: 'All items received in good condition' } : null,
     }
     core.invoices.push(inv)
     so.status = 'DISPATCHED'
     so.invoiceId = invId
-    so.timeline.push({ ts: iso(invDate, 11), text: `Invoice ${number} generated · emailed to client · pushed to Starex schedule` })
+    so.timeline.push({ ts: iso(invDate, 11), text: `Invoice ${number} generated · emailed to client · pushed to Btali schedule` })
     so.timeline.push({ ts: iso(lrDate, 17), text: `Dispatched – LR ${inv.lr.number} uploaded & emailed to client` })
     if (inward) {
       so.status = 'DELIVERED'

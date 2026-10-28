@@ -138,7 +138,7 @@ function ReplaceModal({ claim, units, onClose }) {
       }}>Allocate & dispatch</Button></>}>
       {units.length === 0 ? <Alert tone="warn" title="No barcoded stock">No unit of this product is available in the warehouse. Raise a replenishment or escalate to the vendor for a replacement.</Alert> : (
         <>
-          <p className="text-sm text-slate-600 mb-3">{units.length} unit(s) of the same product available at Starex. The selected barcode is linked to the claim, moved to the dealer and the defective unit {claim.barcode} is marked replaced.</p>
+          <p className="text-sm text-slate-600 mb-3">{units.length} unit(s) of the same product available at Btali. The selected barcode is linked to the claim, moved to the dealer and the defective unit {claim.barcode} is marked replaced.</p>
           <Field label="Replacement barcode"><Select value={code} onChange={(e) => setCode(e.target.value)} options={units.slice(0, 100).map((u) => ({ value: u.code, label: `${u.code} · ${u.locationId}` }))} /></Field>
         </>
       )}
