@@ -180,7 +180,7 @@ export default function Cart() {
               </Card>
             )}
             {priced.lines.some((l) => !l.free && availability(sst, product(l.productId)).free < l.qty) && (
-              <Alert tone="info" title="Some items exceed free stock">Lines marked Limited / Arriving will be confirmed by Sales; they are dispatched as soon as the incoming container is received.</Alert>
+              <Alert tone="info" title="Some items exceed free stock">Lines marked Limited or Expected will be confirmed by Sales and dispatched as soon as the incoming stock is received at the Btali warehouse.</Alert>
             )}
           </div>
 

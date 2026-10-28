@@ -6,7 +6,7 @@ import { createSeed } from './seed'
 import { addDays, nowISO, round2, sum, today, uid, makeAttachment, fmtINR } from '../lib/format'
 import { priceOrder } from '../lib/pricing'
 import { resolveTerms } from '../lib/warranty'
-import { MAIN_WH } from '../lib/stock'
+import { MAIN_WH, bookStock as bookStockOf } from '../lib/stock'
 import { purchaseSlice } from './slices/purchase'
 import { salesSlice } from './slices/sales'
 import { dispatchSlice } from './slices/dispatch'
@@ -111,6 +111,37 @@ const coreSlice = (set, get) => ({
       const move = { id: uid('mv'), ts: nowISO(), date: today(), locationId, productId, qty: delta, reason, ref, userId: s.session.userId }
       return { stock: { ...s.stock, [locationId]: loc }, stockMoves: [move, ...s.stockMoves].slice(0, 2000) }
     })
+    if (delta > 0 && locationId === MAIN_WH) get().fireStockAlerts(productId)
+  },
+
+  // ------------------------------------------------------------ dealer back-in-stock alerts
+  requestStockAlert: (partnerId, productId, qty = 1) => {
+    const s = get()
+    const existing = (s.stockAlerts || []).find((a) => a.partnerId === partnerId && a.productId === productId && a.status === 'ACTIVE')
+    if (existing) return { ok: false, error: 'You will already be notified for this item.' }
+    const a = { id: uid('sa'), partnerId, productId, qty: Number(qty) || 1, status: 'ACTIVE', createdAt: nowISO() }
+    set((st) => ({ stockAlerts: [a, ...(st.stockAlerts || [])] }))
+    const p = s.products.find((x) => x.id === productId)
+    const partner = s.partners.find((x) => x.id === partnerId)
+    get().notify({ title: 'Dealer waiting for stock', body: `${partner?.name} asked to be notified for ${p?.shortName} (${a.qty} units)`, link: '/erp/inventory/stock', roles: ['SALES_MANAGER', 'PURCHASE'], userIds: partner?.salespersonId ? [partner.salespersonId] : [] })
+    return { ok: true, alert: a }
+  },
+  cancelStockAlert: (id) => set((s) => ({ stockAlerts: (s.stockAlerts || []).map((a) => (a.id === id ? { ...a, status: 'CANCELLED', cancelledAt: nowISO() } : a)) })),
+  /** notify dealers waiting on a product once free stock is available at the main warehouse */
+  fireStockAlerts: (productId) => {
+    const s = get()
+    const waiting = (s.stockAlerts || []).filter((a) => a.productId === productId && a.status === 'ACTIVE')
+    if (!waiting.length) return
+    const free = (s.stock[MAIN_WH]?.[productId] || 0) - bookStockOf(s, productId)
+    if (free <= 0) return
+    const p = s.products.find((x) => x.id === productId)
+    for (const a of waiting) {
+      const partner = s.partners.find((x) => x.id === a.partnerId)
+      get().notify({ title: 'Back in stock', body: `${p?.shortName} is available again – order now`, link: '/dealer/catalog', partnerId: a.partnerId })
+      if (partner?.email) get().sendEmail({ to: partner.email, subject: `Back in stock: ${p?.shortName} – Btali International`, body: `Dear ${partner.contact},\n\n${p?.name} (${p?.sku}) that you asked about is back in stock at the Btali warehouse. Place your order on the Btali portal to reserve it.\n\nRegards,\nBtali Sales`, ref: p?.sku, kind: 'EMAIL' })
+    }
+    const ids = new Set(waiting.map((a) => a.id))
+    set((st) => ({ stockAlerts: st.stockAlerts.map((a) => (ids.has(a.id) ? { ...a, status: 'NOTIFIED', notifiedAt: nowISO() } : a)) }))
   },
   transferStock: (fromLoc, toLoc, productId, qty, reason = 'Transfer', ref = '') => {
     get().adjustStock(fromLoc, productId, -qty, reason, ref)
@@ -502,7 +533,7 @@ export const useStore = create(
     }),
     {
       name: 'btali-erp-demo',
-      version: 3,
+      version: 4,
       // Bump when seed data changes shape or values: older saved data is discarded and the fresh seed loads.
       migrate: () => undefined,
       storage: createJSONStorage(() => localStorage),

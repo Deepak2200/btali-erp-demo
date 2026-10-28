@@ -5,7 +5,7 @@ import { useStore, useUser } from '../../store'
 import { Badge, Stepper, Card, cx } from '../../components/ui'
 import { PrintArea, DocHeader, OrderLines } from '../../components/business'
 import { fmtINR, fmtDate, fmtNum, downloadText, round2 } from '../../lib/format'
-import { onHand, bookStock, incoming } from '../../lib/stock'
+import { onHand, bookStock, expectedRestock } from '../../lib/stock'
 
 /** Current partner context + app base ('/dealer' | '/franchise') */
 export function usePortal() {
@@ -27,23 +27,52 @@ export function usePricingState() {
   return useMemo(() => ({ products, partners, priceLists, schemes, settings }), [products, partners, priceLists, schemes, settings])
 }
 
+/**
+ * Stock state for partner-facing availability, including how Btali lets this partner see stock:
+ * display 'QUANTITY' (exact free quantity) or 'STATUS' (indicators only). Partner override wins over the global setting.
+ */
 export function useStockState() {
   const stock = useStore((s) => s.stock)
   const salesOrders = useStore((s) => s.salesOrders)
   const purchaseOrders = useStore((s) => s.purchaseOrders)
   const shipments = useStore((s) => s.shipments)
-  return useMemo(() => ({ stock, salesOrders, purchaseOrders, shipments }), [stock, salesOrders, purchaseOrders, shipments])
+  const products = useStore((s) => s.products)
+  const cfg = useStore((s) => s.settings.dealerPortal) || {}
+  const user = useUser()
+  const partnerDisplay = useStore((s) => s.partners.find((p) => p.id === user?.partnerId)?.stockDisplay)
+  const display = partnerDisplay || cfg.stockDisplay || 'STATUS'
+  return useMemo(() => ({ stock, salesOrders, purchaseOrders, shipments, products, display, cfg }), [stock, salesOrders, purchaseOrders, shipments, products, display, cfg])
 }
 
-/** Availability at Btali warehouse as shown to partners */
+/** Availability at Btali warehouse as shown to partners (respects Btali's quantity / status visibility setting) */
 export function availability(st, product) {
   const free = Math.max(0, onHand(st, product.id) - bookStock(st, product.id))
-  const limitAt = Math.max(5, Math.round(product.reorderLevel / 3))
-  if (free >= limitAt) return { key: 'IN', label: 'In stock', tone: 'green', free }
-  if (free > 0) return { key: 'LIMITED', label: `Limited – ${fmtNum(free)} left`, tone: 'amber', free }
-  const inc = incoming(st, product.id).filter((x) => x.eta).sort((a, b) => a.eta.localeCompare(b.eta))[0]
-  if (inc) return { key: 'ARRIVING', label: `Arriving by ${fmtDate(inc.eta)}`, tone: 'blue', free: 0, eta: inc.eta }
-  return { key: 'OUT', label: 'On order', tone: 'gray', free: 0 }
+  const showQty = st.display === 'QUANTITY'
+  const limitAt = st.cfg?.limitedThreshold || Math.max(5, Math.round(product.reorderLevel / 3))
+  const restock = expectedRestock(st, product.id)
+  const extra = { showQty, restock }
+  if (free >= limitAt) return { key: 'IN', label: showQty ? `In stock – ${fmtNum(free)}` : 'In stock', tone: 'green', free, ...extra }
+  if (free > 0) return { key: 'LIMITED', label: showQty ? `Limited – ${fmtNum(free)} left` : 'Limited stock', tone: 'amber', free, ...extra }
+  if (restock && st.cfg?.showRestockDate !== false) return { key: 'ARRIVING', label: `Expected ${fmtDate(restock.date)}`, tone: 'blue', free: 0, eta: restock.date, ...extra }
+  return { key: 'OUT', label: 'Out of stock', tone: 'gray', free: 0, ...extra }
+}
+/** "x units" or a status word, depending on visibility */
+export const freeLabel = (a) => (a.showQty ? `${fmtNum(a.free)} units` : a.key === 'IN' ? 'Available' : a.key === 'LIMITED' ? 'Limited' : 'Not available')
+
+/** Suitable alternatives when a product is unavailable: same category & type, in stock, closest price/spec */
+export function alternativesFor(st, product, max = 3) {
+  const specKeys = Object.keys(product.specs || {})
+  return (st.products || [])
+    .filter((p) => p.id !== product.id && p.active && p.category === product.category && p.type === product.type)
+    .map((p) => {
+      const a = availability(st, p)
+      const priceGap = Math.abs(p.mrp - product.mrp) / Math.max(product.mrp, 1)
+      const sharedSpecs = specKeys.filter((k) => p.specs?.[k] != null).length
+      return { p, a, score: priceGap - sharedSpecs * 0.05, priceGap }
+    })
+    .filter((x) => x.a.free > 0 && x.priceGap <= 0.8)
+    .sort((x, y) => x.score - y.score)
+    .slice(0, max)
 }
 export const AvailabilityBadge = ({ a }) => <Badge tone={a.tone} dot>{a.label}</Badge>
 
@@ -94,6 +123,39 @@ export function OrderStepper({ so }) {
   if (so.status === 'CANCELLED') return <Badge tone="red" dot>Cancelled</Badge>
   return <Stepper steps={SO_STEPS} current={so.status} />
 }
+/**
+ * Fulfilment picture for an order: per line ordered / dispatched / pending and an expected fulfilment date.
+ * Dispatched = invoiced lines that have left the warehouse (LR issued).
+ */
+export function fulfilment(so, invoices, st) {
+  const invs = invoices.filter((i) => i.soId === so.id || i.id === so.invoiceId)
+  const shipped = invs.filter((i) => i.status === 'DISPATCHED' || i.lr)
+  const pendingInv = invs.find((i) => !(i.status === 'DISPATCHED' || i.lr))
+  const nextWorkingDay = (n) => { const d = new Date(); d.setDate(d.getDate() + n); if (d.getDay() === 0) d.setDate(d.getDate() + 1); return d.toISOString().slice(0, 10) }
+  const lines = so.lines.map((l) => {
+    const dispatched = shipped.reduce((s, i) => s + i.lines.filter((x) => x.productId === l.productId && !!x.free === !!l.free).reduce((a, x) => a + x.qty, 0), 0)
+    const pending = Math.max(0, l.qty - dispatched)
+    let expected = null
+    let note = ''
+    if (pending && so.status !== 'CANCELLED') {
+      if (pendingInv) { expected = pendingInv.dispatchDate || nextWorkingDay(1); note = `Invoiced ${pendingInv.number} – in tomorrow's dispatch schedule` }
+      else if (so.status === 'PENDING_REVIEW') note = 'Date confirmed after Btali reviews the order'
+      else {
+        const free = st ? onHand(st, l.productId, so.warehouseId || undefined) : pending
+        const restock = st && free < pending ? expectedRestock(st, l.productId) : null
+        if (free >= pending) { expected = nextWorkingDay(so.status === 'PAID' ? 2 : 3); note = so.status === 'PAID' ? 'In stock – invoice & dispatch within 2 working days' : 'In stock – dispatch 2 working days after advance payment' }
+        else if (restock) { expected = nextWorkingDay(0) > restock.date ? nextWorkingDay(2) : restock.date; note = `Awaiting stock – ${restock.basis}` }
+        else note = 'Awaiting stock – date to be confirmed by Btali'
+      }
+    }
+    return { ...l, ordered: l.qty, dispatched, pending, expected, note }
+  })
+  const dates = lines.filter((l) => l.pending && l.expected).map((l) => l.expected)
+  const ordered = lines.reduce((s, l) => s + l.ordered, 0)
+  const dispatched = lines.reduce((s, l) => s + l.dispatched, 0)
+  return { lines, ordered, dispatched, pending: ordered - dispatched, expected: dates.length && !lines.some((l) => l.pending && !l.expected) ? dates.sort().at(-1) : null, shipments: shipped }
+}
+
 export const balanceDue = (so) => round2(Math.max(0, (so.total || 0) - (so.paidAmount || 0)))
 
 // ------------------------------------------------------------------ documents

@@ -62,12 +62,15 @@ function NewTicket({ open, onClose, onCreated }) {
   const { partnerId, isFranchise } = usePortal()
   const products = useStore((s) => s.products)
   const invoices = useStore((s) => s.invoices)
+  const salesOrders = useStore((s) => s.salesOrders)
   const createTicket = useStore((s) => s.createTicket)
   const blank = { category: 'PRODUCT_DEFECT', productId: '', barcode: '', orderRef: '', priority: 'MEDIUM', subject: '', description: '', custName: '', custPhone: '', custCity: '' }
   const [f, setF] = useState(blank)
   const [files, setFiles] = useState([])
   React.useEffect(() => { if (open) { setF(blank); setFiles([]) } }, [open]) // eslint-disable-line
   const myInv = invoices.filter((i) => i.partnerId === partnerId).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 30)
+  const mySO = salesOrders.filter((o) => o.partnerId === partnerId).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 30)
+  const refOptions = [...mySO.map((o) => ({ value: o.number, label: `Order ${o.number} · ${fmtDate(o.date)}` })), ...myInv.map((i) => ({ value: i.number, label: `Invoice ${i.number} · ${fmtDate(i.date)}` }))]
   const valid = f.subject.trim() && f.description.trim()
   const submit = () => {
     const t = createTicket({
@@ -86,7 +89,7 @@ function NewTicket({ open, onClose, onCreated }) {
         <Field label="Priority"><Select value={f.priority} onChange={(e) => setF({ ...f, priority: e.target.value })} options={[{ value: 'LOW', label: 'Low' }, { value: 'MEDIUM', label: 'Medium' }, { value: 'HIGH', label: 'High – customer waiting' }]} /></Field>
         <Field label="Product"><Combobox options={products.map((p) => ({ value: p.id, label: `${p.sku} – ${p.shortName}`, sub: p.category }))} value={f.productId} onChange={(v) => setF({ ...f, productId: v })} placeholder="Select product…" /></Field>
         <Field label="Product barcode" hint="From the unit sticker, if available"><Input value={f.barcode} onChange={(e) => setF({ ...f, barcode: e.target.value })} className="font-mono uppercase" placeholder="e.g. PUMP001013" /></Field>
-        <Field label="Related invoice"><Select value={f.orderRef} onChange={(e) => setF({ ...f, orderRef: e.target.value })} placeholder="—" options={myInv.map((i) => ({ value: i.number, label: `${i.number} · ${fmtDate(i.date)}` }))} /></Field>
+        <Field label="Related order / invoice"><Select value={f.orderRef} onChange={(e) => setF({ ...f, orderRef: e.target.value })} placeholder="—" options={refOptions} /></Field>
         <Field label="Subject" required><Input value={f.subject} onChange={(e) => setF({ ...f, subject: e.target.value })} placeholder={f.category === 'SPARE_REQUIREMENT' ? 'e.g. Need 20 mechanical seals' : 'e.g. Motor humming, not starting'} /></Field>
         <Field label="Details" required className="md:col-span-2"><Textarea rows={3} value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} placeholder="What happened, when, and what the customer needs" /></Field>
         {['PRODUCT_DEFECT', 'INSTALLATION'].includes(f.category) && <>
@@ -137,6 +140,11 @@ function TicketDrawer({ t, onClose }) {
           <div><div className="text-[11px] uppercase text-slate-400 font-semibold">Priority</div><StatusBadge status={t.priority} /></div>
           <div><div className="text-[11px] uppercase text-slate-400 font-semibold">SLA</div>{t.slaHours || 72} hours</div>
         </div>
+        {['RESOLVED', 'CLOSED'].includes(t.stage) && (() => {
+          const ups = [...(t.updates || [])].reverse()
+          const res = ups.find((u) => ['RESOLVED', 'CLOSED'].includes(u.stage)) || ups.find((u) => u.by && u.by !== t.createdBy)
+          return <Alert tone="success" title={`Resolution by Btali${t.resolvedAt ? ` · ${fmtDate(t.resolvedAt)}` : ''}`}>{t.resolution || res?.text || 'Issue resolved by the Btali Service team.'}</Alert>
+        })()}
         {t.escalatedToVendor && <Alert tone="info" title="Escalated to manufacturer">Btali has escalated this issue to the factory for a resolution.</Alert>}
         {t.description && t.description !== t.subject && <div className="text-sm text-slate-700 whitespace-pre-line bg-slate-50 rounded-lg p-3">{t.description}</div>}
         {(t.attachments || []).length > 0 && <div><SectionTitle>Attachments</SectionTitle><AttachmentList items={t.attachments} /></div>}

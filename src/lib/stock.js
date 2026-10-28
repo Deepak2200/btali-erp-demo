@@ -37,6 +37,32 @@ export const incoming = (state, productId) => {
 }
 export const incomingQty = (state, productId) => sum(incoming(state, productId), (x) => x.qty)
 
+/**
+ * Expected restocking date at the Btali warehouse, from approved updates only:
+ *  - shipped containers: latest shipment ETA + customs clearance & port-to-warehouse (5 days)
+ *  - approved production (PI approved onwards): vendor ready date + sea transit & clearance (33 days)
+ *  - approved domestic POs: PO date + vendor lead time
+ * POs still awaiting approval or a PI are ignored. Returns { date, ref, basis } or null.
+ */
+const PRODUCTION_STAGES = ['IN_PRODUCTION', 'QC_PENDING', 'READY_TO_SHIP']
+export const expectedRestock = (state, productId) => {
+  const cands = []
+  const addDays = (iso, n) => { const d = new Date(iso); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10) }
+  for (const po of state.purchaseOrders) {
+    if (po.type === 'EXPORT' || !po.lines.some((l) => l.productId === productId)) continue
+    const sh = po.shipmentId ? state.shipments.find((s) => s.id === po.shipmentId) : null
+    if (sh && sh.status !== 'RECEIVED' && sh.eta) cands.push({ date: addDays(sh.eta, 5), ref: sh.number, basis: `Container ${sh.containerNo || sh.number} – ETA ${sh.eta}` })
+    else if (!sh && PRODUCTION_STAGES.includes(po.status) && po.deliverySchedule?.[0]?.date) cands.push({ date: addDays(po.deliverySchedule[0].date, 33), ref: po.number, basis: `Approved production ${po.number}` })
+    else if (po.type === 'DOMESTIC' && po.status === 'APPROVED') {
+      const lead = state.products.find((p) => p.id === productId)?.leadTimeDays || 15
+      cands.push({ date: addDays(po.date, lead), ref: po.number, basis: `Domestic order ${po.number}` })
+    }
+  }
+  const today = new Date().toISOString().slice(0, 10)
+  const next = cands.filter((c) => c.date >= today).sort((a, b) => a.date.localeCompare(b.date))[0]
+  return next || null
+}
+
 export const available = (state, productId, locationId = MAIN_WH) => onHand(state, productId, locationId) - bookStock(state, productId, locationId)
 
 export const stockStatus = (state, product) => {

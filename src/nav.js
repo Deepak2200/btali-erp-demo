@@ -176,7 +176,7 @@ export const APPS = {
     ] }],
   },
   dealer: {
-    key: 'dealer', base: '/dealer', name: 'Dealer Portal', tagline: 'Btali dealer network', roles: ['DEALER'],
+    key: 'dealer', base: '/dealer', name: 'Dealer & Distributor Portal', tagline: 'Btali dealer & distributor network', roles: ['DEALER'],
     sections: [{ label: 'Dealer', items: [
       { label: 'Dashboard', path: 'dashboard', file: 'dealer/Dashboard', icon: LayoutDashboard },
       { label: 'Product Catalog', path: 'catalog', file: 'dealer/Catalog', icon: Package },

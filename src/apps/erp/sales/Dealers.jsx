@@ -265,10 +265,11 @@ function PricingTab({ p }) {
   const [extra, setExtra] = useState(p.extraDiscountPct || 0)
   const [cats, setCats] = useState(p.authorizedCategories?.length ? p.authorizedCategories : CATEGORIES)
   const [cat, setCat] = useState('')
-  const dirty = plId !== p.priceListId || Number(extra) !== Number(p.extraDiscountPct || 0) || cats.join() !== (p.authorizedCategories || CATEGORIES).join()
+  const [stockDisplay, setStockDisplay] = useState(p.stockDisplay || '')
+  const dirty = plId !== p.priceListId || Number(extra) !== Number(p.extraDiscountPct || 0) || cats.join() !== (p.authorizedCategories || CATEGORIES).join() || stockDisplay !== (p.stockDisplay || '')
   const save = async () => {
     if (!(await confirm({ title: 'Update dealer pricing?', message: 'New orders and portal prices for this dealer will use the updated terms immediately.', confirmText: 'Save pricing' }))) return
-    update(p.id, { priceListId: plId, extraDiscountPct: Number(extra) || 0, authorizedCategories: cats })
+    update(p.id, { priceListId: plId, extraDiscountPct: Number(extra) || 0, authorizedCategories: cats, stockDisplay: stockDisplay || null })
     toast.success('Pricing terms updated', `${p.name} now on ${state.priceLists.find((x) => x.id === plId)?.name}`)
   }
   const rows = state.products.filter((x) => x.active && (!cat || x.category === cat) && cats.includes(x.category)).map((x) => {
@@ -281,6 +282,9 @@ function PricingTab({ p }) {
         <div className="space-y-3">
           <Field label="Price list"><Select disabled={!scope.canManage} value={plId} onChange={(e) => setPlId(e.target.value)} options={state.priceLists.map((x) => ({ value: x.id, label: `${x.name} (${x.kind === 'EXPORT' ? `cost + ${x.marginPct}%` : `${x.baseDiscountPct}% off MRP`})` }))} /></Field>
           <Field label="Extra dealer discount %"><NumberInput disabled={!scope.canManage} min={0} max={10} step="0.5" value={extra} onChange={setExtra} /></Field>
+          <Field label="Portal stock visibility" hint="What this partner sees for Btali stock">
+            <Select disabled={!scope.canManage} value={stockDisplay} onChange={(e) => setStockDisplay(e.target.value)} options={[{ value: '', label: `Company default (${state.settings.dealerPortal?.stockDisplay === 'QUANTITY' ? 'quantities' : 'status only'})` }, { value: 'STATUS', label: 'Status indicators only' }, { value: 'QUANTITY', label: 'Show available quantities' }]} />
+          </Field>
           <div>
             <div className="text-xs font-medium text-slate-600 mb-1">Authorised categories</div>
             <div className="grid grid-cols-1 gap-1.5">{CATEGORIES.map((c) => <Checkbox key={c} label={c} checked={cats.includes(c)} onChange={(v) => scope.canManage && setCats((s) => (v ? [...s, c] : s.filter((x) => x !== c)))} />)}</div>

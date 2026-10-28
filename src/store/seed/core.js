@@ -150,8 +150,57 @@ export const seedProducts = () =>
     const bySku = Object.fromEntries(all.map((x) => [x.sku, x.id]))
     p.bom = (BOM[p.sku] || []).map((s) => ({ productId: bySku[s], qty: 1 }))
     p.parents = Object.entries(BOM).filter(([, sp]) => sp.includes(p.sku)).map(([fg]) => bySku[fg])
+    p.uses = USES[p.category] || []
+    p.videos = (VIDEOS[p.category] || []).map(([title, mins, topic]) => ({ title: `${p.shortName} – ${title}`, duration: mins, url: `https://www.youtube.com/results?search_query=${encodeURIComponent(`${topic} ${p.shortName.replace(/Btali /, '')}`)}` }))
+    p.kits = (KITS[p.sku] || []).map(([code, name, skus]) => ({ code, name, items: skus.map((s) => ({ productId: bySku[s], qty: 1 })) }))
+    p.interchange = (INTERCHANGE[p.sku] || []).map(([ref, note]) => (bySku[ref] ? { productId: bySku[ref], note } : { code: ref, note }))
+    p.partPositions = (BOM[p.sku] || []).map((s, i) => ({ productId: bySku[s], position: String(i + 1).padStart(2, '0') }))
     return p
   })
+
+// ---- product knowledge shown on the dealer portal (Btali-approved content)
+const USES = {
+  Pumps: ['Domestic water supply & overhead tanks', 'Garden and farm irrigation', 'Pressure boosting for buildings', 'Water transfer from sumps & wells'],
+  'Air Compressors': ['Tyre inflation at garages', 'Spray painting & air tools', 'Dental & workshop air supply', 'Cleaning with air blow guns'],
+  'Vacuum Cleaners': ['Workshop & factory floor cleaning', 'Wet spills and water pick-up', 'Car interior cleaning', 'Office and hotel housekeeping'],
+  'Pressure Washers': ['Car & two-wheeler washing', 'Driveway, facade and patio cleaning', 'Farm equipment & tractor washing', 'Commercial car-wash service'],
+  'Spraying Equipment': ['Crop protection – pesticide & fungicide spraying', 'Orchard and plantation spraying', 'Sanitisation & disinfection', 'Garden and nursery care'],
+  'Spare Parts': ['Genuine Btali replacement part', 'Use for warranty and paid service repairs'],
+}
+const VIDEOS = {
+  Pumps: [['installation & priming guide', 6, 'monoblock pump installation priming'], ['troubleshooting no water flow', 4, 'pump not lifting water troubleshooting']],
+  'Air Compressors': [['first start & tank draining', 5, 'air compressor first start drain tank'], ['pressure switch adjustment', 3, 'air compressor pressure switch adjustment']],
+  'Vacuum Cleaners': [['wet & dry mode demo', 4, 'wet and dry vacuum cleaner demo'], ['filter cleaning', 3, 'wet dry vacuum hepa filter cleaning']],
+  'Pressure Washers': [['setup & first use', 5, 'pressure washer setup first use'], ['nozzle selection for car wash', 4, 'pressure washer car wash nozzle']],
+  'Spraying Equipment': [['battery sprayer setup & calibration', 5, 'battery sprayer setup calibration'], ['safe spraying practices', 6, 'agriculture sprayer safety']],
+  'Spare Parts': [['replacement procedure', 4, 'pump spare part replacement']],
+}
+// service kits per machine: [kit code, name, spare SKUs]
+const KITS = {
+  'BT-MB05': [['KIT-MB-S', 'Seal & capacitor kit', ['SP-MS12', 'SP-CAP25']]],
+  'BT-MB10': [['KIT-MB-S', 'Seal & capacitor kit', ['SP-MS12', 'SP-CAP25']], ['KIT-MB10-O', 'Overhaul kit', ['SP-MS12', 'SP-CAP25', 'SP-IMP10']]],
+  'BT-SP10': [['KIT-MB-S', 'Seal & capacitor kit', ['SP-MS12', 'SP-CAP25']], ['KIT-SP10-O', 'Overhaul kit', ['SP-MS12', 'SP-CAP25', 'SP-IMP10']]],
+  'BT-PB05': [['KIT-MB-S', 'Seal & capacitor kit', ['SP-MS12', 'SP-CAP25']]],
+  'BT-AC24': [['KIT-AC-SVC', 'Annual service kit', ['SP-AF01', 'SP-SV14']]],
+  'BT-AC50': [['KIT-AC-SVC', 'Annual service kit', ['SP-AF01', 'SP-SV14']], ['KIT-AC50-TOP', 'Top-overhaul kit', ['SP-PRK', 'SP-AF01', 'SP-PSW8']]],
+  'BT-AC100': [['KIT-AC100-TOP', 'Top-overhaul kit', ['SP-PRK', 'SP-PSW8', 'SP-SV14']]],
+  'BT-WD20': [['KIT-WD-FLT', 'Filter & brush kit', ['SP-HEPA', 'SP-CB']]],
+  'BT-WD30': [['KIT-WD-FLT', 'Filter & brush kit', ['SP-HEPA', 'SP-CB']]],
+  'BT-PW16': [['KIT-PW-ACC', 'Gun, hose & nozzle kit', ['SP-PWGUN', 'SP-HPH8', 'SP-NOZ']]],
+  'BT-PW22': [['KIT-PW-ACC', 'Gun, hose & nozzle kit', ['SP-PWGUN', 'SP-HPH8', 'SP-NOZ']]],
+  'BT-BS16': [['KIT-BS-PWR', 'Power kit (motor + battery)', ['SP-SPM12', 'SP-BAT8']]],
+  'BT-BS20': [['KIT-BS-PWR', 'Power kit (motor + battery)', ['SP-SPM12', 'SP-BAT8']]],
+}
+// interchangeable parts approved by Btali Service: [equivalent SKU or legacy code, note]
+const INTERCHANGE = {
+  'SP-MS12': [['MS-12-TYPE21', 'Legacy code on older Ningbo cartons – identical part'], ['RPP-SEAL-12', 'Rajkot Precision 12 mm seal – approved equivalent']],
+  'SP-CAP25': [['CAP-25UF-440', 'Superseded code (2024 stock)']],
+  'SP-CB': [['CB-6x11-PAIR', 'Fits vacuum and washer motors of the same frame']],
+  'SP-HPH8': [['SP-HPH10', '10 m hose – fits same coupling, approved upgrade']],
+  'SP-BAT8': [['BT-LB12-8', 'Older battery code – same dimensions & connector']],
+  'SP-AF01': [['AF-24-50-UNI', 'Universal filter – approved for BT-AC24 and BT-AC50']],
+  'SP-PWGUN': [['GUN-M22-200', 'Previous gun model – M22 thread, same rating']],
+}
 
 // ------------------------------------------------------------------ LOCATIONS / TRANSPORTERS
 export const seedLocations = () => [
@@ -224,6 +273,8 @@ export const seedPartners = () => {
     transporterId: tr,
     safex: tr === 't1',
     priceListId: pl,
+    channel: pl === 'pl2' ? 'DISTRIBUTOR' : 'DEALER',
+    stockDisplay: pl === 'pl2' ? 'QUANTITY' : null, // null = follow settings.dealerPortal.stockDisplay
     extraDiscountPct: tier === 'A' ? 2 : 0,
     creditDays: 0,
     creditLimit: 0,
@@ -341,6 +392,8 @@ export const seedSettings = () => ({
   landedCostMethod: 'VALUE',
   barcodeSeries: Object.fromEntries(Object.entries(CATEGORY_PREFIX).map(([c, p]) => [c, { prefix: p, next: 1001 }])),
   series: { PO: 112, SO: 0, INV: 0, QT: 18, SH: 24, RFQ: 9, EXP: 6, GRN: 21, TKT: 0, WCL: 6, RET: 5, VB: 41, EXPN: 77, JV: 140, CN: 9, DN: 14, POS: 0, REP: 3, CP: 4, PAY: 0, RCPT: 0, CLM: 12, PR: 9 },
+  // What dealers/distributors see on the portal. stockDisplay: 'STATUS' (indicators only) | 'QUANTITY' (exact free quantity).
+  dealerPortal: { stockDisplay: 'STATUS', showRestockDate: true, limitedThreshold: 10, allowStockAlerts: true, ledgerSource: 'Tally Prime (daily sync)', ledgerSyncedAt: `${today()}T06:30:00.000Z` },
   alertRules: { dealerInactiveDays: 45, receivableBuckets: [30, 60, 90], highValuePayment: 500000, containerDelayDays: 3, stockCoverDays: 30, preEtaDays: 3 },
   approvalMatrix: [
     { doc: 'Purchase Order', steps: ['Purchase Manager', 'Director'], threshold: 0 },

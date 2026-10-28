@@ -1,11 +1,12 @@
 import React, { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ClipboardList, IndianRupee, Target, Headphones, Truck, Tag, AlertTriangle, RotateCcw, Bell, ArrowRight, Phone, Mail, ShoppingCart, FileText } from 'lucide-react'
+import { ClipboardList, IndianRupee, Target, Headphones, Truck, Tag, AlertTriangle, RotateCcw, Bell, ArrowRight, Phone, Mail, ShoppingCart, FileText, PackageOpen, BookOpen, RefreshCw } from 'lucide-react'
 import { useStore } from '../../store'
 import { PageHeader, Card, Button, Badge, StatusBadge, Grid, Stat, Progress, EmptyState, ProductImage, Avatar, toast } from '../../components/ui'
-import { fmtINR, fmtCompact, fmtDate, fmtNum, sum, today, timeAgo, monthKey } from '../../lib/format'
+import { fmtINR, fmtCompact, fmtDate, fmtNum, sum, today, timeAgo, monthKey, lastMonths, monthLabel, round2 } from '../../lib/format'
 import { isSchemeLive } from '../../lib/pricing'
-import { usePortal, OrderStepper, SO_LABEL, balanceDue, BankBox } from './_portal'
+import { usePortal, OrderStepper, SO_LABEL, balanceDue, BankBox, fulfilment, useStockState } from './_portal'
+import { BarsChart } from '../../components/business'
 
 const OPEN = ['PENDING_REVIEW', 'CONFIRMED', 'PAID', 'INVOICED']
 
@@ -23,6 +24,10 @@ export default function Dashboard() {
   const users = useStore((s) => s.users)
   const addLinesToCart = useStore((s) => s.addLinesToCart)
   const markRead = useStore((s) => s.markNotificationRead)
+  const receipts = useStore((s) => s.receipts)
+  const notes = useStore((s) => s.notes)
+  const portalCfg = useStore((s) => s.settings.dealerPortal) || {}
+  const sst = useStockState()
 
   const mine = useMemo(() => salesOrders.filter((o) => o.partnerId === partnerId).sort((a, b) => (b.date + b.number).localeCompare(a.date + a.number)), [salesOrders, partnerId])
   const open = mine.filter((o) => OPEN.includes(o.status))
@@ -43,6 +48,29 @@ export default function Dashboard() {
   const greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
   const pname = (id) => products.find((p) => p.id === id)?.shortName
 
+  // purchases from Btali (Phase 1 = Btali's invoices to this partner, not the partner's own sell-out)
+  const myInv = useMemo(() => invoices.filter((i) => i.partnerId === partnerId && i.type !== 'FOC'), [invoices, partnerId])
+  const fyStart = `${Number(today().slice(0, 4)) - (Number(today().slice(5, 7)) < 4 ? 1 : 0)}-04-01`
+  const fyPurchases = sum(myInv.filter((i) => i.date >= fyStart), (i) => i.total)
+  const months = lastMonths(6)
+  const purchaseTrend = months.map((m) => ({ label: monthLabel(m), value: round2(sum(myInv.filter((i) => monthKey(i.date) === m), (i) => i.subtotal)) }))
+  // pending fulfilment across open orders
+  const fulOpen = mine.filter((o) => !['CANCELLED', 'DELIVERED'].includes(o.status)).map((o) => ({ o, f: fulfilment(o, invoices, sst) })).filter((x) => x.f.pending > 0)
+  const pendingUnits = sum(fulOpen, (x) => x.f.pending)
+  const pendingValue = sum(fulOpen, (x) => sum(x.f.lines, (l) => (l.pending / Math.max(l.ordered, 1)) * (l.amount || 0)))
+  // account ledger (Btali books, synced to Tally) – debit invoices & debit notes, credit receipts & credit notes
+  const ledger = useMemo(() => {
+    const rows = [
+      ...myInv.map((i) => ({ date: i.date, ref: i.number, text: 'Sales invoice', dr: i.total, cr: 0 })),
+      ...receipts.filter((r) => r.partnerId === partnerId).map((r) => ({ date: r.date, ref: r.number, text: `Receipt · ${r.mode}`, dr: 0, cr: r.amount })),
+      ...(notes || []).filter((n) => n.partnerId === partnerId).map((n) => ({ date: n.date, ref: n.number, text: n.type === 'CREDIT' ? 'Credit note' : 'Debit note', dr: n.type === 'DEBIT' ? (n.amount || 0) + (n.gst || 0) : 0, cr: n.type === 'CREDIT' ? (n.amount || 0) + (n.gst || 0) : 0 })),
+    ].sort((a, b) => a.date.localeCompare(b.date))
+    let bal = 0
+    for (const r of rows) { bal = round2(bal + r.dr - r.cr); r.bal = bal }
+    return { rows, balance: bal }
+  }, [myInv, receipts, notes, partnerId])
+  const unpaidAdvance = sum(awaiting, balanceDue)
+
   const reorder = () => {
     addLinesToCart(partnerId, last.lines.filter((l) => !l.free).map((l) => ({ productId: l.productId, qty: l.qty })))
     toast.success('Last order added to cart', last.number)
@@ -56,7 +84,7 @@ export default function Dashboard() {
 
   return (
     <div>
-      <PageHeader title={`${greet}, ${user?.name?.split(' ')[0]}`} subtitle={`${partner?.name} · ${partner?.code} · Tier ${partner?.tier} dealer, ${partner?.city}`}
+      <PageHeader title={`${greet}, ${user?.name?.split(' ')[0]}`} subtitle={`${partner?.name} · ${partner?.code} · Tier ${partner?.tier} ${partner?.channel === 'DISTRIBUTOR' ? 'distributor' : 'dealer'}, ${partner?.city}`}
         actions={<><Button variant="secondary" icon={ClipboardList} onClick={() => nav(`${base}/orders`)}>My orders</Button><Button icon={ShoppingCart} onClick={() => nav(`${base}/catalog`)}>Place order</Button></>} />
 
       <Grid cols={4} className="mb-4">
@@ -84,6 +112,26 @@ export default function Dashboard() {
               </div>
             </Card>
           )}
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <Card title="Purchases from Btali" subtitle={`FY to date ${fmtINR(fyPurchases)} · ${myInv.filter((i) => i.date >= fyStart).length} invoices`}>
+              <BarsChart data={purchaseTrend} series={[{ key: 'value', label: 'Purchases (excl. GST)' }]} height={170} />
+              <div className="text-[11px] text-slate-400 mt-1">Phase 1 figures reflect your purchases from Btali, not sales to your own customers.</div>
+            </Card>
+            <Card title="Pending fulfilment" subtitle={`${fulOpen.length} order(s) · ${fmtNum(pendingUnits)} units · ${fmtCompact(pendingValue)}`} actions={<Button size="sm" variant="link" onClick={() => nav(`${base}/orders`)}>Orders</Button>}>
+              {fulOpen.length === 0 ? <EmptyState icon={PackageOpen} title="Nothing pending" message="All your orders have been dispatched." /> : (
+                <div className="space-y-2">
+                  {fulOpen.slice(0, 4).map(({ o, f }) => (
+                    <button key={o.id} type="button" onClick={() => nav(`${base}/orders?so=${o.id}`)} className="w-full text-left rounded-lg border border-slate-200 px-3 py-2 hover:border-brand-300">
+                      <div className="flex justify-between gap-2 text-sm"><span className="font-mono font-medium">{o.number}</span><span className="tabular-nums text-amber-700 font-medium">{fmtNum(f.pending)} pending</span></div>
+                      <div className="flex justify-between gap-2 text-[11px] text-slate-500 mt-0.5"><span>{fmtNum(f.dispatched)} of {fmtNum(f.ordered)} dispatched</span><span>{f.expected ? `Expected ${fmtDate(f.expected)}` : SO_LABEL[o.status]}</span></div>
+                      <Progress value={f.dispatched} max={f.ordered} tone="green" className="mt-1.5" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </Card>
+          </div>
 
           <Card title="Orders in progress" actions={<Button size="sm" variant="link" onClick={() => nav(`${base}/orders`)}>View all</Button>}>
             {open.length === 0 ? <EmptyState icon={ClipboardList} title="No open orders" message="Everything has been dispatched." action={<Button size="sm" onClick={() => nav(`${base}/catalog`)}>Place an order</Button>} /> : (
@@ -137,6 +185,23 @@ export default function Dashboard() {
         </div>
 
         <div className="space-y-4 min-w-0">
+          <Card title="Account ledger & outstanding" subtitle={<span className="inline-flex items-center gap-1"><RefreshCw className="w-3 h-3" />{portalCfg.ledgerSource || 'Tally'} · synced {timeAgo(portalCfg.ledgerSyncedAt)}</span>}
+            actions={<Button size="sm" variant="link" onClick={() => nav(`${base}/documents?tab=soa`)}>Statement</Button>}>
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              <div className="rounded-lg bg-slate-50 px-3 py-2"><div className="text-[11px] text-slate-500">Ledger balance</div><div className={`text-base font-bold tabular-nums ${ledger.balance > 1 ? 'text-red-600' : 'text-emerald-600'}`}>{fmtINR(Math.abs(ledger.balance))} {ledger.balance > 1 ? 'Dr' : ledger.balance < -1 ? 'Cr' : ''}</div><div className="text-[11px] text-slate-400">{ledger.balance > 1 ? 'payable to Btali' : ledger.balance < -1 ? 'advance with Btali' : 'settled'}</div></div>
+              <div className="rounded-lg bg-slate-50 px-3 py-2"><div className="text-[11px] text-slate-500">Advance due on orders</div><div className={`text-base font-bold tabular-nums ${unpaidAdvance ? 'text-amber-600' : 'text-ink-900'}`}>{fmtINR(unpaidAdvance)}</div><div className="text-[11px] text-slate-400">{awaiting.length} confirmed order(s)</div></div>
+            </div>
+            <div className="divide-y divide-slate-100 text-xs">
+              {ledger.rows.slice(-4).reverse().map((r) => (
+                <div key={r.ref} className="flex justify-between gap-2 py-1.5"><span className="min-w-0"><span className="font-mono text-slate-700">{r.ref}</span><span className="text-slate-400"> · {fmtDate(r.date)}</span><span className="block text-slate-500">{r.text}</span></span><span className={`tabular-nums shrink-0 ${r.cr ? 'text-emerald-700' : 'text-slate-800'}`}>{r.cr ? `− ${fmtINR(r.cr)}` : fmtINR(r.dr)}</span></div>
+              ))}
+            </div>
+          </Card>
+          {!target && (
+            <Card title="Monthly target">
+              <div className="text-sm text-slate-500">No target has been assigned for this month. Your Btali sales executive will share targets and incentive slabs when they apply.</div>
+            </Card>
+          )}
           {target && (
             <Card title="Monthly target" subtitle={new Date().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}>
               <div className="flex items-end justify-between mb-2"><span className="text-2xl font-bold tabular-nums">{pct.toFixed(0)}%</span><span className="text-xs text-slate-500">{fmtINR(achieved)} / {fmtINR(target.amount)}</span></div>

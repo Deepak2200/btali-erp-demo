@@ -1,12 +1,13 @@
 import React, { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { FileText, Truck, Download, Mail, Receipt, BookOpen } from 'lucide-react'
+import { FileText, Truck, Download, Mail, Receipt, BookOpen, PackageCheck } from 'lucide-react'
 import { useStore } from '../../store'
 import { PageHeader, Card, Button, Badge, StatusBadge, Tabs, Modal, Input, Field, EmptyState, Grid, Stat, toast, openAttachment } from '../../components/ui'
 import DataTable from '../../components/DataTable'
 import { PrintArea, DocHeader } from '../../components/business'
 import { fmtINR, fmtDate, sum, round2, exportCSV, daysAgo, today } from '../../lib/format'
 import { usePortal, InvoiceDoc, LRDoc } from './_portal'
+import { AckModal } from './Orders'
 
 export default function Documents() {
   const [sp, setSp] = useSearchParams()
@@ -19,6 +20,7 @@ export default function Documents() {
   const emailDoc = useStore((s) => s.emailPartnerDocument)
   const [tab, setTab] = useState(sp.get('tab') || 'invoices')
   const [doc, setDoc] = useState(null) // {kind, inv}
+  const [ack, setAck] = useState(null)
   const invoices = useMemo(() => allInvoices.filter((i) => i.partnerId === partnerId).sort((a, b) => b.date.localeCompare(a.date)), [allInvoices, partnerId])
   const receipts = useMemo(() => allReceipts.filter((r) => r.partnerId === partnerId), [allReceipts, partnerId])
   const notes = useMemo(() => (allNotes || []).filter((n) => n.partnerId === partnerId), [allNotes, partnerId])
@@ -59,6 +61,7 @@ export default function Documents() {
               <div className="flex gap-1 justify-end" onClick={(e) => e.stopPropagation()}>
                 <Button size="sm" variant="secondary" icon={Download} onClick={() => setDoc({ kind: 'inv', inv: i })}>View</Button>
                 <Button size="sm" variant="ghost" icon={Mail} onClick={() => resend(i)}>Email</Button>
+                {(i.status === 'DISPATCHED' || i.lr) && !i.inward?.acknowledged && !i.history && <Button size="sm" icon={PackageCheck} onClick={() => setAck(i)}>Acknowledge</Button>}
               </div>
             ) },
           ]} />
@@ -104,6 +107,7 @@ export default function Documents() {
           </PrintArea>
         )}
       </Modal>
+      {ack && <AckModal inv={ack} onClose={() => setAck(null)} />}
     </div>
   )
 }

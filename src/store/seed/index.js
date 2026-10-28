@@ -84,6 +84,12 @@ export const createSeed = () => {
     notifications: seedNotifications(),
     emails: [],
     auditLog: [],
+    // dealer "notify me when back in stock" requests
+    stockAlerts: [
+      { id: 'sa1', partnerId: 'd1', productId: 'p2', qty: 20, status: 'ACTIVE', createdAt: `${daysAgo(3)}T11:20:00.000Z` },
+      { id: 'sa2', partnerId: 'd2', productId: 'p2', qty: 15, status: 'ACTIVE', createdAt: `${daysAgo(2)}T16:05:00.000Z` },
+      { id: 'sa3', partnerId: 'd1', productId: 'p21', qty: 10, status: 'NOTIFIED', createdAt: `${daysAgo(40)}T10:00:00.000Z`, notifiedAt: `${daysAgo(27)}T15:30:00.000Z` },
+    ],
   }
   // sanity: round totals
   for (const so of core.salesOrders) so.total = round2(so.total)

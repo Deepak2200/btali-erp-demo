@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Save, Plus, Trash2, Send, RotateCcw, ArrowRight, Building, IndianRupee, Barcode as BarcodeIcon, Hash, GitBranch, Mail, BellRing } from 'lucide-react'
+import { Save, Plus, Trash2, Send, RotateCcw, ArrowRight, Building, IndianRupee, Barcode as BarcodeIcon, Hash, GitBranch, Mail, BellRing, Store } from 'lucide-react'
 import {
   PageHeader, Card, Tabs, Button, IconButton, FormGrid, Field, Input, NumberInput, Select, Textarea, Badge, Alert, Barcode, SectionTitle, toast, confirm, cx,
 } from '../../../components/ui'
@@ -14,6 +14,7 @@ const TABS = [
   { key: 'approvals', label: 'Approval matrix', icon: GitBranch },
   { key: 'templates', label: 'Email templates', icon: Mail },
   { key: 'alerts', label: 'Alert rules', icon: BellRing },
+  { key: 'portal', label: 'Dealer & distributor portal', icon: Store },
 ]
 const SERIES_LABEL = { PO: 'Purchase Order', SO: 'Sales Order', INV: 'Sales Invoice', QT: 'Quotation', SH: 'Import Shipment', RFQ: 'Freight RFQ', EXP: 'Export Order', GRN: 'Goods Receipt', TKT: 'Service Ticket', WCL: 'Warranty Claim', RET: 'Return', VB: 'Vendor Bill', EXPN: 'Expense', JV: 'Journal Voucher', CN: 'Credit Note', DN: 'Debit Note', POS: 'POS Bill', REP: 'Replenishment', CP: 'Container Plan', PAY: 'Payment', RCPT: 'Receipt', CLM: 'Employee Claim', PR: 'Payroll Run' }
 const PLACEHOLDERS = ['{{dealer}}', '{{so}}', '{{invoice}}', '{{amount}}', '{{transporter}}', '{{lr}}', '{{bill}}', '{{due}}', '{{vendor}}', '{{po}}']
@@ -337,9 +338,39 @@ function AlertRules() {
   )
 }
 
+function DealerPortal() {
+  const update = useStore((s) => s.updateSettings)
+  const audit = useStore((s) => s.audit)
+  const partners = useStore((s) => s.partners)
+  const [d, setD, dirty, reset] = useDraft('dealerPortal')
+  const cfg = d || {}
+  const up = (k, v) => setD((s) => ({ ...(s || {}), [k]: v }))
+  const overrides = partners.filter((p) => p.type === 'DEALER' && p.stockDisplay)
+  const save = () => { update({ dealerPortal: cfg }); audit('Updated dealer portal visibility', 'Settings'); toast.success('Dealer portal settings saved', 'Applied to all dealers and distributors immediately') }
+  return (
+    <Card title="Dealer & distributor portal" subtitle="Controls what partners see about Btali stock, restock dates and their account">
+      <FormGrid cols={2}>
+        <Field label="Stock visibility (default)" hint="Individual dealers can be overridden in Sales → Dealer 360 → Pricing">
+          <Select value={cfg.stockDisplay || 'STATUS'} onChange={(e) => up('stockDisplay', e.target.value)} options={[{ value: 'STATUS', label: 'Status indicators only (In stock / Limited / Expected)' }, { value: 'QUANTITY', label: 'Show available quantities' }]} />
+        </Field>
+        <Field label="'Limited stock' below (free units)"><NumberInput min={1} value={cfg.limitedThreshold} onChange={(v) => up('limitedThreshold', v)} /></Field>
+        <Field label="Expected restocking dates">
+          <Select value={cfg.showRestockDate === false ? 'no' : 'yes'} onChange={(e) => up('showRestockDate', e.target.value === 'yes')} options={[{ value: 'yes', label: 'Show from approved production & shipment updates' }, { value: 'no', label: 'Hide restock dates' }]} />
+        </Field>
+        <Field label="Back-in-stock alerts">
+          <Select value={cfg.allowStockAlerts === false ? 'no' : 'yes'} onChange={(e) => up('allowStockAlerts', e.target.value === 'yes')} options={[{ value: 'yes', label: 'Dealers can request notifications' }, { value: 'no', label: 'Disabled' }]} />
+        </Field>
+        <Field label="Account ledger source" hint="Agreed Tally integration – balances shown on the dealer dashboard"><Input value={cfg.ledgerSource || ''} onChange={(e) => up('ledgerSource', e.target.value)} /></Field>
+      </FormGrid>
+      <Alert tone="info" className="mt-4" title={`${overrides.length} partner override(s)`}>{overrides.length ? overrides.map((p) => `${p.name} (${p.stockDisplay === 'QUANTITY' ? 'quantities' : 'status only'})`).join(', ') : 'All dealers follow the default visibility.'}</Alert>
+      <SaveBar dirty={dirty} onSave={save} onReset={reset} />
+    </Card>
+  )
+}
+
 export default function Settings() {
   const [tab, setTab] = useState('company')
-  const C = { company: Company, commercial: Commercial, barcodes: BarcodeSeries, series: NumberSeries, approvals: ApprovalMatrix, templates: Templates, alerts: AlertRules }[tab]
+  const C = { company: Company, commercial: Commercial, barcodes: BarcodeSeries, series: NumberSeries, approvals: ApprovalMatrix, templates: Templates, alerts: AlertRules, portal: DealerPortal }[tab]
   return (
     <div>
       <PageHeader title="System Configuration" subtitle="Company profile, pricing rules, numbering, approvals, templates and alerts" />
