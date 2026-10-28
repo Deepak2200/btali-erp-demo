@@ -56,7 +56,7 @@ export default function StarexSchedule() {
 
   const exportSheet = () => exportCSV(`Starex-Dispatch-Schedule-${date}.csv`, scheduleRows(invs, { products, partners, transporters }), SCHEDULE_COLS)
   const mark = (inv, stage) => { setStage(inv.id, stage); toast.success(stage === 'LOADED' ? 'Marked loaded' : 'Marked picked', `${inv.number}${stage === 'LOADED' ? ' – upload LR once issued' : ''}`) }
-  const markGroup = (list, stage) => { list.forEach((i) => setStage(i.id, stage)); toast.success(`${list.length} invoices marked ${stage.toLowerCase()}`) }
+  const markGroup = (list, stage) => { list.forEach((i) => setStage(i.id, stage)); toast.success(`${list.length} invoice${list.length === 1 ? "" : "s"} marked ${stage.toLowerCase()}`) }
 
   return (
     <div>
@@ -82,7 +82,7 @@ export default function StarexSchedule() {
             const wt = sum(list, (i) => invoiceWeight(i, products))
             return (
               <Card key={tid} padded={false} title={<span className="flex items-center gap-2"><Truck className="w-4 h-4 text-brand-500" />{tr?.name || 'Transporter not assigned'}{tr?.isSafex && <Badge tone="violet">Safex pickup</Badge>}</span>}
-                subtitle={`${tr?.vehicleNo || ''} · ${tr?.contact || ''} ${tr?.phone || ''} · ${list.length} invoices · ${fmtNum(Math.round(wt))} kg`}
+                subtitle={`${tr?.vehicleNo || ''} · ${tr?.contact || ''} ${tr?.phone || ''} · ${list.length} invoice${list.length === 1 ? "" : "s"} · ${fmtNum(Math.round(wt))} kg`}
                 actions={<>
                   <Button size="sm" variant="secondary" disabled={list.every((i) => i.starexStage)} onClick={() => markGroup(list.filter((i) => !i.starexStage), 'PICKED')}>Pick all</Button>
                   <Button size="sm" variant="success" disabled={list.every((i) => i.starexStage === 'LOADED')} onClick={() => markGroup(list.filter((i) => i.starexStage !== 'LOADED'), 'LOADED')}>Load all</Button>

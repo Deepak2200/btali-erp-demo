@@ -31,9 +31,9 @@ export default function Orders() {
       <PageHeader title="My orders" subtitle={`${orders.length} orders with Btali · ${partner?.name}`} actions={<Button icon={ShoppingCart} onClick={() => nav(`${base}/catalog`)}>New order</Button>} />
       <Grid cols={4} className="mb-4">
         <Stat icon={Clock} tone="amber" label="In progress" value={fmtNum(orders.filter((o) => OPEN.includes(o.status)).length)} sub={`${orders.filter((o) => o.status === 'PENDING_REVIEW').length} under review`} />
-        <Stat icon={IndianRupee} tone="red" label="Awaiting your payment" value={fmtINR(sum(awaiting, balanceDue))} sub={`${awaiting.length} order(s)`} />
-        <Stat icon={Truck} tone="blue" label="Dispatched (15 days)" value={fmtNum(orders.filter((o) => ['DISPATCHED', 'DELIVERED'].includes(o.status) && o.date >= daysAgo(15)).length)} />
-        <Stat icon={CheckCircle2} tone="green" label="Purchases this FY" value={fmtINR(sum(fy, (o) => o.total))} sub={`${fy.length} orders`} />
+        <Stat icon={IndianRupee} tone="red" label="Payment due" value={fmtINR(sum(awaiting, balanceDue))} sub={`${awaiting.length} order(s)`} />
+        <Stat icon={Truck} tone="blue" label="Dispatched 15d" value={fmtNum(orders.filter((o) => ['DISPATCHED', 'DELIVERED'].includes(o.status) && o.date >= daysAgo(15)).length)} />
+        <Stat icon={CheckCircle2} tone="green" label="This FY" value={fmtINR(sum(fy, (o) => o.total))} sub={`${fy.length} orders`} />
       </Grid>
 
       {inProgress.length > 0 && (

@@ -80,6 +80,16 @@ export const APPROVAL_TYPES = [
     title: (x, s) => `${s.employees?.find((e) => e.id === x.empId)?.name || ''} · ${x.type}`, amount: (x) => x.amount, date: (x) => x.date,
   },
   {
+    key: 'EMP_LOAN', label: 'Staff Loan / Advance', roles: ['HR', 'ADMIN', 'FINANCE_HEAD'], collection: 'empLoans',
+    filter: (x) => x.status === 'PENDING', action: 'approveEmpLoan', link: () => `/erp/hr/loans`,
+    title: (x, s) => `${x.number} · ${s.employees?.find((e) => e.id === x.empId)?.name || ''} · ${x.tenure} month(s)`, amount: (x) => x.amount, date: (x) => x.requestedAt,
+  },
+  {
+    key: 'REPLENISHMENT', label: 'Franchise Replenishment', roles: ['ADMIN', 'SALES_MANAGER'], collection: 'replenishments',
+    filter: (x) => x.status === 'REQUESTED', action: 'approveReplenishment', link: () => `/erp/franchise`,
+    title: (x, s) => `${x.number} · ${name(s.partners, x.partnerId)} · ${x.lines?.length || 0} item(s)`, date: (x) => x.createdAt,
+  },
+  {
     key: 'WA_CAMPAIGN', label: 'WhatsApp Campaign', roles: ['ADMIN', 'SALES_MANAGER'], collection: 'waCampaigns',
     filter: (x) => x.status === 'PENDING_APPROVAL', action: 'approveWaCampaign', link: () => `/erp/whatsapp/campaigns`,
     title: (x) => x.name, date: (x) => x.submittedAt,

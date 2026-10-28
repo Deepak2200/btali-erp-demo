@@ -67,7 +67,7 @@ export function BankBox({ amount, reference, className }) {
   return (
     <div className={cx('rounded-xl border border-ink-100 bg-ink-50/50 p-3 text-sm', className)}>
       <div className="text-[11px] uppercase tracking-wide font-semibold text-ink-700 mb-2">Remit advance to</div>
-      <dl className="grid grid-cols-[110px_1fr] gap-y-1">
+      <dl className="grid grid-cols-[108px_minmax(0,1fr)] gap-y-1 [&_dd]:break-words">
         <dt className="text-slate-500">Account name</dt><dd className="font-medium text-slate-800">{b.name}</dd>
         <dt className="text-slate-500">Bank</dt><dd className="text-slate-800">{b.bank}, {b.branch}</dd>
         <dt className="text-slate-500">A/c number</dt><dd className="font-mono text-slate-900">{b.accountNo}</dd>
@@ -169,3 +169,6 @@ export function MiniStat({ label, value, sub, tone }) {
 export function SectionCard(props) {
   return <Card {...props} />
 }
+
+/** Consignment dispatched to the partner and not yet inward-scanned (historical invoices count as received) */
+export const isPendingInward = (i, partnerId) => i.partnerId === partnerId && i.status === 'DISPATCHED' && !i.history && !i.inward?.acknowledged

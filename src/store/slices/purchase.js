@@ -221,7 +221,7 @@ export const purchaseSlice = (set, get) => ({
   },
 
   // ------------------------------------------------------------ container planning
-  saveContainerPlan: (plan) => {
+  savePurchaseContainerPlan: (plan) => {
     const spec = PLAN_SPECS[plan.containerType] || PLAN_SPECS['40HC']
     const count = Math.max(1, plan.containerCount || 1)
     const cbm = sum(plan.items, (i) => i.cbm)

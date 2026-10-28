@@ -109,7 +109,7 @@ export const buildCall = ({ lead, outcome, campaign, settings, products, users, 
     amount: lead.amountDue || 48500, soNo: lead.soNo || 'your last order', inbound: direction === 'INBOUND', rnd,
   })
   let t = 2
-  const transcript = lines.map((l) => { const at = t; t += Math.max(4, Math.round(l.text.length / 13)) + Math.floor(rnd() * 3); return { ...l, t: at } })
+  const transcript = lines.map((l) => { const at = t; t += Math.max(6, Math.round(l.text.length / 7)) + Math.floor(rnd() * 5); return { ...l, t: at } })
   const connected = outcome !== 'NO_ANSWER'
   const durationSec = connected ? t + 3 : 0
   const ringSec = connected ? 6 + Math.floor(rnd() * 10) : 30
@@ -158,7 +158,7 @@ const CAT_WORDS = {
   Pumps: /\b(pump|pumps|motor|monoblock|submersible|borewell|openwell|booster|sewage)\b/,
   'Air Compressors': /\b(compressor|compressors|inflator)\b/,
   'Vacuum Cleaners': /\b(vacuum|vaccum|cleaner)\b/,
-  'Pressure Washers': /\b(pressure washer|washer|car wash|jet wash)\b/,
+  'Pressure Washers': /\b(pressure washers?|washers?|car wash|jet wash)\b/,
   'Spraying Equipment': /\b(sprayer|sprayers|spray|mist blower|knapsack|htp)\b/,
   'Spare Parts': /\b(spare|spares|seal|impeller|capacitor|filter|hose|nozzle|battery|lance|brush|trigger gun|valve|pressure switch|piston)\b/,
 }
@@ -246,9 +246,9 @@ export const waBotAnswer = (state, conv, rawText) => {
     return out
   }
   // order status by SO number
-  const soM = text.match(/\bSO\s*[/#-]?\s*(?:\d{2}\s*-\s*\d{2}\s*\/\s*)?(\d{1,4})\b/i)
+  const soM = text.match(/\bSO\s*[/#-]?\s*(?:(\d{2})\s*-\s*(\d{2})\s*\/\s*)?(\d{1,4})\b/i)
   if (soM) {
-    const num = `SO/26-27/${soM[1].padStart(4, '0')}`
+    const num = soM[1] ? `SO/${soM[1]}-${soM[2]}/${soM[3].padStart(4, "0")}` : `SO/26-27/${soM[3].padStart(4, "0")}`
     const so = (state.salesOrders || []).find((s) => s.number === num)
     set('ORDER_STATUS', 0.96)
     if (!so) { say(`I couldn't find order ${num}. Please check the number on your order confirmation email (format SO/26-27/0001).`); return out }
@@ -398,8 +398,8 @@ export const aiSlice = (set, get) => {
     _aiStartTimer: (id) => {
       if (RUN.calls[id]) return
       const c = (get().aiCampaigns || []).find((x) => x.id === id)
-      const ms = Math.max(1200, Math.round(60000 / Math.max(1, (c?.pace || 12) * 2)))
-      RUN.calls[id] = setInterval(() => get()._aiTick(id), Math.min(ms, 2600))
+      const ms = Math.max(800, Math.min(1500, Math.round(18000 / Math.max(1, c?.pace || 12))))
+      RUN.calls[id] = setInterval(() => get()._aiTick(id), ms)
     },
     _aiStopTimer: (id) => { if (RUN.calls[id]) { clearInterval(RUN.calls[id]); delete RUN.calls[id] } },
     _aiTick: (id) => {

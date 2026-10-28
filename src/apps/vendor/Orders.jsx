@@ -96,8 +96,8 @@ function OrderTab({ po }) {
   const vendor = useStore((s) => s.vendors.find((v) => v.id === po.vendorId))
   const pt = po.paymentTerms || vendor?.paymentTerms
   return (
-    <div className="grid lg:grid-cols-3 gap-4">
-      <div className="lg:col-span-2">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 min-w-0">
+      <div className="lg:col-span-2 min-w-0">
         <PrintArea title={po.number}>
           <DocHeader title="Purchase Order" number={po.number} date={po.date} />
           <div className="grid sm:grid-cols-2 gap-4 text-sm mb-4">
@@ -136,7 +136,7 @@ function PITab({ po }) {
     setFile(null)
   }
   return (
-    <div className="grid lg:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 min-w-0">
       <Card title="Confirmed rates" subtitle="Rates as per this PO">
         <div className="space-y-2">
           {po.lines.map((l) => <div key={l.productId} className="flex items-center justify-between gap-3"><ProductCell id={l.productId} sub={`${fmtNum(l.qty)} pcs`} /><span className="tabular-nums text-sm font-medium">{fmtUSD(l.rate, po.currency)}</span></div>)}
@@ -249,7 +249,7 @@ function ScheduleTab({ po }) {
   const [f, setF] = useState({ date: '', qty: Math.max(0, ordered - declared), note: '' })
   const editable = ['APPROVED', 'PI_RECEIVED', 'IN_PRODUCTION', 'QC_PENDING', 'READY_TO_SHIP'].includes(po.status)
   return (
-    <div className="grid lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 min-w-0">
       <Card title="Declared schedule" subtitle={`${fmtNum(declared)} of ${fmtNum(ordered)} pcs scheduled`} className="lg:col-span-2" padded={false}>
         {(po.deliverySchedule || []).length === 0 ? <EmptyState title="No schedule declared" message="Tell Btali when goods will be ready for stuffing." /> : (
           <ul className="divide-y divide-slate-100">
@@ -367,7 +367,7 @@ function ImprovementsTab({ po }) {
   const [text, setText] = useState('')
   const [files, setFiles] = useState([])
   return (
-    <div className="grid lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 min-w-0">
       <Card title="Declared improvements" className="lg:col-span-2" padded={false}>
         {(po.improvements || []).length === 0 ? <EmptyState icon={Lightbulb} title="No changes declared" message="Log any design, material or packaging change before delivery." /> : (
           <ul className="divide-y divide-slate-100">
@@ -401,7 +401,7 @@ function FinanceTab({ po }) {
   const swift = [...vendorDocs.filter((d) => d.poId === po.id && d.docType === 'SWIFT'), ...(po.docs || []).filter((d) => /swift/i.test(d.docType || d.name)).map((d) => ({ id: d.id, title: d.name, file: d, date: d.uploadedAt }))]
   const locker = po.docs || []
   return (
-    <div className="grid lg:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 min-w-0">
       <Card title="Payments from Btali (SWIFT copies)" padded={false}>
         {swift.length === 0 ? <EmptyState icon={Banknote} title="No payment against this PO yet" /> : (
           <ul className="divide-y divide-slate-100">
@@ -438,7 +438,7 @@ function ForwarderTab({ po }) {
   const { forwarder, shipment, indian, rfq } = forwarderFor(state, po)
   if (!forwarder) return <Card><EmptyState icon={Ship} title="Forwarder not nominated yet" message="Btali nominates the freight forwarder after QC approval and container planning. You will be notified here." /></Card>
   return (
-    <div className="grid lg:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 min-w-0">
       <Card title="Origin forwarder (China)">
         <div className="flex items-center gap-3 mb-3"><div className="w-10 h-10 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center"><Truck className="w-5 h-5" /></div><div><div className="font-semibold">{forwarder.name}</div><div className="text-xs text-slate-500">{forwarder.city}, {forwarder.country}</div></div></div>
         <DescriptionList items={[['Contact', forwarder.contact], ['Phone', forwarder.phone], ['Email', forwarder.email], ['Selected via', rfq ? rfq.number : 'Btali contract rate']]} />

@@ -499,7 +499,9 @@ export const useStore = create(
     }),
     {
       name: 'btali-erp-demo',
-      version: 1,
+      version: 2,
+      // Bump when seed data changes shape or values: older saved data is discarded and the fresh seed loads.
+      migrate: () => undefined,
       storage: createJSONStorage(() => localStorage),
     },
   ),

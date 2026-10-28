@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ClipboardList, IndianRupee, Target, Headphones, Truck, Tag, AlertTriangle, RotateCcw, Bell, ArrowRight, Phone, Mail, ShoppingCart, FileText } from 'lucide-react'
 import { useStore } from '../../store'
 import { PageHeader, Card, Button, Badge, StatusBadge, Grid, Stat, Progress, EmptyState, ProductImage, Avatar, toast } from '../../components/ui'
-import { fmtINR, fmtDate, fmtNum, sum, today, timeAgo, monthKey } from '../../lib/format'
+import { fmtINR, fmtCompact, fmtDate, fmtNum, sum, today, timeAgo, monthKey } from '../../lib/format'
 import { isSchemeLive } from '../../lib/pricing'
 import { usePortal, OrderStepper, SO_LABEL, balanceDue, BankBox } from './_portal'
 
@@ -60,14 +60,14 @@ export default function Dashboard() {
         actions={<><Button variant="secondary" icon={ClipboardList} onClick={() => nav(`${base}/orders`)}>My orders</Button><Button icon={ShoppingCart} onClick={() => nav(`${base}/catalog`)}>Place order</Button></>} />
 
       <Grid cols={4} className="mb-4">
-        <Stat icon={ClipboardList} tone="ink" label="Orders in progress" value={fmtNum(open.length)} sub={`${open.filter((o) => o.status === 'PENDING_REVIEW').length} under review`} onClick={() => nav(`${base}/orders`)} />
-        <Stat icon={IndianRupee} tone={awaiting.length ? 'red' : 'green'} label="Awaiting your payment" value={fmtINR(sum(awaiting, balanceDue))} sub={awaiting.length ? `${awaiting.length} order(s) confirmed` : 'Nothing due'} />
-        <Stat icon={Target} tone="brand" label={`Purchases ${new Date().toLocaleDateString('en-GB', { month: 'short' })}`} value={fmtINR(achieved)} sub={target ? `${pct.toFixed(0)}% of ${fmtINR(target.amount)} target` : 'No target set'} />
-        <Stat icon={Headphones} tone="amber" label="Open complaints" value={fmtNum(myTickets.length)} sub={myTickets.length ? `${myTickets.filter((t) => t.priority === 'HIGH').length} high priority` : 'All resolved'} onClick={() => nav(`${base}/support`)} />
+        <Stat icon={ClipboardList} tone="ink" label="Open orders" value={fmtNum(open.length)} sub={`${open.filter((o) => o.status === 'PENDING_REVIEW').length} under review`} onClick={() => nav(`${base}/orders`)} />
+        <Stat icon={IndianRupee} tone={awaiting.length ? 'red' : 'green'} label="Payment due" value={fmtINR(sum(awaiting, balanceDue))} sub={awaiting.length ? `${awaiting.length} order(s) confirmed` : 'Nothing due'} />
+        <Stat icon={Target} tone="brand" label={`Purchases ${new Date().toLocaleDateString('en-GB', { month: 'short' })}`} value={fmtCompact(achieved)} sub={target ? `${pct.toFixed(0)}% of ${fmtINR(target.amount)} target` : 'No target set'} />
+        <Stat icon={Headphones} tone="amber" label="Complaints" value={fmtNum(myTickets.length)} sub={myTickets.length ? `${myTickets.filter((t) => t.priority === 'HIGH').length} high priority` : 'All resolved'} onClick={() => nav(`${base}/support`)} />
       </Grid>
 
       <div className="grid lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 space-y-4">
+        <div className="lg:col-span-2 space-y-4 min-w-0">
           {awaiting.length > 0 && (
             <Card title="Payment required to release invoice" subtitle="Advance payment terms – remit and share the UTR" actions={<Badge tone="red">{fmtINR(sum(awaiting, balanceDue))}</Badge>}>
               <div className="grid md:grid-cols-2 gap-4">
@@ -136,7 +136,7 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 min-w-0">
           {target && (
             <Card title="Monthly target" subtitle={new Date().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}>
               <div className="flex items-end justify-between mb-2"><span className="text-2xl font-bold tabular-nums">{pct.toFixed(0)}%</span><span className="text-xs text-slate-500">{fmtINR(achieved)} / {fmtINR(target.amount)}</span></div>

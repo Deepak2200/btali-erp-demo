@@ -342,7 +342,7 @@ export function buildPostings(state, opts = {}) {
   for (const pr of state.payrollRuns || []) {
     if (!['APPROVED', 'PAID'].includes(pr.status) || pr.postedExpenses) continue
     const per = String(pr.period || '').slice(0, 7)
-    if (!/^\d{4}-\d{2}$/.test(per) || per < gl) continue
+    if (!/^\d{4}-\d{2}$/.test(per) || per <= gl) continue
     const amt = Number(pr.totalGross || pr.totalNet) || 0
     const net = Number(pr.totalNet) || amt
     const d = monthEnd(per)

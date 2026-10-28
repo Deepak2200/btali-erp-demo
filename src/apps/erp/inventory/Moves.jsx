@@ -10,7 +10,7 @@ import { onHand, MAIN_WH } from '../../../lib/stock'
 const REASONS = [
   { value: 'DAMAGED', label: 'Damaged / scrapped' },
   { value: 'CYCLE_COUNT', label: 'Cycle count variance' },
-  { value: 'SAMPLE', label: 'Sample / demo unit issued' },
+  { value: 'SAMPLE', label: 'Sample / display unit issued' },
   { value: 'WARRANTY_REPLACEMENT', label: 'Warranty replacement' },
   { value: 'FOUND', label: 'Found in physical verification' },
   { value: 'RETURN_TO_STOCK', label: 'Customer return to stock' },

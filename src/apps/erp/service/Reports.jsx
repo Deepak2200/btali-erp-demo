@@ -5,7 +5,7 @@ import { PageHeader, Grid, Stat, Card, Tabs, StatusBadge, Badge, EmptyState, Inp
 import DataTable from '../../../components/DataTable'
 import { BarsChart, DonutChart, TrendChart, ProductCell, PartnerCell } from '../../../components/business'
 import { fmtINR, fmtDate, fmtPct, lastMonths, monthKey, monthLabel } from '../../../lib/format'
-import { CATEGORY_LABEL, nearestPartner, slaState } from '../../../store/slices/service'
+import { CATEGORY_LABEL, nearestPartner, slaState, resolvedAtOf } from '../../../store/slices/service'
 import { useEscalations } from './Escalations'
 import { fmtHours, SlaChip } from './_parts'
 
@@ -14,7 +14,7 @@ const count = (arr, fn) => {
   arr.forEach((x) => { const k = fn(x); if (k) m[k] = (m[k] || 0) + 1 })
   return m
 }
-const resHours = (t) => (t.resolvedAt ? Math.max(1, Math.round((new Date(t.resolvedAt) - new Date(t.createdAt)) / 3600000)) : null)
+const resHours = (t) => { const r = resolvedAtOf(t); return r ? Math.max(1, Math.round((new Date(r) - new Date(t.createdAt)) / 3600000)) : null }
 
 export default function Reports() {
   const tickets = useStore((s) => s.tickets)
@@ -39,7 +39,7 @@ export default function Reports() {
   }, [tickets, claims]) // eslint-disable-line
 
   const sla = useMemo(() => {
-    const done = tickets.filter((t) => t.resolvedAt)
+    const done = tickets.filter((t) => resolvedAtOf(t))
     const byCat = Object.entries(CATEGORY_LABEL).map(([k, label]) => {
       const d = done.filter((t) => t.category === k)
       return { label, value: d.length ? Math.round(d.reduce((a, t) => a + resHours(t), 0) / d.length) : 0, n: d.length }

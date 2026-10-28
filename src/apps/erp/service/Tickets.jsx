@@ -9,7 +9,7 @@ import {
 import DataTable from '../../../components/DataTable'
 import { ProductCell, PartnerCell } from '../../../components/business'
 import { fmtDate, fmtDateTime, timeAgo } from '../../../lib/format'
-import { TICKET_STAGES, RESPONSE_TYPES } from '../../../store/slices/service'
+import { TICKET_STAGES, RESPONSE_TYPES, resolvedAtOf } from '../../../store/slices/service'
 import {
   SlaChip, CATEGORY_LABEL, SOURCE_LABEL, CATEGORY_OPTIONS, SOURCE_OPTIONS, PRIORITY_OPTIONS, NewTicketModal, AssignModal, EscalateModal, ThreadItem,
   WarrantyCover, useWarrantyCheck, slaState, slaDue, sourceIcon, fmtHours,
@@ -59,8 +59,8 @@ export default function Tickets() {
   const openT = tickets.filter((t) => !['RESOLVED', 'CLOSED'].includes(t.stage))
   const overdue = openT.filter((t) => slaState(t).overdue)
   const escalated = openT.filter((t) => t.escalatedToVendor)
-  const resolved = tickets.filter((t) => t.resolvedAt)
-  const avgRes = resolved.length ? Math.round(resolved.reduce((a, t) => a + (new Date(t.resolvedAt) - new Date(t.createdAt)) / 3600000, 0) / resolved.length) : 0
+  const resolved = tickets.filter((t) => resolvedAtOf(t))
+  const avgRes = resolved.length ? Math.round(resolved.reduce((a, t) => a + (new Date(resolvedAtOf(t)) - new Date(t.createdAt)) / 3600000, 0) / resolved.length) : 0
 
   const move = (t, stage) => {
     updateTicket(t.id, { stage })
@@ -190,7 +190,7 @@ function TicketDrawer({ id, onClose }) {
         ['SLA due', `${fmtDateTime(slaDue(t))} (${t.slaHours} h)`],
         ['Assigned to', routed ? <span>{routed.name}<span className="block text-[11px] text-slate-500">{routed.type === 'FRANCHISE' ? 'Franchise' : 'Dealer'} · {routed.city} · {routed.phone}</span></span> : user(t.assigneeId)?.name || 'Unassigned'],
         ['Order / ref', t.orderRef],
-        ['Resolved', t.resolvedAt ? fmtDateTime(t.resolvedAt) : null],
+        ['Resolved', resolvedAtOf(t) ? fmtDateTime(resolvedAtOf(t)) : null],
       ]} />
       {t.customer && (
         <div className="mt-4 rounded-xl bg-sky-50/60 border border-sky-100 p-3 text-sm">

@@ -84,7 +84,7 @@ export const portalsSlice = (set, get, api) => ({
   },
 
   // ------------------------------------------------------------ profile & KYC
-  addPartnerKyc: (partnerId, attachments = [], docType = 'KYC') => {
+  portalAddKyc: (partnerId, attachments = [], docType = 'KYC') => {
     const p = get().partners.find((x) => x.id === partnerId)
     const atts = attachments.map((a) => ({ ...a, docType: a.docType || docType, uploadedAt: a.uploadedAt || nowISO(), status: 'PENDING_VERIFICATION' }))
     get().updateItem('partners', partnerId, (x) => ({ ...x, kyc: [...(x.kyc || []), ...atts] }))
@@ -94,7 +94,7 @@ export const portalsSlice = (set, get, api) => ({
     get().updateItem('partners', partnerId, { contacts })
     get().audit('Updated contact persons', 'Partner', partnerId)
   },
-  requestProfileChange: (partnerId, { changes, note = '' }) => {
+  portalRequestProfileChange: (partnerId, { changes, note = '' }) => {
     const p = get().partners.find((x) => x.id === partnerId)
     const req = { id: uid('pcr'), ts: nowISO(), by: get().session.userId, changes, note, status: 'PENDING' }
     get().updateItem('partners', partnerId, (x) => ({ ...x, changeRequests: [req, ...(x.changeRequests || [])] }))

@@ -56,9 +56,14 @@ export const nearestPartner = (state, { city, pincode } = {}) => {
 
 export const slaDue = (t) => new Date(new Date(t.createdAt).getTime() + (t.slaHours || 72) * 3600000).toISOString()
 /** {overdue, hoursLeft, done} */
+/** When a ticket was resolved (falls back to the last stage update for older tickets). */
+export const resolvedAtOf = (t) => {
+  if (t.stage !== 'RESOLVED' && t.stage !== 'CLOSED') return null
+  return t.resolvedAt || [...(t.updates || [])].reverse().find((u) => u.stage === 'RESOLVED' || u.stage === 'CLOSED')?.ts || null
+}
 export const slaState = (t) => {
   const done = t.stage === 'RESOLVED' || t.stage === 'CLOSED'
-  const end = done ? new Date(t.resolvedAt || t.createdAt).getTime() : Date.now()
+  const end = done ? new Date(resolvedAtOf(t) || t.createdAt).getTime() : Date.now()
   const due = new Date(slaDue(t)).getTime()
   const hoursLeft = Math.round((due - end) / 3600000)
   return { done, overdue: hoursLeft < 0, hoursLeft, breached: done && hoursLeft < 0 }

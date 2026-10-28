@@ -171,7 +171,7 @@ function PlanEditor({ plan: initial, onClose, canEdit, isAdmin, decide }) {
   const save = () => {
     if (!plan.items.length) return toast.error('Plan is empty – suggest or add items first')
     const { status: _st, left: _l, ...rest } = toSave()
-    const saved = s.saveContainerPlan({ ...rest, ...(live ? {} : { id: undefined }) })
+    const saved = s.savePurchaseContainerPlan({ ...rest, ...(live ? {} : { id: undefined }) })
     setPlan((p) => ({ ...p, id: saved.id, number: saved.number }))
     toast.success(`${saved.number} saved`)
     return saved

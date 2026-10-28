@@ -55,10 +55,10 @@ function RunList() {
         </>} />
       {pending && <Alert tone="warn" className="mb-4" title={`${pending.periodLabel} payroll is awaiting approval`} action={<Button size="sm" variant="secondary" onClick={() => nav(pending.id)}>Open</Button>}>Submitted {fmtDateTime(pending.submittedAt)} · net {fmtINR(pending.totalNet)} for {pending.headcount} employees.</Alert>}
       <Grid cols={4} className="mb-4">
-        <Stat label="Last salary released" value={lastPaid ? fmtINR(lastPaid.totalNet) : '—'} sub={lastPaid ? `${lastPaid.periodLabel} · ${lastPaid.headcount} employees` : ''} icon={Banknote} tone="green" />
-        <Stat label="Employer cost (last run)" value={lastPaid ? fmtINR(lastPaid.employerCost) : '—'} sub="gross + employer PF & ESIC" icon={Building2} tone="ink" />
+        <Stat label="Last salary released" value={lastPaid ? fmtCompact(lastPaid.totalNet) : '—'} sub={lastPaid ? `${lastPaid.periodLabel} · ${lastPaid.headcount} employees` : ''} icon={Banknote} tone="green" />
+        <Stat label="Employer cost (last run)" value={lastPaid ? fmtCompact(lastPaid.employerCost) : '—'} sub="gross + employer PF & ESIC" icon={Building2} tone="ink" />
         <Stat label="Payroll cost FY to date" value={fmtCompact(ytd)} sub={`since ${periodLabel(fy)}`} icon={Wallet} tone="brand" />
-        <Stat label="Statutory dues (last run)" value={lastPaid ? fmtINR(lastPaid.pf + lastPaid.erPf + lastPaid.esic + lastPaid.erEsic + lastPaid.pt + lastPaid.tds) : '—'} sub="PF + ESIC + PT + TDS, due by 15th" icon={Landmark} tone="amber" />
+        <Stat label="Statutory dues (last run)" value={lastPaid ? fmtCompact(lastPaid.pf + lastPaid.erPf + lastPaid.esic + lastPaid.erEsic + lastPaid.pt + lastPaid.tds) : '—'} sub="PF + ESIC + PT + TDS, due by 15th" icon={Landmark} tone="amber" />
       </Grid>
       <div className="grid xl:grid-cols-3 gap-4 mb-4">
         <Card className="xl:col-span-2" title="Net salary & statutory outflow"><TrendChart data={trend} series={[{ key: 'net', label: 'Net salary' }, { key: 'statutory', label: 'Statutory (EE + ER)' }]} height={230} /></Card>

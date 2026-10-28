@@ -50,7 +50,7 @@ export default function Schedule() {
         const isSafex = s.transporters.find((t) => t.name === tr)?.isSafex
         return (
           <Card key={tr} padded={false} title={<span className="flex items-center gap-2"><Truck className="w-4 h-4 text-brand-500" />{tr}{isSafex && <Badge tone="violet">Safex direct pickup</Badge>}</span>}
-            subtitle={`${invNos.length} invoices · ${fmtNum(sum(list, (r) => r.qty))} pcs · ${fmtNum(round2(sum(list, (r) => r.weight)))} kg · ${fmtNum(round2(sum(list, (r) => r.cbm)))} CBM`}>
+            subtitle={`${invNos.length} invoice${invNos.length === 1 ? "" : "s"} · ${fmtNum(sum(list, (r) => r.qty))} pcs · ${fmtNum(round2(sum(list, (r) => r.weight)))} kg · ${fmtNum(round2(sum(list, (r) => r.cbm)))} CBM`}>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
@@ -61,7 +61,7 @@ export default function Schedule() {
                     const first = i === 0 || list[i - 1].invoice !== r.invoice
                     return (
                       <tr key={i} className={first ? '' : 'border-t-0'}>
-                        <td className="px-4 py-2 font-mono text-xs">{first ? <>{r.invoice}{r.type === 'FOC' && <Badge tone="amber" className="ml-1">FOC</Badge>}{r.date < date && <Badge tone="red" className="ml-1">Carry-over</Badge>}</> : ''}</td>
+                        <td className="px-4 py-2 font-mono text-xs whitespace-nowrap">{first ? <>{r.invoice}{r.type === 'FOC' && <Badge tone="amber" className="ml-1">FOC</Badge>}{r.date < date && <Badge tone="red" className="ml-1">Carry-over</Badge>}</> : ''}</td>
                         <td className="px-3 py-2">{first ? <div><div className="font-medium text-slate-800">{r.customer}</div><div className="text-[11px] text-slate-500">{r.city}</div></div> : ''}</td>
                         <td className="px-3 py-2"><span className="text-slate-800">{r.product}</span> <span className="text-[11px] text-slate-500">{r.sku}</span></td>
                         <td className="px-3 py-2 text-right tabular-nums">{fmtNum(r.qty)}</td>

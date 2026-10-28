@@ -236,6 +236,10 @@ export const accountsSeed = (core) => {
     const gross = oh.reduce((a, x) => a + x[1], 0)
     J('PAYMENT', d, `Salaries, overheads & logistics – ${monthLabelOf(d)} (Tally summary)`, [...oh.map(([a, v]) => ({ accountId: a, dr: v })), { accountId: '2213', cr: t194I }, { accountId: '2214', cr: t194H }, { accountId: '2210', cr: t194C }, { accountId: '1220', cr: gross - t194I - t194H - t194C }], { source: 'TALLY' })
   }
+  // go-live month salaries (released on the 1st of the following month)
+  if (glm < curYm && `${nextMonth(glm)}-01` <= T) {
+    J('PAYMENT', `${nextMonth(glm)}-01`, `Salaries for ${monthLabelOf(GL)} – HDFC bulk transfer (PF, ESIC, PT & TDS withheld)`, [{ accountId: '5201', dr: 1286379 }, { accountId: '2220', cr: 125750 }, { accountId: '1220', cr: 1160629 }], { source: 'PAYROLL' })
+  }
   // depreciation runs for completed FY months
   for (const [ym, list] of Object.entries(depByMonth).sort()) {
     const amt = round2(list.reduce((a, [, d]) => a + d, 0))
@@ -431,6 +435,15 @@ export const accountsSeed = (core) => {
       return { id: `mb_${bk}_${i}`, date: d, balance: Math.round(bal), note: i === 3 ? 'As per net-banking, morning' : 'Weekly balance confirmation', by: 'u2', at: iso(d, 10) }
     })
   }
+
+  // keep core document series ahead of every number seeded here (core.settings is shared – mutate in place)
+  const series = core.settings.series
+  const maxOf = (docs, re) => docs.reduce((m, d) => { const x = String(d.number || '').match(re); return x ? Math.max(m, Number(x[1])) : m }, 0)
+  series.EXPN = Math.max(series.EXPN || 0, maxOf(expenses, /^EXPN-(\d+)$/))
+  series.VB = Math.max(series.VB || 0, maxOf(bills, /^VB\/\d\d-\d\d\/(\d+)$/))
+  series.JV = Math.max(series.JV || 0, maxOf(journals, /^JV\/\d\d-\d\d\/(\d+)$/))
+  series.CN = Math.max(series.CN || 0, maxOf(notes, /^CN\/\d\d-\d\d\/(\d+)$/))
+  series.DN = Math.max(series.DN || 0, maxOf(notes, /^DN\/\d\d-\d\d\/(\d+)$/))
 
   return {
     chartOfAccounts: chart,

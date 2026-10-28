@@ -18,8 +18,8 @@ export const ROLE_LABEL = {
 export const ROLE_MODULES = {
   ADMIN: '*',
   FINANCE_HEAD: ['home', 'common', 'accounts', 'management', 'inventory', 'masters', 'hr', 'purchase-view', 'me'],
-  PURCHASE: ['home', 'common', 'purchase', 'masters', 'inventory', 'service', 'management-planner', 'me'],
-  SALES_MANAGER: ['home', 'common', 'sales', 'inventory', 'service', 'franchise', 'management', 'ai', 'masters', 'purchase-view', 'me'],
+  PURCHASE: ['home', 'common', 'purchase', 'purchase-view', 'masters', 'inventory', 'service', 'management-planner', 'me'],
+  SALES_MANAGER: ['home', 'common', 'sales', 'inventory', 'service', 'franchise', 'management', 'ai', 'ai-mobile', 'masters', 'purchase-view', 'me'],
   SALES_EXEC: ['home', 'common', 'sales', 'inventory', 'ai-mobile', 'purchase-view', 'me'],
   DISPATCH: ['home', 'common', 'dispatch', 'inventory', 'masters', 'service', 'purchase-view', 'me'],
   ACCOUNTS: ['home', 'common', 'accounts', 'inventory', 'purchase-view', 'masters', 'me'],

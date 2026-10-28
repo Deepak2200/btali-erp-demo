@@ -120,7 +120,7 @@ export default function Cart() {
         <Card><EmptyState icon={ShoppingCart} title="Your cart is empty" message="Browse the catalog or reorder a previous order to get started." action={<div className="flex gap-2 justify-center"><Button onClick={() => nav(`${base}/catalog`)}>Browse catalog</Button><Button variant="secondary" onClick={() => nav(`${base}/orders`)}>Reorder from history</Button></div>} /></Card>
       ) : (
         <div className="grid lg:grid-cols-3 gap-4 items-start">
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-2 space-y-4 min-w-0">
             <Card padded={false}>
               <div className="divide-y divide-slate-100">
                 {priced.lines.map((l, i) => {

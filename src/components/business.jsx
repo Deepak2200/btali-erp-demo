@@ -175,8 +175,8 @@ export function ScanInput({ onScan, placeholder = 'Scan or type barcode and pres
     ref.current?.focus()
   }
   return (
-    <div className={cx('flex gap-2', className)}>
-      <div className="relative flex-1">
+    <div className={cx('flex flex-wrap gap-2', className)}>
+      <div className="relative flex-1 min-w-[200px]">
         <ScanLine className="w-4 h-4 text-brand-500 absolute left-3 top-1/2 -translate-y-1/2" />
         <Input ref={ref} autoFocus={autoFocus} value={v} onChange={(e) => setV(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && submit()} placeholder={placeholder} className="pl-9 font-mono" />
       </div>

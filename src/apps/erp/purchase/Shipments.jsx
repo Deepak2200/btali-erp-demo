@@ -32,7 +32,7 @@ export default function Shipments() {
   const ready = s.purchaseOrders.filter((p) => p.status === 'READY_TO_SHIP')
 
   const columns = [
-    { key: 'number', header: 'Shipment', render: (r) => <div><div className="font-mono font-medium text-brand-700">{r.number}</div><div className="text-[11px] text-slate-500">{r.containerNo} · {r.containerType}</div></div>, value: (r) => `${r.number} ${r.containerNo}` },
+    { key: 'number', header: 'Shipment', render: (r) => <div><div className="font-mono font-medium text-brand-700 whitespace-nowrap">{r.number}</div><div className="text-[11px] text-slate-500">{r.containerNo} · {r.containerType}</div></div>, value: (r) => `${r.number} ${r.containerNo}` },
     { key: 'vendor', header: 'Vendor / POs', value: (r) => vendor(r.vendorId)?.name, render: (r) => <div className="min-w-0"><div className="text-sm truncate max-w-[200px]">{vendor(r.vendorId)?.name}</div><div className="text-[11px] text-slate-500">{r.pos.map((p) => p.number).join(', ')}</div></div> },
     { key: 'etd', header: 'ETD', render: (r) => fmtDate(r.etd) },
     { key: 'eta', header: 'ETA', render: (r) => { const d = daysBetween(today(), r.eta); return <div><div className="whitespace-nowrap">{fmtDate(r.eta)}</div>{r.status !== 'RECEIVED' && <div className={cx('text-[11px]', d < 0 ? 'text-red-600' : d <= 3 ? 'text-amber-600' : 'text-slate-500')}>{d < 0 ? `${-d}d overdue` : d === 0 ? 'today' : `in ${d}d`}</div>}</div> } },

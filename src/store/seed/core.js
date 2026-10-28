@@ -112,7 +112,7 @@ export const seedProducts = () =>
     const isSpare = category === 'Spare Parts'
     const landedFactor = currency === 'INR' ? 1.06 : isSpare ? 1.32 : 1.28
     const landedCost = Math.round(rateINR * landedFactor)
-    const mrp = Math.max(10, Math.round((rateINR * 3) / 10) * 10)
+    const mrp = Math.max(10, Math.round((rateINR * 3.6) / 10) * 10)
     return {
       id: `p${i + 1}`,
       sku,
@@ -332,7 +332,7 @@ export const seedSettings = () => ({
     fy: '2026-27',
   },
   fx: { ...FX },
-  mrpMultiplier: 3,
+  mrpMultiplier: 3.6,
   baseDiscountPct: 50,
   targetMarginPct: 12,
   exportMarginPct: 22,
@@ -503,7 +503,7 @@ export const seedSales = (products, partners, priceLists) => {
         if (used.has(p.id)) continue
         used.add(p.id)
         const season = SEASON[p.category][month]
-        const base = p.type === 'SPARE' ? 40 + rnd() * 160 : 5 + rnd() * (p.popularity * 4.5)
+        const base = p.type === 'SPARE' ? 80 + rnd() * 320 : 10 + rnd() * (p.popularity * 9)
         const qty = Math.max(1, Math.round(base * season))
         const price = dealerUnitPrice(p, pl, dealer)
         lines.push({ productId: p.id, qty, price, discountPct: 0, amount: round2(qty * price) })
