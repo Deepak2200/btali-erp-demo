@@ -1,5 +1,5 @@
 // Module seed for "procurement": freight RFQs (with forwarder quote history), direct export orders, price list versions.
-import { addDays, daysAgo, round2 } from '../../lib/format'
+import { addDays, daysAgo, round2, makeAttachment } from '../../lib/format'
 import { buildExportLegs } from '../slices/procurement'
 
 const iso = (d, h = 10) => `${d}T${String(h).padStart(2, '0')}:20:00.000Z`
@@ -70,7 +70,7 @@ export const procurementSeed = (core) => {
   legs2[0].milestones[0] = { ...legs2[0].milestones[0], done: true, date: addDays(d2, 31) }
   const t2 = tot(l2)
   const adv2 = round2(t2 * 0.3)
-  const e2 = { id: 'exp2', number: 'EXP/26-27/0005', customerId: 'x1', vendorId: 'v1', date: d2, currency: 'USD', fxRate: 83.4, marginPct: 20, lines: l2, total: t2, cost: cost(l2), status: 'IN_PRODUCTION', advancePct: 30, advanceReceived: true, fullPaid: false, payments: [{ id: 'xp1', kind: 'ADVANCE', amountUSD: adv2, fxRate: 83.55, ref: 'SWIFT LKCB2609-4471', date: addDays(d2, 4) }], paidUSD: adv2, poId: null, poNumber: 'PO/26-27/0104', incoterm: 'CIF', port: 'Colombo', notes: 'Repeat order – Lanka Agro', legs: legs2, telexReleased: false, invoiceNo: null, fxGainLoss: round2(adv2 * (83.55 - 83.4)), createdBy: 'u3', quoteSentAt: iso(d2, 15), timeline: [{ ts: iso(d2), text: 'Quotation prepared – vendor cost + 20% margin' }, { ts: iso(d2, 15), text: 'Quotation emailed to dinuka@lankaagro.lk' }, { ts: iso(addDays(d2, 4)), text: `Advance USD ${adv2.toLocaleString('en-US')} received @ ₹83.55 – advance condition met` }, { ts: iso(addDays(d2, 5)), text: 'Vendor PO PO/26-27/0104 released to Ningbo Hailong' }, { ts: iso(addDays(d2, 31)), text: 'CHINA leg – Cargo ready at factory completed' }] }
+  const e2 = { id: 'exp2', number: 'EXP/26-27/0005', customerId: 'x1', vendorId: 'v1', date: d2, currency: 'USD', fxRate: 83.4, marginPct: 20, lines: l2, total: t2, cost: cost(l2), status: 'IN_PRODUCTION', advancePct: 30, advanceReceived: true, fullPaid: false, payments: [{ id: 'xp1', kind: 'ADVANCE', amountUSD: adv2, fxRate: 83.55, ref: 'SWIFT LKCB2609-4471', date: addDays(d2, 4) }], paidUSD: adv2, poId: null, poNumber: 'PO/26-27/0102', incoterm: 'CIF', port: 'Colombo', notes: 'Repeat order – Lanka Agro', legs: legs2, telexReleased: false, invoiceNo: null, fxGainLoss: round2(adv2 * (83.55 - 83.4)), createdBy: 'u3', quoteSentAt: iso(d2, 15), timeline: [{ ts: iso(d2), text: 'Quotation prepared – vendor cost + 20% margin' }, { ts: iso(d2, 15), text: 'Quotation emailed to dinuka@lankaagro.lk' }, { ts: iso(addDays(d2, 4)), text: `Advance USD ${adv2.toLocaleString('en-US')} received @ ₹83.55 – advance condition met` }, { ts: iso(addDays(d2, 5)), text: 'Vendor PO PO/26-27/0102 released to Ningbo Hailong' }, { ts: iso(addDays(d2, 31)), text: 'CHINA leg – Cargo ready at factory completed' }] }
 
   const d3 = daysAgo(110)
   const l3 = mkLines([['p16', 120], ['p17', 60], ['p33', 200]], 22)
@@ -95,6 +95,25 @@ export const procurementSeed = (core) => {
     ver('plv2', 'PLV-002', 190, { pl1: 1, pl2: 1, pl3: 1 }, 'FY 2026-27 opening price list', 'Annual revision', 9, 0.95, ['pl1', 'pl2', 'pl3']),
     ver('plv1', 'PLV-001', 300, { pl1: 0, pl2: 0 }, 'Initial ERP price list migrated from Excel', 'Migration', 12, 0.93),
   ]
+
+  // Back-to-back vendor POs for the released export orders (type EXPORT, linked both ways)
+  const exportPO = (o, id, status) => {
+    if (core.purchaseOrders.some((p) => p.id === id)) return
+    const lines = o.lines.map((l) => ({ productId: l.productId, qty: l.qty, rate: l.vendorCost, mrp: prod(l.productId).mrp }))
+    const v = core.vendors.find((x) => x.id === o.vendorId)
+    const date = addDays(o.date, 2)
+    core.purchaseOrders.push({
+      id, number: o.poNumber, type: 'EXPORT', vendorId: o.vendorId, date, status, currency: 'USD', lines, paymentTerms: v?.paymentTerms,
+      createdBy: 'u3', approvedBy: 'u1', approvedAt: iso(addDays(date, 1)), source: 'EXPORT_ORDER', note: `Back-to-back for ${o.number} – direct shipment to customer`,
+      pi: { number: `${v?.code}-PI-EXP-${o.number.slice(-4)}`, amount: round2(lines.reduce((a, l) => a + l.qty * l.rate, 0)), file: makeAttachment(`PI-${v?.code}-EXP-${o.number.slice(-4)}.pdf`), uploadedAt: iso(addDays(date, 3)), status: 'APPROVED', approvedAt: iso(addDays(date, 4)) },
+      mrpConfirmed: true, labelsSent: true, barcodesGenerated: false, stickerConfirmed: true, deliverySchedule: [], qc: [], improvements: [], docs: [],
+      requiresCustomerPayment: true, linkedSoId: null, customerPaid: true, exportOrderId: o.id,
+      timeline: [{ ts: iso(date), text: `Released after customer advance for ${o.number}` }, { ts: iso(addDays(date, 1)), text: 'Approved; sent to vendor' }],
+    })
+    o.poId = id
+  }
+  exportPO(e2, 'po_exp5', 'IN_PRODUCTION')
+  exportPO(e3, 'po_exp4', 'CLOSED')
 
   return { freightRfqs: [pending, open, ...hist.reverse()], exportOrders: [e1, e2, e3], priceListVersions }
 }

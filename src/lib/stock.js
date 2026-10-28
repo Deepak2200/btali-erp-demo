@@ -27,6 +27,7 @@ export const incoming = (state, productId) => {
   const out = []
   for (const po of state.purchaseOrders) {
     if (['RECEIVED', 'CLOSED', 'REJECTED', 'DRAFT', 'CANCELLED'].includes(po.status)) continue
+    if (po.type === 'EXPORT') continue // shipped by the vendor straight to the overseas customer, never enters Btali stock
     const qty = sum(po.lines.filter((l) => l.productId === productId), (l) => l.qty)
     if (!qty) continue
     const sh = po.shipmentId ? state.shipments.find((s) => s.id === po.shipmentId) : null
